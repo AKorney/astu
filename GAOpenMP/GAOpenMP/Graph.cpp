@@ -6,7 +6,7 @@ void Graph::AddVertex(int number, double weight)
 {
 	if (_verticesList.find(number) != _verticesList.end())
 	{
-		cout << "Sorry, vertex was already added";
+		//cout << "Sorry, vertex was already added";
 		return;
 	}
 	Vertex* vertex = new Vertex(number, weight);
@@ -79,7 +79,7 @@ double Graph::EvaluatePartitioning(int * partitionDescription, int partsCount)
 
 	double fitness = -sqSum - borderWeight;
 	//double fitness = -sumDev - log10(borderWeight);
-	//delete[] partWeights;
+	delete[] partWeights;
 	return fitness;
 }
 int Graph::GetVerticesCount()
@@ -117,7 +117,7 @@ Graph::~Graph()
 		i != _verticesList.end();
 		i++)
 	{
-		//delete i->second;
+		delete i->second;
 	}
 }
 

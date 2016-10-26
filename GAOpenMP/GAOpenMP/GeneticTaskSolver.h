@@ -26,10 +26,10 @@ struct Organizm
 	{
 		for (int i = 0; i < chromoSize; i++)
 		{
-			cout << chromo[i];
-			cout << " ";
+			//cout << chromo[i];
+			//cout << " ";
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	bool operator<(Organizm r)
 	{

@@ -53,9 +53,11 @@ void GeneticTaskSolver::Inject(Organizm * candidate)
 {
 	//if (candidate->fitness > (*_champion)->fitness)
 	//{
-		_population.erase(_outsider);
-		_population.push_back(candidate);
+	auto outs = *_outsider;
+	_population.erase(_outsider);
+	_population.push_back(candidate->Clone());
 	//}
+	delete outs;
 }
 
 void GeneticTaskSolver::CollectStats()
@@ -102,9 +104,9 @@ void GeneticTaskSolver::RunCrossover()
 		childB = _population[parentB]->Clone();
 
 		
-		cout << "Parent A\n";
+		//cout << "Parent A\n";
 		_population[parentA]->Print();
-		cout << "Parent B\n";
+		//cout << "Parent B\n";
 		_population[parentB]->Print();
 
 
@@ -120,9 +122,9 @@ void GeneticTaskSolver::RunCrossover()
 		_population.push_back(childA);
 		_population.push_back(childB);
 
-		cout << "Child A\n";
+		//cout << "Child A\n";
 		childA->Print();
-		cout << "Child B\n";
+		//cout << "Child B\n";
 		childB->Print();
 
 	}
@@ -137,7 +139,7 @@ void GeneticTaskSolver::RunMutation()
 		double f = (double)rand() / RAND_MAX;
 		if (f < _p_m)
 		{
-			cout << "Try to mutate:\n";
+			//cout << "Try to mutate:\n";
 
 			Organizm* clone = (*pop_iter)->Clone();
 			clone->Print();
@@ -164,20 +166,20 @@ void GeneticTaskSolver::RunMutation()
 				: clone;
 			f = (double)rand() / RAND_MAX;
 			
-			cout << "New:\n";
+			//cout << "New:\n";
 			clone->Print();
 
 			if (f < _p_vm)
 			{
-				cout << "Best chosen\n";
+				//cout << "Best chosen\n";
 				*pop_iter = best;
-				//delete worse;
+				delete worse;
 			}
 			else
 			{
-				cout << "Worse chosen\n";
+				//cout << "Worse chosen\n";
 				*pop_iter = worse;
-				//delete best;
+				delete best;
 			}
 		}
 	}
@@ -229,15 +231,15 @@ void GeneticTaskSolver::RunSelection()
 
 		if (f < _p_v)
 		{
-			//Organizm *o = _population[worse];
+			Organizm *o = _population[worse];
 			_population.erase(_population.begin() + worse);
-			//delete o;
+			delete o;
 		}
 		else
 		{
-			//Organizm *o = _population[best];
+			Organizm *o = _population[best];
 			_population.erase(_population.begin() + best);
-			//delete o;
+			delete o;
 		}
 
 	}
