@@ -4,6 +4,9 @@
 #include "stdafx.h"
 #include <algorithm>
 #include <omp.h>
+#include <time.h>
+#include <stdlib.h>
+#include <Windows.h>
 
 #include "Graph.h"
 #include "GeneticTaskSolver.h"
@@ -33,22 +36,24 @@ int main()
 
 	int topCount = 3;
 #pragma endregion
-	srand(NULL);
+	
 	Graph* gr = new Graph();
 	gr->GenerateRandom(graphSize, graphD);
 
-#pragma region Single task solver
+#pragma region Single 
 	
 	GeneticTaskSolver* solver = new GeneticTaskSolver(gr, fullPopulationSize, fullGenCount, subgraphsCount);
 	solver->GeneratePopulation();
 	solver->RunEvolution(fullGenCount, pm, pvm, pv);
+
+	cout << "single thread best = " << solver->GetBest()->fitness << endl;
 #pragma endregion
 
 
-#pragma region Island model
+#pragma region Parallel 
 
 
-
+	srand(time(nullptr));
 	vector<Organizm*> champs;
 
 	vector<GeneticTaskSolver*> solvers;
@@ -64,9 +69,11 @@ int main()
 
 	#pragma omp parallel for
 	for (int i = 0; i < solversCount; i++)
-	{
+	{		
+		srand(int(time(NULL)) ^ omp_get_thread_num());
 		solvers[i]->GeneratePopulation();
 	}
+
 
 	for (int g = 0; g < epochCount; g++)
 	{
@@ -75,6 +82,9 @@ int main()
 		#pragma omp parallel for
 		for (int i = 0; i < solversCount; i++)
 		{
+			srand(int(time(NULL)) ^ omp_get_thread_num());
+			//srand(time(nullptr));
+			//Sleep(i * 300);
 			solvers[i]->RunEvolution(fullGenCount/epochCount, pm, pvm, pv);
 		}
 		//get best
@@ -98,6 +108,7 @@ int main()
 			}
 		}
 	}
+	cout <<"openmp best = " << champs[0]->fitness;
 #pragma endregion
     return 0;
 }
