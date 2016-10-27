@@ -83,8 +83,7 @@ int main()
 		for (int i = 0; i < solversCount; i++)
 		{
 			srand(int(time(NULL)) ^ omp_get_thread_num());
-			//srand(time(nullptr));
-			//Sleep(i * 300);
+
 			solvers[i]->RunEvolution(fullGenCount/epochCount, pm, pvm, pv);
 		}
 		//get best
