@@ -19,11 +19,11 @@ int main()
 
 #pragma region task parameters
 	int solversCount = 5;
-	int graphSize = 50;
+	int graphSize = 150;
 	double graphD = 0.3;
 
 	int fullPopulationSize = 100;
-	int fullCrossoverCount = 30;
+	int fullCrossoverCount = 40;
 	int subgraphsCount = 15;
 
 
