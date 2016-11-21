@@ -33,32 +33,7 @@ namespace TrafficSignRecognition.CV
             return result;
         }
 
-        public static Image<Gray, Byte> FilterRed(Image<Rgb, Byte> source)
-        {
-            // source.SmoothGaussian(5);
-            Stopwatch watch = Stopwatch.StartNew();
-
-            Image<Hsv, Byte > hsvSource = source.Convert<Hsv, Byte>();
-
-            
-            Image<Gray, Byte>[] channels = hsvSource.Split();  //split into components
-            Image<Gray, Byte> imghue = channels[0];            //hsv, so channels[0] is hue.
-            Image<Gray, Byte> imgsat = channels[1];            //hsv, so channels[1] is saturation.
-
-                     
-            Image<Gray, byte> hueFilterHigh = imghue.InRange(new Gray(160), new Gray(180));
-            Image<Gray, byte> hueFilterLow = imghue.InRange(new Gray(0), new Gray(20));
-            Image<Gray, byte> hueFilter = hueFilterHigh.Or(hueFilterLow);
-
-           
-            Image<Gray, byte> colordetimg = imgsat.And(hueFilter);
-            CvInvoke.Normalize(colordetimg, colordetimg, 0, 255, NormType.MinMax);
-            watch.Stop();
-            System.Diagnostics.Debug.WriteLine("Time for red conv {0}", watch.ElapsedMilliseconds);
-            return colordetimg[0];
-            
-        }
-        
+      
         public static UMat DetectEdges(Image<Gray, Byte> img, Image<Rgb, Byte> toMark)
         {
 
@@ -72,28 +47,6 @@ namespace TrafficSignRecognition.CV
             watch.Stop();
             System.Diagnostics.Debug.WriteLine("Init {0}", watch.ElapsedMilliseconds);
             
-            //uimage.Save("noise.jpg");
-
-            //Image<Gray, byte> imgThresh = img.CopyBlank();
-            //CvInvoke.Threshold(uimage, imgThresh, 0, 255, Emgu.CV.CvEnum.ThresholdType.Otsu | Emgu.CV.CvEnum.ThresholdType.ToZero);
-            //CvInvoke.Threshold(imgThresh, uimage, 0, 255, Emgu.CV.CvEnum.ThresholdType.Otsu | Emgu.CV.CvEnum.ThresholdType.ToZero);
-            //CvInvoke.PyrDown(uimage, filterBuffer);
-            //CvInvoke.PyrUp(filterBuffer, uimage);
-            //imgThresh.Save("otsu.jpg");
-            //watch = Stopwatch.StartNew();
-
-            //Emgu.CV.Features2D.MSERDetector det = new Emgu.CV.Features2D.MSERDetector(
-            //    minArea: (int)(0.0005 * toMark.Rows * toMark.Cols)
-            //    , maxArea: (int)(0.003 * toMark.Rows * toMark.Cols)
-            //    , delta:12
-            //    , maxVariation:0.22
-            //    , minDiversity: 0.5);
-            //MKeyPoint[] pts = det.Detect(img);
-
-            //watch.Stop();
-            //System.Diagnostics.Debug.WriteLine("MSER {0}", watch.ElapsedMilliseconds);
-            //foreach (MKeyPoint pt in pts)
-            //    CvInvoke.Circle(toMark, Point.Round(pt.Point), (int)pt.Size, new Bgr(Color.Brown).MCvScalar, 2);
 
             watch = Stopwatch.StartNew();
           
@@ -102,7 +55,6 @@ namespace TrafficSignRecognition.CV
             for(int t = threshmin; t <= threshmax; t+=step)
             {
                 CvInvoke.Threshold(uimage, filterBuffer, t, 255 , Emgu.CV.CvEnum.ThresholdType.Binary);
-                //filterBuffer.Save(String.Format("{0}.jpg", t));
                 CvInvoke.AddWeighted(filterBuffer, alpha, accumulator, 1, 0, accumulator);
             }
             CvInvoke.PyrDown(accumulator, filterBuffer);
