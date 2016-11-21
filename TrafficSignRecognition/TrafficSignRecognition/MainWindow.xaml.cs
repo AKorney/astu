@@ -29,13 +29,19 @@ namespace TrafficSignRecognition
         public MainWindow()
         {
             InitializeComponent();
-            Image<Rgb, Byte> img = new Image<Rgb, byte>(new Bitmap(@"D:\stud_repo\samples\image3.jpg"));
+            Image<Rgb, Byte> img = new Image<Rgb, byte>(new Bitmap(@"D:\stud_repo\samples\yandex\crop\2.png"));
 
-            Image<Gray, Byte> result = EmguHelper.FilterRed(img);
-            result.Bitmap.Save("emgutest.jpg");
+            //Image<Gray, Byte> result = new Image<Gray, byte>(img.Size);// = EmguHelper.FilterRed(img);
+            //result.Bitmap.Save("emgutest.jpg");
+            //CvInvoke.CvtColor(img, result, Emgu.CV.CvEnum.ColorConversion.Rgb2Gray);
 
+            //EmguHelper.DetectEdges(result, img);
+            Image<Gray, Byte> result = EmguHelper.GrayScaleByChannel(img, 2);
+            result.Bitmap.Save("fltr.jpg");
             EmguHelper.DetectEdges(result, img);
-            img.Bitmap.Save("cannytest.jpg");
+            img.Bitmap.Save("test.jpg");
+
+
         }
     }
 }
