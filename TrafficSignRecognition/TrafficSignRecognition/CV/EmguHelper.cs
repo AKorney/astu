@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-
 using Emgu.CV;
 using Emgu.CV.Structure;
-
 using Emgu.CV.Util;
 using Emgu.CV.CvEnum;
 using System.Drawing;
@@ -37,7 +34,7 @@ namespace TrafficSignRecognition.CV
         public static UMat DetectEdges(Image<Gray, Byte> img, Image<Rgb, Byte> toMark)
         {
 
-            double cannyThreshold =200;
+            double cannyThreshold = 180;
             double cannyThresholdLinking = 120;
             Stopwatch watch = Stopwatch.StartNew();
             UMat uimage = img.ToUMat();
@@ -46,8 +43,7 @@ namespace TrafficSignRecognition.CV
 
             watch.Stop();
             System.Diagnostics.Debug.WriteLine("Init {0}", watch.ElapsedMilliseconds);
-            
-
+     
             watch = Stopwatch.StartNew();
           
             int threshmin = 80, threshmax = 180, step = 15;
@@ -67,16 +63,18 @@ namespace TrafficSignRecognition.CV
             watch = Stopwatch.StartNew();
             UMat cannyEdges = new UMat();
             CvInvoke.Canny(accumulator, cannyEdges, cannyThreshold, cannyThresholdLinking);
-                    
-            
+
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(cannyEdges, contours, null, RetrType.List, ChainApproxMethod.ChainApproxSimple);
+                Mat hierarchy = new Mat();
+                CvInvoke.FindContours(cannyEdges, contours, hierarchy , RetrType.External, ChainApproxMethod.ChainApproxSimple);
                 for (int i = 0; i < contours.Size; i++)
                 {
-
                     var rectangle = CvInvoke.BoundingRectangle(contours[i]);
-                    if (rectangle.Size.Width > 25 && rectangle.Size.Height > 25 && rectangle.Size.Height < 50 && rectangle.Size.Width < 50)                        
+                    double ratio = rectangle.Size.Width / rectangle.Size.Height;
+                    if (rectangle.Size.Width > 25 && rectangle.Size.Height > 25 
+                        && rectangle.Size.Height < 100 && rectangle.Size.Width < 100
+                        && ratio > 0.8 && ratio < 1.25)                        
                             CvInvoke.Rectangle(toMark, rectangle, new MCvScalar(255, 255, 0));                    
                 }
             }
