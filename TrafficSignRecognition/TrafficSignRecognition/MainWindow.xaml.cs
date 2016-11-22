@@ -31,9 +31,9 @@ namespace TrafficSignRecognition
             InitializeComponent();
             Image<Rgb, Byte> img = new Image<Rgb, byte>(new Bitmap(@"D:\stud_repo\samples\yandex\crop\7.png"));
 
-            Image<Gray, Byte> result = EmguHelper.GrayScaleByChannel(img, 0);
+            Image<Gray, Byte> result = SignDetectionHelper.GrayScaleByChannel(img, 0);
             result.Bitmap.Save("fltr.jpg");
-            EmguHelper.DetectEdges(result, img);
+            SignDetectionHelper.DetectEdges(result, img);
             img.Bitmap.Save("test.jpg");
 
 

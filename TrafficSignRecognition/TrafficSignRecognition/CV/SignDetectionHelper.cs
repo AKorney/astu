@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace TrafficSignRecognition.CV
 {
-    internal static class EmguHelper
+    internal static class SignDetectionHelper
     {
         public static Image<Gray, Byte> GrayScaleByChannel(Image<Rgb, Byte> source, int channelIndex)
         {
