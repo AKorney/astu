@@ -29,7 +29,7 @@ namespace TrafficSignRecognition
         public MainWindow()
         {
             InitializeComponent();
-            Image<Rgb, Byte> img = new Image<Rgb, byte>(new Bitmap(@"D:\stud_repo\samples\yandex\crop\7.png"));
+            Image<Rgb, Byte> img = new Image<Rgb, byte>(new Bitmap(@"D:\stud_repo\samples\yandex\crop\4.png"));
 
             Image<Gray, Byte> result = SignDetectionHelper.GrayScaleByChannel(img, 0);
             result.Bitmap.Save("fltr.jpg");

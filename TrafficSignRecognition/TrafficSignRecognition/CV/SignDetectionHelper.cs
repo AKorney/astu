@@ -18,6 +18,7 @@ namespace TrafficSignRecognition.CV
         public static Image<Gray, Byte> GrayScaleByChannel(Image<Rgb, Byte> source, int channelIndex)
         {
             Stopwatch watch = Stopwatch.StartNew();
+            
             Image<Gray, Byte>[] channels = source.Split();
             Image<Gray, Byte> accumulator = new Image<Gray, byte>(source.Width, source.Height, new Gray(0));
             Image<Gray, Byte> result = new Image<Gray, byte>(source.Size);
@@ -26,7 +27,7 @@ namespace TrafficSignRecognition.CV
             CvInvoke.AddWeighted(channels[2], 0.333, accumulator, 1, 1, accumulator);
 
             CvInvoke.Divide(channels[channelIndex], accumulator, result, 255/3.0);
-            System.Diagnostics.Debug.WriteLine("Time for red conv {0}", watch.ElapsedMilliseconds);
+            System.Diagnostics.Debug.WriteLine("Time color filtering: {0}ms", watch.ElapsedMilliseconds);
             return result;
         }
 
@@ -36,17 +37,18 @@ namespace TrafficSignRecognition.CV
 
             double cannyThreshold = 180;
             double cannyThresholdLinking = 120;
+            
             Stopwatch watch = Stopwatch.StartNew();
             UMat uimage = img.ToUMat();
             Image<Gray, Byte> filterBuffer = new Image<Gray, byte>(img.Size);
             Image<Gray, Byte> accumulator = new Image<Gray, byte>(img.Width, img.Height, new Gray(0));
 
             watch.Stop();
-            System.Diagnostics.Debug.WriteLine("Init {0}", watch.ElapsedMilliseconds);
+            System.Diagnostics.Debug.WriteLine("Init {0}ms", watch.ElapsedMilliseconds);
      
             watch = Stopwatch.StartNew();
           
-            int threshmin = 80, threshmax = 180, step = 15;
+            int threshmin = 80, threshmax = 180, step = 20;
             double alpha =  (double)step / (threshmax - threshmin);
             for(int t = threshmin; t <= threshmax; t+=step)
             {
@@ -55,10 +57,10 @@ namespace TrafficSignRecognition.CV
             }
             CvInvoke.PyrDown(accumulator, filterBuffer);
             CvInvoke.PyrUp(filterBuffer, accumulator);
-            CvInvoke.Threshold(accumulator, accumulator, 85, 255, ThresholdType.ToZero );
+            CvInvoke.Threshold(accumulator, accumulator, 100, 255, ThresholdType.ToZero );
 
             watch.Stop();
-            System.Diagnostics.Debug.WriteLine("Th {0}", watch.ElapsedMilliseconds);
+            System.Diagnostics.Debug.WriteLine("Thresholding: {0}ms", watch.ElapsedMilliseconds);
             accumulator.Save("accum.jpg");
             watch = Stopwatch.StartNew();
             UMat cannyEdges = new UMat();
@@ -80,7 +82,7 @@ namespace TrafficSignRecognition.CV
             }
             watch.Stop();
             cannyEdges.Save("canny.jpg");
-            System.Diagnostics.Debug.WriteLine("Th {0}", watch.ElapsedMilliseconds);
+            System.Diagnostics.Debug.WriteLine("Canny: {0}ms", watch.ElapsedMilliseconds);
             return img.ToUMat();
             
         }
