@@ -34,6 +34,9 @@ namespace ANNTest
             //var neg = TrainHog.ComputeForClass( @"D:\stud_repo\astu\train\neg\", 5);
             //all.AddRange(neg);
             //(new ANNHelper()).Train(all, new Emgu.CV.Matrix<int>(new int [] { 324, 600, 6}));
+            var helper = new ANNHelper();
+            Emgu.CV.Matrix<float> data_in, response;
+            helper.PrepareData(@"D:\stud_repo\astu\train\red circle", 5, new System.Drawing.Size(40, 40), out data_in, out response);
             var test = new Emgu.CV.Image<Emgu.CV.Structure.Bgr, byte>(@"D:\stud_repo\train\99898.png");
             //var inp = TrainHog.GetVector(test);
             //var response = (new ANNHelper()).Predict(inp);

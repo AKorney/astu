@@ -8,32 +8,62 @@ using System.Threading.Tasks;
 using Emgu.CV;
 using Emgu.CV.ML;
 using Emgu.CV.Structure;
+using System.IO;
+using System.Drawing;
 
 namespace ANNTest
 {
     internal class ANNHelper
     {
-        public void Train(List<TrainSample> data, Matrix<int> layerSizes)
+        public void PrepareData(string rootPath, int classesCount, Size sampleSize, out Matrix<float> data_in, out Matrix<float> response)
         {
-            Matrix<float> data_in;
-            Matrix<float> response;
+            Mat img = new Mat();
+            Image<Gray, float> inputMat = new Image<Gray, float>(sampleSize.Width, sampleSize.Height);
 
-            int sampleSize = layerSizes[0, 0];
-            int classesCount = 6;
+            int fullSampleSize = sampleSize.Width * sampleSize.Height;
 
-            data_in = new Matrix<float>(data.Count, sampleSize);
-            response = new Matrix<float>(data.Count, classesCount);
-
-            for (int i = 0; i < data.Count; i++)
+            //prepare full samples list
+            int samplesCount = 0;
+            string[][] fileNames = new string[classesCount][];
+            for (int i = 0; i < classesCount; i++)
             {
-                var sample = data[i];
-                for (int j = 0; j < sampleSize; j++)
-                {
-                    data_in.Data[i, j] = data[i].HoG[j];
-                }
-                response[i, data[i].ClassId] = 1.0f;
-                //data_in.Data[i,j]=
+                string[] files = Directory.GetFiles(string.Format("{0}//{1}", rootPath, i));
+                fileNames[i] = files;
+                samplesCount += files.Length;
             }
+
+            data_in = new Matrix<float>(samplesCount, fullSampleSize);
+            response = new Matrix<float>(samplesCount, classesCount);
+            int currentIndex = 0;
+            for (int i = 0; i < classesCount; i++)
+            {
+                for (int j = 0; j < fileNames[i].Length; j++)
+                {
+                    img = CvInvoke.Imread(fileNames[i][j], Emgu.CV.CvEnum.LoadImageType.Grayscale);
+                    //CvInvoke.cvConvertScale(img, inputMat, 1.0 / 255, 0);
+                    WriteSample(data_in, currentIndex, img);
+                    response[currentIndex, i] = 1.0f;
+                    currentIndex++;
+                }
+            }
+        }
+
+        private void WriteSample(Matrix<float> data_in, int v, Mat inputMat)
+        {
+            int lineIndex = 0;
+            for (int i = 0; i < inputMat.Rows; i++)
+            {
+                for (int j = 0; j < inputMat.Cols; j++)
+                {
+                    byte[] value = inputMat.GetData(i, j);
+                    float normalized = Convert.ToSingle(value[0]) / 255.0f;
+                    data_in[v, lineIndex++] = normalized;
+                }
+            }
+        }
+
+        public void Train(Matrix<float> data_in, Matrix<int> layerSizes, Matrix<float> response)
+        {
             //Matrix< float > response
             using (ANN_MLP network = new ANN_MLP())
             {
