@@ -81,6 +81,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ANNHelper.cs" />
+    <Compile Include="SignDetectionHelper.cs" />
     <Compile Include="TrainHog.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

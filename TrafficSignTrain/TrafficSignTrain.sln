@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrafficSignTrain", "TrafficSignTrain\TrafficSignTrain.csproj", "{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imaging", "Imaging\Imaging.csproj", "{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Debug|x64.ActiveCfg = Debug|x64
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Debug|x64.Build.0 = Debug|x64
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Release|x64.ActiveCfg = Release|Any CPU
+		{BA3B1CC0-E9CB-44D8-BAF0-42687927EE90}.Release|x64.Build.0 = Release|Any CPU
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Debug|x64.ActiveCfg = Debug|x64
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Debug|x64.Build.0 = Debug|x64
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Release|x64.ActiveCfg = Release|x64
+		{BF2C175C-81C4-4F25-9962-CAACD30ACF0D}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
