@@ -57,7 +57,7 @@ namespace TrafficSign.Detection.Common
                 {
                     var rectangle = CvInvoke.BoundingRectangle(contours[i]);
                     double ratio = (1.0*rectangle.Size.Width) / rectangle.Size.Height;
-                    int min = accumulator.Rows / 15, max = accumulator.Rows / 3;
+                    int min = accumulator.Rows / 10, max = accumulator.Rows / 3;
                     if (rectangle.Size.Width > min && rectangle.Size.Height > min
                         && rectangle.Size.Height < max && rectangle.Size.Width < max
                         && ratio > 0.75 && ratio < 1.25)
