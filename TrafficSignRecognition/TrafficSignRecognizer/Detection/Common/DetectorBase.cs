@@ -27,8 +27,11 @@ namespace TrafficSign.Detection.Common
             CvInvoke.AddWeighted(channels[2], 0.333, accumulator, 1, 1, accumulator);
 
             CvInvoke.Divide(channels[channelIndex], accumulator, result, 255 / 3.0);
+
+            //result.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "filter"));
             //System.Diagnostics.Debug.WriteLine("Time color filtering: {0}ms", watch.ElapsedMilliseconds);
             return result;
+
         }
 
        public void Highlight(List<Rectangle> ROIs, Image<Rgb, byte> target)

@@ -22,6 +22,7 @@ namespace TrafficSign.Detection.Red
             var binarized = new Image<Gray, byte>(img.Size);
             CvInvoke.Threshold(accumulator, binarized, 0, 255, ThresholdType.Binary | ThresholdType.Otsu);
             //binarized.Save("bin.jpg");
+            //binarized.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "bin"));
             Image<Gray, Byte> filled = new Image<Gray, byte>(binarized.Size);
             var cpmsk = new Image<Gray, Byte>(binarized.Cols, binarized.Rows, new Gray(255));
             CvInvoke.cvCopy(binarized, filled, cpmsk);
@@ -36,7 +37,8 @@ namespace TrafficSign.Detection.Red
             var masked = filled.Xor(binarized);
             //masked.Save("masked.jpg");
             //filled.Save("filled.jpg");
-
+           // masked.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "mas"));
+           // filled.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "fil"));
             Image<Gray, Byte> gsImg = new Image<Gray, byte>(img.Size);
             var resultRaw = img.And(masked);
             resultRaw.ROI = rect;
@@ -44,6 +46,7 @@ namespace TrafficSign.Detection.Red
             CvInvoke.cvCopy(resultRaw, result, IntPtr.Zero);
             result = result.Resize(desiredSize.Width, desiredSize.Height, Inter.Linear);
             //result.Save("found.jpg");
+           // result.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "res"));
             return result;
         }
 
@@ -63,7 +66,7 @@ namespace TrafficSign.Detection.Red
             CvInvoke.PyrDown(accumulator, filterBuffer);
             CvInvoke.PyrUp(filterBuffer, accumulator);
             CvInvoke.Threshold(accumulator, accumulator, 100, 255, ThresholdType.ToZero);
-
+            //accumulator.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "accum"));
 
         }
     }

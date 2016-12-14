@@ -32,15 +32,16 @@ namespace TrafficSign.Detection.Blue
             CvInvoke.PyrDown(accumulator, filterBuffer);
             CvInvoke.PyrUp(filterBuffer, accumulator);
             CvInvoke.Threshold(accumulator, accumulator, 100, 255, ThresholdType.ToZero);
-
+            //accumulator.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "accum"));
 
         }
         public override Image<Gray, byte> FindObjectOfInterest(Image<Gray, byte> img, Image<Gray, byte> accumulator, Size desiredSize)
         {
             var binarized = new Image<Gray, byte>(img.Size);
             CvInvoke.Threshold(accumulator, binarized, 0, 255, ThresholdType.BinaryInv | ThresholdType.Otsu);
-                //accumulator.ThresholdBinaryInv(new Gray(100), new Gray(255));
+            //accumulator.ThresholdBinaryInv(new Gray(100), new Gray(255));
             //binarized.Save("bin.jpg");
+            //binarized.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "bin"));
             Image<Gray, Byte> filled = new Image<Gray, byte>(binarized.Size);
             var cpmsk = new Image<Gray, Byte>(binarized.Cols, binarized.Rows, new Gray(255));
             CvInvoke.cvCopy(binarized, filled, cpmsk);
@@ -67,6 +68,7 @@ namespace TrafficSign.Detection.Blue
             CvInvoke.cvCopy(img, result, IntPtr.Zero);
             result = result.Resize(desiredSize.Width, desiredSize.Height, Inter.Linear);
             //result.Save("found.jpg");
+            //result.Save(string.Format("{0}{1}.jpg", this.GetType().Name, "res"));
             return result;
         }
     }

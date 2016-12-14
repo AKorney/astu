@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="a7339011-13d5-46a5-876c-f2946074ab7d" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:9999/ExpenseTrackerService" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ExpenseTrackerService.disco" MetadataType="Disco" ID="5813795c-ffdf-4b6c-aee1-70433e5ff79b" SourceId="1" SourceUrl="http://localhost:9999/ExpenseTrackerService?disco" />
+    <MetadataFile FileName="ExpenseTrackerService.xsd" MetadataType="Schema" ID="d761d973-39ad-4f65-8dfc-7489f39ed656" SourceId="1" SourceUrl="http://localhost:9999/ExpenseTrackerService?xsd=xsd1" />
+    <MetadataFile FileName="ExpenseTrackerService.wsdl" MetadataType="Wsdl" ID="bee8d240-9429-4d24-a532-9e0600896a93" SourceId="1" SourceUrl="http://localhost:9999/ExpenseTrackerService?wsdl" />
+    <MetadataFile FileName="ExpenseTrackerService1.xsd" MetadataType="Schema" ID="42657879-6a0b-4894-b8e0-e170211a890d" SourceId="1" SourceUrl="http://localhost:9999/ExpenseTrackerService?xsd=xsd0" />
+    <MetadataFile FileName="ExpenseTrackerService2.xsd" MetadataType="Schema" ID="d3d774e8-7926-4524-8121-a633ff5e9e20" SourceId="1" SourceUrl="http://localhost:9999/ExpenseTrackerService?xsd=xsd2" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

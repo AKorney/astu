@@ -1,0 +1,12 @@
+{
+  "supports": {},
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "Xamarin.Forms": "2.3.3.166-pre4"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "portable-MonoAndroid10+MonoTouch10"
+    }
+  }
+}
