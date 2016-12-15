@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace ExpenseTracker.Model
 {
@@ -19,6 +20,7 @@ namespace ExpenseTracker.Model
         [Required]
         [MaxLength(300)]
         [Column("name")]
+        [DisplayName("Account name")]
         [DataMember]
         public string Name { get; set; }
     }

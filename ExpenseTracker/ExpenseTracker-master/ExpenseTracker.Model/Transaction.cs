@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -33,9 +34,11 @@ namespace ExpenseTracker.Model
         [DataMember]
         public string Notes { get; set; }
         [ForeignKey("FKAccount")]
+        [DisplayName("Account")]
         [DataMember]
         public  Account Account { get; set; }
         [ForeignKey("FkCategory")]
+        [DisplayName("Category")]
         [DataMember]
         public  Category Category { get; set; }
     }

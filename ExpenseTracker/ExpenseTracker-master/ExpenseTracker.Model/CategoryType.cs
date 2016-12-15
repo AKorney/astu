@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 
@@ -13,6 +14,7 @@ namespace ExpenseTracker.Model
         [DataMember]
         public int IdType { get; set; }
         [Column("name")]
+        [DisplayName("Type name")]
         [DataMember]
         public string Name { get; set; }
     }

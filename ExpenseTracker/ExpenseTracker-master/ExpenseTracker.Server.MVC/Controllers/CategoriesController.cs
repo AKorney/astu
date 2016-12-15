@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using ExpenseTracker.BusinessLogic;
 using ExpenseTracker.Model;
 
 namespace ExpenseTracker.Server.MVC.Controllers

@@ -204,7 +204,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\TransactionsController.cs" />
-    <Compile Include="ExpenseAccountsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -334,10 +333,6 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseTracker.BusinessLogic\ExpenseTracker.BusinessLogic.csproj">
-      <Project>{8b47a618-d905-4a3b-8ca9-c1d7dc47cdc4}</Project>
-      <Name>ExpenseTracker.BusinessLogic</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ExpenseTracker.Model\ExpenseTracker.Model.csproj">
       <Project>{9ce11d4a-ca6d-4a75-b674-fca2a5fc828b}</Project>
       <Name>ExpenseTracker.Model</Name>
