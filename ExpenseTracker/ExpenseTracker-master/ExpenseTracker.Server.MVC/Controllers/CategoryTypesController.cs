@@ -124,7 +124,7 @@ namespace ExpenseTracker.Server.MVC.Controllers
             if (disposing)
             {
                 //db.Dispose();
-                
+                _serviceClient.Close();
             }
             base.Dispose(disposing);
         }
