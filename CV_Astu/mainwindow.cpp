@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 
 #include "cvimage.h"
+#include "cvimageloader.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,17 +20,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_openButton_clicked()
 {
-    QImage image = QImage();
-    image.load("C:\\Users\\Alena\\Desktop\\Capture.PNG");
-    image = image.convertToFormat(QImage::Format_RGB888);
-    auto source = make_unique<CVImage>(image.width(), image.height(),
-                                       image.bits());
-
+    
+    const auto image = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\1.jpg");
+	const auto qImage = CVImageLoader::CreateQImage(image.get());
+	auto pixmap = QPixmap();
+	pixmap.convertFromImage(qImage);	
+	QGraphicsScene *scene = new QGraphicsScene(this);
+	scene->addPixmap(pixmap);
+	ui->graphicsView->setScene(scene);	
+	
+	ui->graphicsView->show();
+	
 }
 
-void MainWindow::on_saveButton_clicked()
-{
 
-}
 
 

@@ -36,12 +36,12 @@
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Generated Files\Debug">
-      <UniqueIdentifier>{1901eafb-68eb-4d88-a2e0-91a98ad3ff9e}</UniqueIdentifier>
+      <UniqueIdentifier>{8eb13148-11b1-410a-be09-599971adeb93}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Generated Files\Release">
-      <UniqueIdentifier>{8d89ff47-8ee9-431c-8858-d0b37398f937}</UniqueIdentifier>
+      <UniqueIdentifier>{af4125ea-f31c-4ca5-bf0d-b22a011bc0a0}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
@@ -62,6 +62,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_mainwindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="cvimageloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cvimage.h">
@@ -72,6 +75,9 @@
     </CustomBuild>
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cvimageloader.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

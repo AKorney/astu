@@ -29,7 +29,6 @@ class Ui_MainWindow
 public:
     QWidget *centralWidget;
     QPushButton *openButton;
-    QPushButton *saveButton;
     QGraphicsView *graphicsView;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -45,12 +44,9 @@ public:
         openButton = new QPushButton(centralWidget);
         openButton->setObjectName(QStringLiteral("openButton"));
         openButton->setGeometry(QRect(670, 10, 101, 23));
-        saveButton = new QPushButton(centralWidget);
-        saveButton->setObjectName(QStringLiteral("saveButton"));
-        saveButton->setGeometry(QRect(670, 40, 101, 23));
         graphicsView = new QGraphicsView(centralWidget);
         graphicsView->setObjectName(QStringLiteral("graphicsView"));
-        graphicsView->setGeometry(QRect(10, 10, 651, 391));
+        graphicsView->setGeometry(QRect(10, 10, 601, 391));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -72,7 +68,6 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         openButton->setText(QApplication::translate("MainWindow", "Open Image", Q_NULLPTR));
-        saveButton->setText(QApplication::translate("MainWindow", "Save Image As...", Q_NULLPTR));
     } // retranslateUi
 
 };
