@@ -63,5 +63,5 @@ CVImage& CVImage::operator=(CVImage&& other)
 
 unsigned char CVImage::get(int x, int y)
 {
-
+    return _data[y * _width + x];
 }

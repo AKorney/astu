@@ -26,10 +26,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     cvimage.cpp \
-    cvimageloader.cpp
+    cvimageloader.cpp \
+    doublemat.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
-    cvimageloader.h
+    cvimageloader.h \
+    doublemat.h
 
 FORMS    += mainwindow.ui

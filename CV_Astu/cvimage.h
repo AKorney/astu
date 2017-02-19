@@ -14,23 +14,23 @@ using namespace std;
 
 #define min(a,b) (a < b ? a : b)
 
-struct DoubleMatrix
-{
 
-};
 
 
 class CVImage
 {
-protected:
+private:
     int _width, _height;
     unique_ptr<unsigned char[]> _data;
-public:
+
     CVImage();
-	CVImage(const CVImage& source);
     CVImage(const int width, const int height);	
-	CVImage(const unsigned char * rgb24Data, const int width, const int height);
+public:
+
+    CVImage(const unsigned char * rgb24Data, const int width, const int height);
+    CVImage(const CVImage& source);
     CVImage(CVImage&& other);
+	
     CVImage& operator=(CVImage&& other);
 
 	unsigned char * GetImageData();
