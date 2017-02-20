@@ -28,6 +28,8 @@ private:
 
     CVImage();
     CVImage(const int width, const int height);	
+
+	void Convolve(const unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border);
 public:
 
     CVImage(const unsigned char * rgb24Data, const int width, const int height);
@@ -44,6 +46,10 @@ public:
 	unique_ptr<DoubleMat> PrepareDoubleMat();
 
 	unique_ptr<CVImage> Convolve(const unique_ptr<DoubleMat>& kernel, BorderType border);
+
+	unique_ptr<CVImage> SobelX(BorderType border);
+	unique_ptr<CVImage> SobelY(BorderType border);
+	unique_ptr<CVImage> Sobel(BorderType border);
 
     //unsigned char get(int x, int y);
 	unsigned char get(int x, int y, BorderType borderType = BorderType::Constant);
