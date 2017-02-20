@@ -17,7 +17,7 @@ using namespace std;
 
 #define min(a,b) (a < b ? a : b)
 
-
+enum class BorderType { Constant, Replicate, Reflect, Wrap};
 
 
 class CVImage
@@ -33,7 +33,7 @@ public:
     CVImage(const unsigned char * rgb24Data, const int width, const int height);
     CVImage(const CVImage& source);
     CVImage(CVImage&& other);
-	CVImage(const unique_ptr<DoubleMat>& doubleData, const int width, const int height);
+	CVImage(const unique_ptr<DoubleMat>& doubleData);
     CVImage& operator=(CVImage&& other);
 
 	unsigned char * GetImageData();
@@ -41,8 +41,9 @@ public:
     int getHeight() { return _height; }
     int getWidth() { return _width; }
 
-    unsigned char get(int x, int y);
-
+	unique_ptr<DoubleMat> PrepareDoubleMat();
+    //unsigned char get(int x, int y);
+	unsigned char get(int x, int y, BorderType borderType = BorderType::Constant);
 };
 
 #endif // IMAGE_H

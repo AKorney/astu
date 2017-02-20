@@ -49,8 +49,8 @@ CVImage::CVImage(CVImage&& other)
     _data = move(other._data);
 }
 
-CVImage::CVImage(const unique_ptr<DoubleMat>& doubleData, const int width, const int height)
-	:CVImage(width, height)
+CVImage::CVImage(const unique_ptr<DoubleMat>& doubleData)
+	:CVImage(doubleData.get()->getWidth(), doubleData.get()->getHeight())
 {
 	auto normalized = doubleData.get()->GetNormalizedData(0, 255);
 	std::transform(normalized.get(), normalized.get() + _width * _height, _data.get(),
@@ -69,7 +69,32 @@ CVImage& CVImage::operator=(CVImage&& other)
     return *this;
 }
 
-unsigned char CVImage::get(int x, int y)
+//unsigned char CVImage::get(int x, int y)
+//{
+//    return _data[y * _width + x];
+//}
+
+unique_ptr<DoubleMat> CVImage::PrepareDoubleMat()
 {
-    return _data[y * _width + x];
+	return make_unique<DoubleMat>(_data, _width, _height);
+}
+
+unsigned char CVImage::get(int x, int y, BorderType borderType)
+{
+	unsigned char value = _data[y * _width + x];
+	switch (borderType)
+	{
+	case BorderType::Constant:
+		if (x < 0 || y < 0 || x >= _width || y >= _height)
+		{
+			return 0;
+		}
+		else
+		{
+			return value;
+		}
+		
+	default:
+		break;
+	}
 }

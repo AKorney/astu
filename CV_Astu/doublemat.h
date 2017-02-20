@@ -23,11 +23,14 @@ private:
     DoubleMat();
 public:
 
-    DoubleMat(int width, int height);
+    DoubleMat(const int width,const int height);
     DoubleMat(const DoubleMat& source);
+	DoubleMat(const unique_ptr<unsigned char[]>& byteSource, const int width, const int height);
+	int getHeight() { return _height; }
+	int getWidth() { return _width; }
 
-    double get(int x, int y);
-    void set(double value, int x, int y);
+    double get(const int x, const int y) const;
+    void set(const double value, const int x, const int y);
 
 	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax);
 };

@@ -5,6 +5,7 @@
 
 #include "cvimage.h"
 #include "cvimageloader.h"
+#include "doublemat.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,7 +23,9 @@ void MainWindow::on_openButton_clicked()
 {
     
     const auto image = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\1.jpg");
-	const auto qImage = CVImageLoader::CreateQImage(image.get());
+	auto mat = image.get()->PrepareDoubleMat();
+	auto image2 = make_unique<CVImage>(mat);
+	const auto qImage = CVImageLoader::CreateQImage(image2.get());
 	auto pixmap = QPixmap();
 	pixmap.convertFromImage(qImage);	
 	QGraphicsScene *scene = new QGraphicsScene(this);
