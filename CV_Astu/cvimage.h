@@ -5,10 +5,13 @@
  */
 #define CVIMAGE_H
 
-
 #include <stdlib.h>
 #include <math.h>
 #include <memory>
+#include <algorithm>
+
+#include "doublemat.h"
+
 
 using namespace std;
 
@@ -30,7 +33,7 @@ public:
     CVImage(const unsigned char * rgb24Data, const int width, const int height);
     CVImage(const CVImage& source);
     CVImage(CVImage&& other);
-	
+	CVImage(const unique_ptr<DoubleMat>& doubleData, const int width, const int height);
     CVImage& operator=(CVImage&& other);
 
 	unsigned char * GetImageData();

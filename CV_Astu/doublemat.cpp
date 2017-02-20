@@ -20,15 +20,6 @@ DoubleMat::DoubleMat(const DoubleMat &source)
         ,_data.get());
 }
 
-DoubleMat(unsigned char *byteData, int width, int height)
-    : DoubleMat(width, height)
-{
-    int elementsCount = width * height;
-    for(int i = 0; i < elementsCount; i++)
-    {
-        _data[i] = byteData[i]/255.0;
-    }
-}
 
 double DoubleMat::get(int x, int y)
 {
@@ -39,3 +30,22 @@ void DoubleMat::set(double value, int x, int y)
 {
     _data[y * _width + x];
 }
+
+unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const double newMax)
+{
+	auto result = make_unique<DoubleMat>(this);
+	auto minmax = std::minmax_element(_data.get(), _data.get() + _width*_height);
+	double min = minmax.first[0];
+	double max = minmax.second[0];
+
+	std::transform(result.get()->_data.get(), result.get()->_data.get() + _width * _height, result.get()->_data.get(),
+		[min, max, newMin, newMax](double value) -> double
+				{
+					return (newMax - newMin)*(value - min) / (max - min) + newMin;
+				});
+	return std::move(result.get()->_data);
+}
+
+
+
+

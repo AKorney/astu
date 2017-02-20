@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <memory>
+#include <algorithm>
 
 using namespace std;
 
@@ -23,11 +24,12 @@ private:
 public:
 
     DoubleMat(int width, int height);
-    DoubleMat(unsigned char * byteData, int width, int height);
     DoubleMat(const DoubleMat& source);
 
     double get(int x, int y);
     void set(double value, int x, int y);
+
+	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax);
 };
 
 #endif // DOUBLEMAT_H

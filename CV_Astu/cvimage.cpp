@@ -49,6 +49,14 @@ CVImage::CVImage(CVImage&& other)
     _data = move(other._data);
 }
 
+CVImage::CVImage(const unique_ptr<DoubleMat>& doubleData, const int width, const int height)
+	:CVImage(width, height)
+{
+	auto normalized = doubleData.get()->GetNormalizedData(0, 255);
+	std::transform(normalized.get(), normalized.get() + _width * _height, _data.get(),
+		[](double sourceValue)-> unsigned char {return (unsigned char)sourceValue; });
+}
+
 
 CVImage& CVImage::operator=(CVImage&& other)
 {

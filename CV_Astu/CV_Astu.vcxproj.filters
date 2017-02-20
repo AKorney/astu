@@ -65,6 +65,9 @@
     <ClCompile Include="cvimageloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="doublemat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cvimage.h">
@@ -77,6 +80,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="cvimageloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="doublemat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
