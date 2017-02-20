@@ -22,9 +22,12 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     
-    const auto image = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\1.jpg");
-	auto mat = image.get()->PrepareDoubleMat();
-	auto image2 = make_unique<CVImage>(mat);
+    const auto image = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\Photo0415.jpg");
+	auto mat = make_unique<DoubleMat>(3,3);
+	mat.get()->set(1.0 / 9, 0, 0); mat.get()->set(1.0 / 9, 0, 1); mat.get()->set(1.0 / 9, 0, 2);
+	mat.get()->set(1.0 / 9, 1, 0); mat.get()->set(1.0 / 9, 1, 1); mat.get()->set(1.0 / 9, 1, 2);
+	mat.get()->set(1.0 / 9, 2, 0); mat.get()->set(1.0 / 9, 2, 1); mat.get()->set(1.0/9, 2, 2);
+	auto image2 = image.get()->Convolve(mat, BorderType::Constant);
 	const auto qImage = CVImageLoader::CreateQImage(image2.get());
 	auto pixmap = QPixmap();
 	pixmap.convertFromImage(qImage);	

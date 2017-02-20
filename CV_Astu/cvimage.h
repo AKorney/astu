@@ -42,6 +42,9 @@ public:
     int getWidth() { return _width; }
 
 	unique_ptr<DoubleMat> PrepareDoubleMat();
+
+	unique_ptr<CVImage> Convolve(const unique_ptr<DoubleMat>& kernel, BorderType border);
+
     //unsigned char get(int x, int y);
 	unsigned char get(int x, int y, BorderType borderType = BorderType::Constant);
 };

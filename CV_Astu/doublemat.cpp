@@ -35,7 +35,7 @@ double DoubleMat::get(const int x, const int y) const
 
 void DoubleMat::set(const double value,const int x, const int y)
 {
-    _data[y * _width + x];
+    _data[y * _width + x] = value;
 }
 
 unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const double newMax)

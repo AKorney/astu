@@ -79,9 +79,32 @@ unique_ptr<DoubleMat> CVImage::PrepareDoubleMat()
 	return make_unique<DoubleMat>(_data, _width, _height);
 }
 
+unique_ptr<CVImage> CVImage::Convolve(const unique_ptr<DoubleMat>& kernel, BorderType border)
+{
+	const auto doubleMat = make_unique<DoubleMat>(_width, _height);
+	for (int x = 0; x < _width; x++)
+	{
+		for (int y = 0; y < _height; y++)
+		{
+			double result = 0;
+			int kernelWidth = kernel.get()->getWidth();
+			int kernelHeight = kernel.get()->getHeight();
+			for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
+			{
+				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
+				{
+					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
+						* kernel.get()->get(kernelX, kernelY);
+				}
+			}
+			doubleMat.get()->set(result, x, y);
+		}
+	}
+	return make_unique<CVImage>(doubleMat);
+}
+
 unsigned char CVImage::get(int x, int y, BorderType borderType)
 {
-	unsigned char value = _data[y * _width + x];
 	switch (borderType)
 	{
 	case BorderType::Constant:
@@ -91,7 +114,7 @@ unsigned char CVImage::get(int x, int y, BorderType borderType)
 		}
 		else
 		{
-			return value;
+			return _data[y * _width + x];
 		}
 		
 	default:
