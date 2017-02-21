@@ -9,24 +9,24 @@ CVImage::CVImage(const int width, const int height) : _width(width), _height(hei
     _data = make_unique<unsigned char[]>((size_t)_width * _height);
 }
 
-void CVImage::Convolve(const unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border)
+void CVImage::Convolve(unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border)
 {
 	for (int x = 0; x < _width; x++)
 	{
 		for (int y = 0; y < _height; y++)
 		{
 			double result = 0;
-			int kernelWidth = kernel.get()->getWidth();
-			int kernelHeight = kernel.get()->getHeight();
+			int kernelWidth = kernel->getWidth();
+			int kernelHeight = kernel->getHeight();
 			for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
 			{
 				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
 				{
 					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
-						* kernel.get()->get(kernelX, kernelY);
+						* kernel->get(kernelX, kernelY);
 				}
 			}
-			calculationBuffer.get()->set(result, x, y);
+			calculationBuffer->set(result, x, y);
 		}
 	}
 }
@@ -72,9 +72,9 @@ CVImage::CVImage(CVImage&& other)
 }
 
 CVImage::CVImage(const unique_ptr<DoubleMat>& doubleData)
-	:CVImage(doubleData.get()->getWidth(), doubleData.get()->getHeight())
+	:CVImage(doubleData->getWidth(), doubleData->getHeight())
 {
-	auto normalized = doubleData.get()->GetNormalizedData(0, 255);
+	auto normalized = doubleData->GetNormalizedData(0, 255);
 	std::transform(normalized.get(), normalized.get() + _width * _height, _data.get(),
 		[](double sourceValue)-> unsigned char {return (unsigned char)sourceValue; });
 }
@@ -103,43 +103,31 @@ unique_ptr<DoubleMat> CVImage::PrepareDoubleMat()
 
 unique_ptr<CVImage> CVImage::Convolve(const unique_ptr<DoubleMat>& kernel, BorderType border)
 {
-	const auto doubleMat = make_unique<DoubleMat>(_width, _height);
+	auto doubleMat = make_unique<DoubleMat>(_width, _height);
 	Convolve(doubleMat, kernel, border);
-	return make_unique<CVImage>(doubleMat);
+	return make_unique<CVImage>(move(doubleMat));
 }
 
 unique_ptr<CVImage> CVImage::SobelX(BorderType border)
 {
-	const auto kernel = make_unique<DoubleMat>(3, 3);
-	kernel.get()->set(-1, 0, 0); kernel.get()->set(0, 0, 1); kernel.get()->set(1, 0, 2);
-	kernel.get()->set(-2, 1, 0); kernel.get()->set(0, 1, 1); kernel.get()->set(2, 1, 2);
-	kernel.get()->set(-1, 2, 0); kernel.get()->set(0, 2, 1); kernel.get()->set(1, 2, 2);
+	const auto kernel = KernelBuilder::BuildSobelX();
 	return Convolve(kernel, border);
 }
 
 unique_ptr<CVImage> CVImage::SobelY(BorderType border)
 {
-	const auto kernel = make_unique<DoubleMat>(3, 3);
-	kernel.get()->set(-1, 0, 0); kernel.get()->set(-2, 0, 1); kernel.get()->set(-1, 0, 2);
-	kernel.get()->set(0, 1, 0); kernel.get()->set(0, 1, 1); kernel.get()->set(0, 1, 2);
-	kernel.get()->set(1, 2, 0); kernel.get()->set(2, 2, 1); kernel.get()->set(1, 2, 2);
+	const auto kernel = KernelBuilder::BuildSobelY();
 	return Convolve(kernel, border);
 }
 
 unique_ptr<CVImage> CVImage::Sobel(BorderType border)
 {
-	const auto kernelY = make_unique<DoubleMat>(3, 3);
-	kernelY.get()->set(-1, 0, 0); kernelY.get()->set(-2, 0, 1); kernelY.get()->set(-1, 0, 2);
-	kernelY.get()->set(0, 1, 0); kernelY.get()->set(0, 1, 1); kernelY.get()->set(0, 1, 2);
-	kernelY.get()->set(1, 2, 0); kernelY.get()->set(2, 2, 1); kernelY.get()->set(1, 2, 2);
-	const auto doubleMatY = make_unique<DoubleMat>(_width, _height);
+	const auto kernelY = KernelBuilder::BuildSobelX();
+	auto doubleMatY = make_unique<DoubleMat>(_width, _height);
 	Convolve(doubleMatY, kernelY, border);
 
-	const auto kernelX = make_unique<DoubleMat>(3, 3);
-	kernelX.get()->set(-1, 0, 0); kernelX.get()->set(0, 0, 1); kernelX.get()->set(1, 0, 2);
-	kernelX.get()->set(-2, 1, 0); kernelX.get()->set(0, 1, 1); kernelX.get()->set(2, 1, 2);
-	kernelX.get()->set(-1, 2, 0); kernelX.get()->set(0, 2, 1); kernelX.get()->set(1, 2, 2);
-	const auto doubleMatX = make_unique<DoubleMat>(_width, _height);
+	const auto kernelX = KernelBuilder::BuildSobelY();
+	auto doubleMatX = make_unique<DoubleMat>(_width, _height);
 	Convolve(doubleMatX, kernelX, border);
 	
 	const auto doubleMat = make_unique<DoubleMat>(_width, _height);
@@ -147,11 +135,18 @@ unique_ptr<CVImage> CVImage::Sobel(BorderType border)
 	{
 		for (int j = 0; j < _height; j++)
 		{
-			double value = doubleMatX.get()->get(i, j) * doubleMatX.get()->get(i, j) + doubleMatY.get()->get(i, j) * doubleMatY.get()->get(i, j);
-			doubleMat.get()->set(sqrt(value), i, j);
+			double value = doubleMatX->get(i, j) * doubleMatX->get(i, j) + doubleMatY->get(i, j) * doubleMatY->get(i, j);
+			doubleMat->set(sqrt(value), i, j);
 		}
 	}
 	return make_unique<CVImage>(doubleMat);
+}
+
+unique_ptr<CVImage> CVImage::GaussianBlur(const double sigma, BorderType border)
+{
+	const auto kernel = KernelBuilder::BuildGauss(sigma);
+	auto result = Convolve(kernel, border);
+	return move(result);
 }
 
 unsigned char CVImage::get(const int x, const int y, BorderType borderType)

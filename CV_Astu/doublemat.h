@@ -26,6 +26,9 @@ public:
     DoubleMat(const int width,const int height);
     DoubleMat(const DoubleMat& source);
 	DoubleMat(const unique_ptr<unsigned char[]>& byteSource, const int width, const int height);
+    DoubleMat(const double * doubleSource, const int width, const int height);
+	DoubleMat(DoubleMat&& other); 
+	DoubleMat& operator=(DoubleMat&& other);
 	int getHeight() { return _height; }
 	int getWidth() { return _width; }
 
@@ -34,5 +37,6 @@ public:
 
 	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax);
 };
+
 
 #endif // DOUBLEMAT_H

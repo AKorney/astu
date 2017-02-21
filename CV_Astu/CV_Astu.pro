@@ -27,11 +27,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     cvimage.cpp \
     cvimageloader.cpp \
-    doublemat.cpp
+    doublemat.cpp \
+    kernelbuilder.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
     cvimageloader.h \
-    doublemat.h
+    doublemat.h \
+    kernelbuilder.h
 
 FORMS    += mainwindow.ui

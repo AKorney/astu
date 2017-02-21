@@ -68,6 +68,9 @@
     <ClCompile Include="doublemat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kernelbuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cvimage.h">
@@ -83,6 +86,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="doublemat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kernelbuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

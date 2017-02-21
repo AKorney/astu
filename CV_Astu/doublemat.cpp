@@ -27,6 +27,30 @@ DoubleMat::DoubleMat(const unique_ptr<unsigned char[]>& byteSource, const int wi
 		[](unsigned char sourceValue)-> double {return  sourceValue / 255.0; });
 }
 
+DoubleMat::DoubleMat(const double * doubleSource, const int width, const int height)
+	: DoubleMat(width, height)
+{
+	copy(doubleSource, doubleSource + width * height, _data.get());
+}
+
+DoubleMat::DoubleMat(DoubleMat && other)
+{
+	_height = other._height;
+	_width = other._width;
+	_data = move(other._data);
+}
+
+DoubleMat & DoubleMat::operator=(DoubleMat && other)
+{
+	if (this != &other)
+	{
+		_height = other._height;
+		_width = other._width;
+		_data = move(other._data);
+	}
+	return *this;
+}
+
 
 double DoubleMat::get(const int x, const int y) const
 {
@@ -45,12 +69,12 @@ unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const dou
 	double min = minmax.first[0];
 	double max = minmax.second[0];
 
-	std::transform(result.get()->_data.get(), result.get()->_data.get() + _width * _height, result.get()->_data.get(),
+	std::transform(result->_data.get(), result->_data.get() + _width * _height, result->_data.get(),
 		[min, max, newMin, newMax](double value) -> double
 				{
 					return (newMax - newMin)*(value - min) / (max - min) + newMin;
 				});
-	return std::move(result.get()->_data);
+	return std::move(result->_data);
 }
 
 
