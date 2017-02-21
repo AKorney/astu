@@ -30,6 +30,7 @@ private:
     CVImage(const int width, const int height);	
 
 	void Convolve(unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border);
+	void SeparableConvolve(const unique_ptr<DoubleMat>& kernelX, const unique_ptr<DoubleMat>& kernelY, BorderType border);
 public:
 
     CVImage(const unsigned char * rgb24Data, const int width, const int height);
@@ -51,7 +52,7 @@ public:
 	unique_ptr<CVImage> SobelY(BorderType border);
 	unique_ptr<CVImage> Sobel(BorderType border);
 
-	unique_ptr<CVImage> GaussianBlur(const double sigma, BorderType border);
+	unique_ptr<CVImage> GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation = false);
 
     //unsigned char get(int x, int y);
 	unsigned char get(const int x, const int y, BorderType borderType = BorderType::Constant);

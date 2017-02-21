@@ -25,7 +25,10 @@ void MainWindow::on_openButton_clicked()
     const auto image = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\Photo0415.jpg");
 	
 	//auto image2 = image.get()->GaussianBlur(1.0, BorderType::Wrap);
-	auto image2 = image->GaussianBlur(1.5, BorderType::Replicate);
+	auto image2 = image->GaussianBlur(1.5, BorderType::Replicate, false);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Photo0415_sqGauss.jpg", image2.get());
+	auto image3 = image->GaussianBlur(1.5, BorderType::Replicate, true);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Photo0415_sepGauss.jpg", image3.get());
 	const auto qImage = CVImageLoader::CreateQImage(image2.get());
 	auto pixmap = QPixmap();
 	pixmap.convertFromImage(qImage);	

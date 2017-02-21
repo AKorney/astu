@@ -31,6 +31,7 @@ void CVImage::Convolve(unique_ptr<DoubleMat>& calculationBuffer, const unique_pt
 	}
 }
 
+
 CVImage::CVImage(const CVImage & source)
 	: CVImage(source._width, source._height)
 {
@@ -142,11 +143,20 @@ unique_ptr<CVImage> CVImage::Sobel(BorderType border)
 	return make_unique<CVImage>(doubleMat);
 }
 
-unique_ptr<CVImage> CVImage::GaussianBlur(const double sigma, BorderType border)
+unique_ptr<CVImage> CVImage::GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation)
 {
-	const auto kernel = KernelBuilder::BuildGauss(sigma);
-	auto result = Convolve(kernel, border);
-	return move(result);
+	if (useAxisSeparation)
+	{
+		const auto kernelX = KernelBuilder::BuildGaussX(sigma);
+		const auto kernelY = KernelBuilder::BuildGaussY(sigma);
+		return	Convolve(kernelX, border)->Convolve(kernelY, border);		
+	}
+	else
+	{
+		const auto kernel = KernelBuilder::BuildGauss(sigma);
+		auto result = Convolve(kernel, border);
+		return move(result);
+	}
 }
 
 unsigned char CVImage::get(const int x, const int y, BorderType borderType)
