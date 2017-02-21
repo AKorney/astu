@@ -154,8 +154,9 @@ unique_ptr<CVImage> CVImage::Sobel(BorderType border)
 	return make_unique<CVImage>(doubleMat);
 }
 
-unsigned char CVImage::get(int x, int y, BorderType borderType)
+unsigned char CVImage::get(const int x, const int y, BorderType borderType)
 {
+	int effectiveX = x, effectiveY = y;
 	switch (borderType)
 	{
 	case BorderType::Constant:
@@ -167,7 +168,26 @@ unsigned char CVImage::get(int x, int y, BorderType borderType)
 		{
 			return _data[y * _width + x];
 		}
-		
+
+	case BorderType::Replicate:
+
+		if (x < 0) effectiveX = 0;
+		if (y < 0) effectiveY = 0;
+		if (x >= _width) effectiveX = _width - 1;
+		if (y >= _height) effectiveY = _height - 1;
+		return _data[effectiveY * _width + effectiveX];
+	case BorderType::Reflect:
+		if (x < 0) effectiveX = -x;
+		if (y < 0) effectiveY = -y;
+		if (x >= _width) effectiveX = 2 * _width - 2 - x;
+		if (y >= _height) effectiveY = 2 * _height - 2 - y;
+		return _data[effectiveY * _width + effectiveX];
+	case BorderType::Wrap:
+		if (x < 0) effectiveX = _width - 1 + x;
+		if (y < 0) effectiveY = _height - 1 + y;
+		if (x >= _width) effectiveX = x - _width;
+		if (y >= _height) effectiveY = y - _height;
+		return _data[effectiveY * _width + effectiveX];
 	default:
 		break;
 	}

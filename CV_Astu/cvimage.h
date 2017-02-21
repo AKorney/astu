@@ -52,7 +52,7 @@ public:
 	unique_ptr<CVImage> Sobel(BorderType border);
 
     //unsigned char get(int x, int y);
-	unsigned char get(int x, int y, BorderType borderType = BorderType::Constant);
+	unsigned char get(const int x, const int y, BorderType borderType = BorderType::Constant);
 };
 
 #endif // IMAGE_H
