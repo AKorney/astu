@@ -30,7 +30,6 @@ private:
     CVImage(const int width, const int height);	
 
 	void Convolve(unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border);
-	void SeparableConvolve(const unique_ptr<DoubleMat>& kernelX, const unique_ptr<DoubleMat>& kernelY, BorderType border);
 public:
 
     CVImage(const unsigned char * rgb24Data, const int width, const int height);
