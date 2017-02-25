@@ -38,7 +38,8 @@ void MainWindow::on_openButton_clicked()
 	ui->graphicsView->show();*/
 
 
-	auto gaussianResult = sourceImage->GaussianBlur(1.5, BorderType::Reflect, true);
+	auto gaussianResult = sourceImage->GaussianSmoothing(1.5, BorderType::Reflect, true);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\GAUSS_TEST.jpg", &gaussianResult);
 	/*auto gaussianPixmap = QPixmap();
 	gaussianPixmap.convertFromImage(CVImageLoader::CreateQImage(&gaussianResult));
 
@@ -51,6 +52,7 @@ void MainWindow::on_openButton_clicked()
 	auto customKernel = make_unique<DoubleMat>(customKernelData, 3, 3);
 
 	auto customResult = sourceImage->Convolve(*customKernel.get(), BorderType::Reflect);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CUSTOM_TEST.jpg", &customResult);
 	/*auto customPixmap = QPixmap();
 	customPixmap.convertFromImage(CVImageLoader::CreateQImage(&customResult));
 

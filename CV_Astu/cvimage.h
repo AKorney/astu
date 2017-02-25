@@ -15,9 +15,6 @@
 
 using namespace std;
 
-#define min(a,b) (a < b ? a : b)
-
-enum class BorderType { Constant, Replicate, Reflect, Wrap};
 
 
 class CVImage
@@ -25,9 +22,8 @@ class CVImage
 private:
     int _width, _height;
     unique_ptr<unsigned char[]> _data;
-
     
-	DoubleMat ConvolveDouble(const DoubleMat& kernel, BorderType border);
+
 public:
 
 	CVImage();
@@ -51,9 +47,9 @@ public:
 	CVImage SobelY(BorderType border);
 	CVImage Sobel(BorderType border);
 
-	CVImage GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation = false);
+	CVImage GaussianSmoothing(const double sigma, BorderType border, bool useAxisSeparation = false);
 
-    //unsigned char get(int x, int y);
+
 	unsigned char get(const int x, const int y, BorderType borderType = BorderType::Constant);
 };
 

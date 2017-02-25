@@ -15,6 +15,8 @@
 
 using namespace std;
 
+enum class BorderType { Constant, Replicate, Reflect, Wrap };
+
 class DoubleMat
 {
 private:
@@ -36,6 +38,10 @@ public:
     void set(const double value, const int x, const int y);
 
 	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax) const;
+	double get(const int x, const int y, BorderType borderType = BorderType::Constant);
+
+
+	DoubleMat Convolve(const DoubleMat& kernel, BorderType border);
 };
 
 

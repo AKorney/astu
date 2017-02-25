@@ -9,30 +9,6 @@ CVImage::CVImage(const int width, const int height) : _width(width), _height(hei
     _data = make_unique<unsigned char[]>(_width * _height);
 }
 
-DoubleMat CVImage::ConvolveDouble(const DoubleMat &kernel, BorderType border)
-{
-	DoubleMat resultMat = DoubleMat(_width, _height);
-	for (int x = 0; x < _width; x++)
-	{
-		for (int y = 0; y < _height; y++)
-		{
-			double result = 0;
-			int kernelWidth = kernel.getWidth();
-			int kernelHeight = kernel.getHeight();
-			for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
-			{
-				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
-				{
-					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
-						* kernel.get(kernelX, kernelY);
-				}
-			}
-			resultMat.set(result, x, y);
-		}
-	}
-	return resultMat;
-}
-
 
 CVImage::CVImage(const CVImage & source)
 	: CVImage(source._width, source._height)
@@ -78,7 +54,7 @@ CVImage::CVImage(const DoubleMat& doubleData)
 	:CVImage(doubleData.getWidth(), doubleData.getHeight())
 {
 	auto normalized = doubleData.GetNormalizedData(0, 255);
-	std::transform(normalized.get(), normalized.get() + _width * _height, _data.get(),
+	transform(normalized.get(), normalized.get() + _width * _height, _data.get(),
 		[](double sourceValue)-> unsigned char {return (unsigned char)sourceValue; });
 }
 
@@ -94,10 +70,7 @@ CVImage& CVImage::operator=(CVImage&& other)
     return *this;
 }
 
-//unsigned char CVImage::get(int x, int y)
-//{
-//    return _data[y * _width + x];
-//}
+
 
 DoubleMat CVImage::PrepareDoubleMat()
 {
@@ -106,7 +79,7 @@ DoubleMat CVImage::PrepareDoubleMat()
 
 CVImage CVImage::Convolve(const DoubleMat& kernel, BorderType border)
 {
-	auto doubleMat = ConvolveDouble(kernel, border);//make_unique<DoubleMat>(_width, _height);
+	auto doubleMat = PrepareDoubleMat().Convolve(kernel, border);
 	
 	return CVImage(doubleMat);
 }
@@ -126,30 +99,34 @@ CVImage CVImage::SobelY(BorderType border)
 CVImage CVImage::Sobel(BorderType border)
 {
 	const auto kernelY = KernelBuilder::BuildSobelX();
-	auto doubleMatY = ConvolveDouble(kernelY, border);//make_unique<DoubleMat>(_width, _height);
+	auto doubleMatY = PrepareDoubleMat().Convolve(kernelY, border);
 
 	const auto kernelX = KernelBuilder::BuildSobelY();
-	auto doubleMatX = ConvolveDouble(kernelX, border);//make_unique<DoubleMat>(_width, _height);
+	auto doubleMatX = PrepareDoubleMat().Convolve(kernelX, border);
 	
-	const auto doubleMat = make_unique<DoubleMat>(_width, _height);
+	auto doubleMat = DoubleMat(_width, _height);
+
 	for (int i = 0; i < _width; i++)
 	{
 		for (int j = 0; j < _height; j++)
 		{
-			double value = doubleMatX.get(i, j) * doubleMatX.get(i, j) + doubleMatY.get(i, j) * doubleMatY.get(i, j);
-			doubleMat->set(sqrt(value), i, j);
+			double value = doubleMatX.get(i, j) * doubleMatX.get(i, j) 
+				+ doubleMatY.get(i, j) * doubleMatY.get(i, j);
+			doubleMat.set(sqrt(value), i, j);
 		}
 	}
-	return CVImage(*doubleMat.get());
+	return CVImage(doubleMat);
 }
 
-CVImage CVImage::GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation)
+CVImage CVImage::GaussianSmoothing(const double sigma, BorderType border, bool useAxisSeparation)
 {
 	if (useAxisSeparation)
 	{
 		const auto kernelX = KernelBuilder::BuildGaussX(sigma);
 		const auto kernelY = KernelBuilder::BuildGaussY(sigma);
-		return	Convolve(kernelX, border).Convolve(kernelY, border);		
+		return	CVImage(PrepareDoubleMat()
+			.Convolve(kernelX, border)
+			.Convolve(kernelY, border));		
 	}
 	else
 	{

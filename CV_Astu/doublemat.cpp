@@ -75,16 +75,79 @@ void DoubleMat::set(const double value,const int x, const int y)
 unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const double newMax) const
 {
 	auto result = make_unique<DoubleMat>(*this);
-	auto minmax = std::minmax_element(_data.get(), _data.get() + _width*_height);
+	auto minmax = minmax_element(_data.get(), _data.get() + _width*_height);
 	double min = minmax.first[0];
 	double max = minmax.second[0];
 
-	std::transform(result->_data.get(), result->_data.get() + _width * _height, result->_data.get(),
+	transform(result->_data.get(), result->_data.get() + _width * _height, result->_data.get(),
 		[min, max, newMin, newMax](double value) -> double
 				{
 					return (newMax - newMin)*(value - min) / (max - min) + newMin;
 				});
-	return std::move(result->_data);
+	return move(result->_data);
+}
+
+double DoubleMat::get(const int x, const int y, BorderType borderType)
+{
+	int effectiveX = x, effectiveY = y;
+	switch (borderType)
+	{
+	case BorderType::Constant:
+		if (x < 0 || y < 0 || x >= _width || y >= _height)
+		{
+			return 0;
+		}
+		else
+		{
+			return _data[y * _width + x];
+		}
+
+	case BorderType::Replicate:
+
+		if (x < 0) effectiveX = 0;
+		if (y < 0) effectiveY = 0;
+		if (x >= _width) effectiveX = _width - 1;
+		if (y >= _height) effectiveY = _height - 1;
+		return _data[effectiveY * _width + effectiveX];
+	case BorderType::Reflect:
+		if (x < 0) effectiveX = -x;
+		if (y < 0) effectiveY = -y;
+		if (x >= _width) effectiveX = 2 * _width - 2 - x;
+		if (y >= _height) effectiveY = 2 * _height - 2 - y;
+		return _data[effectiveY * _width + effectiveX];
+	case BorderType::Wrap:
+		if (x < 0) effectiveX = _width - 1 + x;
+		if (y < 0) effectiveY = _height - 1 + y;
+		if (x >= _width) effectiveX = x - _width;
+		if (y >= _height) effectiveY = y - _height;
+		return _data[effectiveY * _width + effectiveX];
+	default:
+		break;
+	}
+}
+
+DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border)
+{
+	DoubleMat resultMat = DoubleMat(_width, _height);
+	for (int x = 0; x < _width; x++)
+	{
+		for (int y = 0; y < _height; y++)
+		{
+			double result = 0;
+			int kernelWidth = kernel.getWidth();
+			int kernelHeight = kernel.getHeight();
+			for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
+			{
+				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
+				{
+					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
+						* kernel.get(kernelX, kernelY);
+				}
+			}
+			resultMat.set(result, x, y);
+		}
+	}
+	return resultMat;
 }
 
 

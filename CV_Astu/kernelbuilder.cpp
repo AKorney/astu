@@ -23,13 +23,15 @@ DoubleMat KernelBuilder::BuildGauss(double sigma)
     int halfSize = (int)round(sigma*3);
     int fullSize = halfSize * 2 + 1;
 
-	unique_ptr<double[]> data = make_unique<double[]>((size_t)fullSize * fullSize);
+	unique_ptr<double[]> data = make_unique<double[]>(fullSize * fullSize);
 
     for(int x = -halfSize; x <= halfSize; x++)
     {
         for(int y = -halfSize; y <= halfSize; y++)
         {
-			data[(y + halfSize)*fullSize + x + halfSize] = exp(-(x*x + y*y) / (2 * sigma*sigma)) / (2 * M_PI * sigma * sigma);
+			data[(y + halfSize)*fullSize + x + halfSize] = 
+				exp(-(x*x + y*y) / (2 * sigma*sigma)) 
+				/ (2 * M_PI * sigma * sigma);
         }
     }
 	return DoubleMat(data.get(), fullSize, fullSize);
@@ -40,7 +42,7 @@ DoubleMat KernelBuilder::BuildGaussX(double sigma)
 	int halfSize = (int)round(sigma * 3);
 	int fullSize = halfSize * 2 + 1;
 
-	unique_ptr<double[]> data = make_unique<double[]>((size_t)fullSize * fullSize);
+	unique_ptr<double[]> data = make_unique<double[]>(fullSize);
 
 	for (int x = -halfSize; x <= halfSize; x++)
 	{		
@@ -54,7 +56,7 @@ DoubleMat KernelBuilder::BuildGaussY(double sigma)
 	int halfSize = (int)round(sigma * 3);
 	int fullSize = halfSize * 2 + 1;
 
-	unique_ptr<double[]> data = make_unique<double[]>((size_t)fullSize * fullSize);
+	unique_ptr<double[]> data = make_unique<double[]>(fullSize);
 
 	for (int y = -halfSize; y <= halfSize; y++)
 	{
