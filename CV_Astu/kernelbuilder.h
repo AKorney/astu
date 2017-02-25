@@ -16,12 +16,12 @@ private:
     KernelBuilder(){}
 
 public:
-    static unique_ptr<DoubleMat> BuildSobelX();
-    static unique_ptr<DoubleMat> BuildSobelY();
+    static DoubleMat BuildSobelX();
+    static DoubleMat BuildSobelY();
 
-    static unique_ptr<DoubleMat> BuildGauss(double sigma);
-	static unique_ptr<DoubleMat> BuildGaussX(double sigma);
-	static unique_ptr<DoubleMat> BuildGaussY(double sigma);
+    static DoubleMat BuildGauss(double sigma);
+	static DoubleMat BuildGaussX(double sigma);
+	static DoubleMat BuildGaussY(double sigma);
 };
 
 #endif // KERNELBUILDER_H

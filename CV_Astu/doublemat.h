@@ -20,22 +20,22 @@ class DoubleMat
 private:
     int _width, _height;
     unique_ptr<double[]> _data;
-    DoubleMat();
-public:
 
+public:
+	DoubleMat();
     DoubleMat(const int width,const int height);
     DoubleMat(const DoubleMat& source);
 	DoubleMat(const unique_ptr<unsigned char[]>& byteSource, const int width, const int height);
     DoubleMat(const double * doubleSource, const int width, const int height);
 	DoubleMat(DoubleMat&& other); 
 	DoubleMat& operator=(DoubleMat&& other);
-	int getHeight() { return _height; }
-	int getWidth() { return _width; }
+	int getHeight() const;
+	int getWidth() const;
 
     double get(const int x, const int y) const;
     void set(const double value, const int x, const int y);
 
-	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax);
+	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax) const;
 };
 
 

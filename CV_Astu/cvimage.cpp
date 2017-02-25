@@ -6,29 +6,31 @@ CVImage::CVImage() : _width(0), _height(0), _data(nullptr)
 
 CVImage::CVImage(const int width, const int height) : _width(width), _height(height)
 {
-    _data = make_unique<unsigned char[]>((size_t)_width * _height);
+    _data = make_unique<unsigned char[]>(_width * _height);
 }
 
-void CVImage::Convolve(unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border)
+DoubleMat CVImage::ConvolveDouble(const DoubleMat &kernel, BorderType border)
 {
+	DoubleMat resultMat = DoubleMat(_width, _height);
 	for (int x = 0; x < _width; x++)
 	{
 		for (int y = 0; y < _height; y++)
 		{
 			double result = 0;
-			int kernelWidth = kernel->getWidth();
-			int kernelHeight = kernel->getHeight();
+			int kernelWidth = kernel.getWidth();
+			int kernelHeight = kernel.getHeight();
 			for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
 			{
 				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
 				{
 					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
-						* kernel->get(kernelX, kernelY);
+						* kernel.get(kernelX, kernelY);
 				}
 			}
-			calculationBuffer->set(result, x, y);
+			resultMat.set(result, x, y);
 		}
 	}
+	return resultMat;
 }
 
 
@@ -54,13 +56,13 @@ CVImage::CVImage(const unsigned char * rgb24Data, const int width, const int hei
 	}
 }
 
-unsigned char * CVImage::GetImageData()
+unsigned char * CVImage::GetImageData() const
 {
-	unsigned char * data = new unsigned char[_width * _height];
+	/*unsigned char * data = new unsigned char[_width * _height];
 	copy(_data.get()
 		, _data.get() + _width * _height
-		, data);
-	return data;
+		, data);*/
+	return _data.get();
 }
 
 
@@ -72,10 +74,10 @@ CVImage::CVImage(CVImage&& other)
     _data = move(other._data);
 }
 
-CVImage::CVImage(const unique_ptr<DoubleMat>& doubleData)
-	:CVImage(doubleData->getWidth(), doubleData->getHeight())
+CVImage::CVImage(const DoubleMat& doubleData)
+	:CVImage(doubleData.getWidth(), doubleData.getHeight())
 {
-	auto normalized = doubleData->GetNormalizedData(0, 255);
+	auto normalized = doubleData.GetNormalizedData(0, 255);
 	std::transform(normalized.get(), normalized.get() + _width * _height, _data.get(),
 		[](double sourceValue)-> unsigned char {return (unsigned char)sourceValue; });
 }
@@ -97,65 +99,62 @@ CVImage& CVImage::operator=(CVImage&& other)
 //    return _data[y * _width + x];
 //}
 
-unique_ptr<DoubleMat> CVImage::PrepareDoubleMat()
+DoubleMat CVImage::PrepareDoubleMat()
 {
-	return make_unique<DoubleMat>(_data, _width, _height);
+	return DoubleMat(_data, _width, _height);
 }
 
-unique_ptr<CVImage> CVImage::Convolve(const unique_ptr<DoubleMat>& kernel, BorderType border)
+CVImage CVImage::Convolve(const DoubleMat& kernel, BorderType border)
 {
-	auto doubleMat = make_unique<DoubleMat>(_width, _height);
-	Convolve(doubleMat, kernel, border);
-	return make_unique<CVImage>(move(doubleMat));
+	auto doubleMat = ConvolveDouble(kernel, border);//make_unique<DoubleMat>(_width, _height);
+	
+	return CVImage(doubleMat);
 }
 
-unique_ptr<CVImage> CVImage::SobelX(BorderType border)
+CVImage CVImage::SobelX(BorderType border)
 {
 	const auto kernel = KernelBuilder::BuildSobelX();
 	return Convolve(kernel, border);
 }
 
-unique_ptr<CVImage> CVImage::SobelY(BorderType border)
+CVImage CVImage::SobelY(BorderType border)
 {
 	const auto kernel = KernelBuilder::BuildSobelY();
 	return Convolve(kernel, border);
 }
 
-unique_ptr<CVImage> CVImage::Sobel(BorderType border)
+CVImage CVImage::Sobel(BorderType border)
 {
 	const auto kernelY = KernelBuilder::BuildSobelX();
-	auto doubleMatY = make_unique<DoubleMat>(_width, _height);
-	Convolve(doubleMatY, kernelY, border);
+	auto doubleMatY = ConvolveDouble(kernelY, border);//make_unique<DoubleMat>(_width, _height);
 
 	const auto kernelX = KernelBuilder::BuildSobelY();
-	auto doubleMatX = make_unique<DoubleMat>(_width, _height);
-	Convolve(doubleMatX, kernelX, border);
+	auto doubleMatX = ConvolveDouble(kernelX, border);//make_unique<DoubleMat>(_width, _height);
 	
 	const auto doubleMat = make_unique<DoubleMat>(_width, _height);
 	for (int i = 0; i < _width; i++)
 	{
 		for (int j = 0; j < _height; j++)
 		{
-			double value = doubleMatX->get(i, j) * doubleMatX->get(i, j) + doubleMatY->get(i, j) * doubleMatY->get(i, j);
+			double value = doubleMatX.get(i, j) * doubleMatX.get(i, j) + doubleMatY.get(i, j) * doubleMatY.get(i, j);
 			doubleMat->set(sqrt(value), i, j);
 		}
 	}
-	return make_unique<CVImage>(doubleMat);
+	return CVImage(*doubleMat.get());
 }
 
-unique_ptr<CVImage> CVImage::GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation)
+CVImage CVImage::GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation)
 {
 	if (useAxisSeparation)
 	{
 		const auto kernelX = KernelBuilder::BuildGaussX(sigma);
 		const auto kernelY = KernelBuilder::BuildGaussY(sigma);
-		return	Convolve(kernelX, border)->Convolve(kernelY, border);		
+		return	Convolve(kernelX, border).Convolve(kernelY, border);		
 	}
 	else
 	{
 		const auto kernel = KernelBuilder::BuildGauss(sigma);
-		auto result = Convolve(kernel, border);
-		return move(result);
+		return Convolve(kernel, border);
 	}
 }
 

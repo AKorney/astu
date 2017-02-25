@@ -28,35 +28,36 @@ void MainWindow::on_openButton_clicked()
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
 	
 	auto sobelResult = sourceImage->Sobel(BorderType::Reflect);
-	auto sobelPixmap = QPixmap();
-	sobelPixmap.convertFromImage(CVImageLoader::CreateQImage(sobelResult.get()));
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\SOBEL_TEST.jpg", &sobelResult);
+	//auto sobelPixmap = QPixmap();
+	//sobelPixmap.convertFromImage(CVImageLoader::CreateQImage(&sobelResult));
 
-	auto sobelScene = new QGraphicsScene(this);
+	/*auto sobelScene = new QGraphicsScene(this);
 	sobelScene->addPixmap(sobelPixmap);
 	ui->graphicsView->setScene(sobelScene);
-	ui->graphicsView->show();
+	ui->graphicsView->show();*/
 
 
 	auto gaussianResult = sourceImage->GaussianBlur(1.5, BorderType::Reflect, true);
-	auto gaussianPixmap = QPixmap();
-	gaussianPixmap.convertFromImage(CVImageLoader::CreateQImage(gaussianResult.get()));
+	/*auto gaussianPixmap = QPixmap();
+	gaussianPixmap.convertFromImage(CVImageLoader::CreateQImage(&gaussianResult));
 
 	auto gaussianScene = new QGraphicsScene(this);
 	gaussianScene->addPixmap(gaussianPixmap);
 	ui->graphicsView_2->setScene(gaussianScene);
-	ui->graphicsView_2->show();
+	ui->graphicsView_2->show();*/
 
 	double customKernelData[9] = { -2, -1, 0, -1, 1, 1, 0, 1, 2 };
 	auto customKernel = make_unique<DoubleMat>(customKernelData, 3, 3);
 
-	auto customResult = sourceImage->Convolve(customKernel, BorderType::Reflect);
-	auto customPixmap = QPixmap();
-	customPixmap.convertFromImage(CVImageLoader::CreateQImage(customResult.get()));
+	auto customResult = sourceImage->Convolve(*customKernel.get(), BorderType::Reflect);
+	/*auto customPixmap = QPixmap();
+	customPixmap.convertFromImage(CVImageLoader::CreateQImage(&customResult));
 
 	auto customScene = new QGraphicsScene(this);
 	customScene->addPixmap(customPixmap);
 	ui->graphicsView_3->setScene(customScene);
-	ui->graphicsView_3->show();
+	ui->graphicsView_3->show();*/
 
 	//auto image2 = image.get()->GaussianBlur(1.0, BorderType::Wrap);
 	/*auto image2 = image->GaussianBlur(1.5, BorderType::Replicate, false);

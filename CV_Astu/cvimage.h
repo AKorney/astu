@@ -26,32 +26,32 @@ private:
     int _width, _height;
     unique_ptr<unsigned char[]> _data;
 
-    CVImage();
-    CVImage(const int width, const int height);	
-
-	void Convolve(unique_ptr<DoubleMat>& calculationBuffer, const unique_ptr<DoubleMat>& kernel, BorderType border);
+    
+	DoubleMat ConvolveDouble(const DoubleMat& kernel, BorderType border);
 public:
 
+	CVImage();
+	CVImage(const int width, const int height);
     CVImage(const unsigned char * rgb24Data, const int width, const int height);
     CVImage(const CVImage& source);
     CVImage(CVImage&& other);
-	CVImage(const unique_ptr<DoubleMat>& doubleData);
+	CVImage(const DoubleMat& doubleData);
     CVImage& operator=(CVImage&& other);
 
-	unsigned char * GetImageData();
+	unsigned char * GetImageData() const;
 
     int getHeight() { return _height; }
     int getWidth() { return _width; }
 
-	unique_ptr<DoubleMat> PrepareDoubleMat();
+	DoubleMat PrepareDoubleMat();
 
-	unique_ptr<CVImage> Convolve(const unique_ptr<DoubleMat>& kernel, BorderType border);
+	CVImage Convolve(const DoubleMat& kernel, BorderType border);
 
-	unique_ptr<CVImage> SobelX(BorderType border);
-	unique_ptr<CVImage> SobelY(BorderType border);
-	unique_ptr<CVImage> Sobel(BorderType border);
+	CVImage SobelX(BorderType border);
+	CVImage SobelY(BorderType border);
+	CVImage Sobel(BorderType border);
 
-	unique_ptr<CVImage> GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation = false);
+	CVImage GaussianBlur(const double sigma, BorderType border, bool useAxisSeparation = false);
 
     //unsigned char get(int x, int y);
 	unsigned char get(const int x, const int y, BorderType borderType = BorderType::Constant);

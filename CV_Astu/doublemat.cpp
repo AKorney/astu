@@ -51,6 +51,16 @@ DoubleMat & DoubleMat::operator=(DoubleMat && other)
 	return *this;
 }
 
+int DoubleMat::getHeight() const
+{
+	return _height;
+}
+
+int DoubleMat::getWidth() const
+{
+	return _width;
+}
+
 
 double DoubleMat::get(const int x, const int y) const
 {
@@ -62,7 +72,7 @@ void DoubleMat::set(const double value,const int x, const int y)
     _data[y * _width + x] = value;
 }
 
-unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const double newMax)
+unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const double newMax) const
 {
 	auto result = make_unique<DoubleMat>(*this);
 	auto minmax = std::minmax_element(_data.get(), _data.get() + _width*_height);
