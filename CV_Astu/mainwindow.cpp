@@ -28,60 +28,25 @@ void MainWindow::on_openButton_clicked()
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
 	
 	auto sobelResult = sourceImage->Sobel(BorderType::Reflect);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\SOBEL_TEST.jpg", &sobelResult);
-	//auto sobelPixmap = QPixmap();
-	//sobelPixmap.convertFromImage(CVImageLoader::CreateQImage(&sobelResult));
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\SOBEL.jpg", &sobelResult);
 
-	/*auto sobelScene = new QGraphicsScene(this);
-	sobelScene->addPixmap(sobelPixmap);
-	ui->graphicsView->setScene(sobelScene);
-	ui->graphicsView->show();*/
+	auto sobelXResult = sourceImage->SobelX(BorderType::Reflect);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\SOBEL_X.jpg", &sobelXResult);
+
+	auto sobelYResult = sourceImage->SobelY(BorderType::Reflect);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\SOBEL_Y.jpg", &sobelYResult);
 
 
 	auto gaussianResult = sourceImage->GaussianSmoothing(1.5, BorderType::Reflect, true);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\GAUSS_TEST.jpg", &gaussianResult);
-	/*auto gaussianPixmap = QPixmap();
-	gaussianPixmap.convertFromImage(CVImageLoader::CreateQImage(&gaussianResult));
-
-	auto gaussianScene = new QGraphicsScene(this);
-	gaussianScene->addPixmap(gaussianPixmap);
-	ui->graphicsView_2->setScene(gaussianScene);
-	ui->graphicsView_2->show();*/
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\GAUSS.jpg", &gaussianResult);
+	
 
 	double customKernelData[9] = { -2, -1, 0, -1, 1, 1, 0, 1, 2 };
 	auto customKernel = make_unique<DoubleMat>(customKernelData, 3, 3);
 
 	auto customResult = sourceImage->Convolve(*customKernel.get(), BorderType::Reflect);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CUSTOM_TEST.jpg", &customResult);
-	/*auto customPixmap = QPixmap();
-	customPixmap.convertFromImage(CVImageLoader::CreateQImage(&customResult));
-
-	auto customScene = new QGraphicsScene(this);
-	customScene->addPixmap(customPixmap);
-	ui->graphicsView_3->setScene(customScene);
-	ui->graphicsView_3->show();*/
-
-	//auto image2 = image.get()->GaussianBlur(1.0, BorderType::Wrap);
-	/*auto image2 = image->GaussianBlur(1.5, BorderType::Replicate, false);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Photo0415_sqGauss.jpg", image2.get());
-	auto image3 = image->GaussianBlur(1.5, BorderType::Replicate, true);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Photo0415_sepGauss.jpg", image3.get());
-
-	double customKernelData[9] = { -2, -1, 0, -1, 1, 1, 0, 1, 2 };
-	auto customKernel = make_unique<DoubleMat>(customKernelData, 3, 3);
-	auto image4 = image->Convolve(customKernel, BorderType::Replicate);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Photo0415_Custom.jpg", image4.get());
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\CUSTOM.jpg", &customResult);
 	
-	const auto qImage = CVImageLoader::CreateQImage(image2.get());
-	auto pixmap = QPixmap();
-	pixmap.convertFromImage(qImage);	
-	QGraphicsScene *scene = new QGraphicsScene(this);
-	scene->addPixmap(pixmap);
-	ui->graphicsView->setScene(scene);	
-	
-	ui->graphicsView->show();
-	
-*/
 }
 
 
