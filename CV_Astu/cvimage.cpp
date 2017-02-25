@@ -135,7 +135,7 @@ CVImage CVImage::GaussianSmoothing(const double sigma, BorderType border, bool u
 	}
 }
 
-unsigned char CVImage::get(const int x, const int y, BorderType borderType)
+unsigned char CVImage::get(const int x, const int y, BorderType borderType) const
 {
 	int effectiveX = x, effectiveY = y;
 	switch (borderType)
