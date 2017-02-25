@@ -87,7 +87,7 @@ unique_ptr<double[]> DoubleMat::GetNormalizedData(const double newMin, const dou
 	return move(result->_data);
 }
 
-double DoubleMat::get(const int x, const int y, BorderType borderType)
+double DoubleMat::get(const int x, const int y, BorderType borderType) const
 {
 	int effectiveX = x, effectiveY = y;
 	switch (borderType)
