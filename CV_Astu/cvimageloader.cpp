@@ -14,7 +14,6 @@ unique_ptr<CVImage> CVImageLoader::Load(QString filePath)
 	}
 	else
 	{
-		//try to prepare bit array manually
 		auto bytes = make_unique<unsigned char[]>(qImage.height() * qImage.width() * 3);
 		for (int y = 0; y < qImage.height(); y++)
 		{
@@ -35,8 +34,10 @@ void CVImageLoader::Save(QString filePath, CVImage *source)
 {
 
 	auto qImage = make_unique<QImage>(source->getWidth(), source->getHeight(), QImage::Format_RGB32);
-	for (int y = 0; y < source->getHeight(); y++) {
-		for (int x = 0; x < source->getWidth(); x++) {
+	for (int y = 0; y < source->getHeight(); y++) 
+	{
+		for (int x = 0; x < source->getWidth(); x++) 
+		{
 			int color = (int)(source->get(x, y));
 			qImage->setPixel(x, y, qRgb(color, color, color));
 		}

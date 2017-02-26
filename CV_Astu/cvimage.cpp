@@ -142,7 +142,11 @@ CVImage CVImage::ScaleDown() const
 	{		
 		for (int x = 0; x < result._width; x++)
 		{
-			unsigned char value = get(2*x, 2*y);
+			auto value = (get(2 * x, 2 * y)
+				+ get(2 * x + 1, 2 * y)
+				+ get(2 * x, 2 * y + 1)
+				+ get(2 * x + 1, 2 * y + 1)) 
+				/ 4;
 			result._data[y * result._width + x] = value;				
 		}
 	}
