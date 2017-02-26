@@ -49,6 +49,7 @@ public:
 
 	CVImage GaussianSmoothing(const double sigma, BorderType border, bool useAxisSeparation = false);
 
+	CVImage ScaleDown() const;
 
 	unsigned char get(const int x, const int y, BorderType borderType = BorderType::Constant) const;
 };

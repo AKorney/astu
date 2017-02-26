@@ -27,7 +27,23 @@ void MainWindow::on_openButton_clicked()
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
 	
-	auto sobelResult = sourceImage->Sobel(BorderType::Reflect);
+	/*
+	const double imsource[16] = {1.0, 0.0, 1.0, 0.0,
+								 0.0, 0.0, 0.0, 0.0,
+								 0.0, 0.0, 0.0, 0.0,
+								 0.0, 0.0, 0.0, 0.0 };
+	auto mat = DoubleMat(imsource, 4, 4);
+	const auto sourceImage = make_unique<CVImage>(mat);
+	//*/
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\source.jpg", sourceImage.get());
+	auto scaled = sourceImage->ScaleDown();
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg", &scaled);
+
+
+	const auto testImage = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg");
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaledrrewr.jpg", testImage.get());
+
+	/*auto sobelResult = sourceImage->Sobel(BorderType::Reflect);
 	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\SOBEL.jpg", &sobelResult);
 
 	auto sobelXResult = sourceImage->SobelX(BorderType::Reflect);
@@ -45,7 +61,7 @@ void MainWindow::on_openButton_clicked()
 	auto customKernel = make_unique<DoubleMat>(customKernelData, 3, 3);
 
 	auto customResult = sourceImage->Convolve(*customKernel.get(), BorderType::Reflect);
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\CUSTOM.jpg", &customResult);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\CUSTOM.jpg", &customResult);*/
 	
 }
 

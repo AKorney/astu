@@ -135,6 +135,20 @@ CVImage CVImage::GaussianSmoothing(const double sigma, BorderType border, bool u
 	}
 }
 
+CVImage CVImage::ScaleDown() const
+{
+	CVImage result = CVImage(_width/2, _height/2);
+	for (int y = 0; y < result._height; y++)
+	{		
+		for (int x = 0; x < result._width; x++)
+		{
+			unsigned char value = get(2*x, 2*y);
+			result._data[y * result._width + x] = value;				
+		}
+	}
+	return result;
+}
+
 unsigned char CVImage::get(const int x, const int y, BorderType borderType) const
 {
 	int effectiveX = x, effectiveY = y;
