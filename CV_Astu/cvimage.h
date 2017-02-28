@@ -47,7 +47,7 @@ public:
 	CVImage SobelY(const BorderType border);
 	CVImage Sobel(const BorderType border);
 
-	CVImage GaussianSmoothing(const double sigma, const BorderType border, bool useAxisSeparation = false);
+	CVImage GaussianSmoothing(const double sigma, const BorderType border, bool useAxisSeparation = false) const;
 
 	CVImage ScaleDown() const;
 

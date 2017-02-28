@@ -28,12 +28,16 @@ SOURCES += main.cpp\
     cvimage.cpp \
     cvimageloader.cpp \
     doublemat.cpp \
-    kernelbuilder.cpp
+    kernelbuilder.cpp \
+    OctaveLayer.cpp \
+    pyramid.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
     cvimageloader.h \
     doublemat.h \
-    kernelbuilder.h
+    kernelbuilder.h \
+    OctaveLayer.h \
+    pyramid.h
 
 FORMS    += mainwindow.ui

@@ -127,7 +127,7 @@ CVImage CVImage::Sobel(const BorderType border)
 	return CVImage(doubleMat);
 }
 
-CVImage CVImage::GaussianSmoothing(const double sigma, const BorderType border, bool useAxisSeparation)
+CVImage CVImage::GaussianSmoothing(const double sigma, const BorderType border, bool useAxisSeparation) const
 {
 	if (useAxisSeparation)
 	{

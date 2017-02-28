@@ -7,6 +7,7 @@
 #include "cvimage.h"
 #include "cvimageloader.h"
 #include "doublemat.h"
+#include "pyramid.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,7 +27,7 @@ void MainWindow::on_openButton_clicked()
 {
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
-	
+	const auto pyr = Pyramid(3, 2, 1, 0.5, sourceImage);
 	/*
 	const double imsource[16] = {1.0, 0.0, 1.0, 0.0,
 								 0.0, 0.0, 0.0, 0.0,
@@ -35,13 +36,13 @@ void MainWindow::on_openButton_clicked()
 	auto mat = DoubleMat(imsource, 4, 4);
 	const auto sourceImage = make_unique<CVImage>(mat);
 	//*/
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\source.jpg", sourceImage);
+	/*CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\source.jpg", sourceImage);
 	auto scaled = sourceImage.ScaleDown();
 	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg", scaled);
 
 
 	const auto testImage = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg");
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaledrrewr.jpg", testImage);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaledrrewr.jpg", testImage);*/
 
 	/*auto sobelResult = sourceImage->Sobel(BorderType::Reflect);
 	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\SOBEL.jpg", &sobelResult);
