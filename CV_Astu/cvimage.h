@@ -36,22 +36,22 @@ public:
 
 	unsigned char * GetImageData() const;
 
-    int getHeight() { return _height; }
-    int getWidth() { return _width; }
+	int getHeight()  const;
+	int getWidth() const;
 
-	DoubleMat PrepareDoubleMat();
+	DoubleMat PrepareDoubleMat() const;
 
-	CVImage Convolve(const DoubleMat& kernel, BorderType border);
+	CVImage Convolve(const DoubleMat& kernel, const BorderType border) const;
 
-	CVImage SobelX(BorderType border);
-	CVImage SobelY(BorderType border);
-	CVImage Sobel(BorderType border);
+	CVImage SobelX(const BorderType border);
+	CVImage SobelY(const BorderType border);
+	CVImage Sobel(const BorderType border);
 
-	CVImage GaussianSmoothing(const double sigma, BorderType border, bool useAxisSeparation = false);
+	CVImage GaussianSmoothing(const double sigma, const BorderType border, bool useAxisSeparation = false);
 
 	CVImage ScaleDown() const;
 
-	unsigned char get(const int x, const int y, BorderType borderType = BorderType::Constant) const;
+	unsigned char get(const int x, const int y, const BorderType borderType = BorderType::Constant) const;
 };
 
 #endif // IMAGE_H

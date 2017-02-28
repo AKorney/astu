@@ -126,7 +126,7 @@ double DoubleMat::get(const int x, const int y, BorderType borderType) const
 	}
 }
 
-DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border)
+DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border) const
 {
 	DoubleMat resultMat = DoubleMat(_width, _height);
 	for (int x = 0; x < _width; x++)

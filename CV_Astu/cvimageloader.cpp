@@ -1,6 +1,6 @@
 #include "cvimageloader.h"
 
-unique_ptr<CVImage> CVImageLoader::Load(QString filePath)
+CVImage CVImageLoader::Load(QString filePath)
 {
     auto qImage = QImage();
     qImage.load(filePath);
@@ -9,8 +9,8 @@ unique_ptr<CVImage> CVImageLoader::Load(QString filePath)
 	{
 		qImage = qImage.convertToFormat(QImage::Format_RGB888);
 
-		auto result = make_unique<CVImage>(qImage.bits(), qImage.width(), qImage.height());
-		return move(result);
+		auto result = CVImage(qImage.bits(), qImage.width(), qImage.height());
+		return result;
 	}
 	else
 	{
@@ -25,29 +25,29 @@ unique_ptr<CVImage> CVImageLoader::Load(QString filePath)
 				bytes[index + 2] = qBlue(qImage.pixel(x, y));
 			}
 		}
-		auto result = make_unique<CVImage>(bytes.get(), qImage.width(), qImage.height());
-		return move(result);
+		auto result = CVImage(bytes.get(), qImage.width(), qImage.height());
+		return result;
 	}
 }
 
-void CVImageLoader::Save(QString filePath, CVImage *source)
+void CVImageLoader::Save(const QString filePath, const CVImage &source)
 {
 
-	auto qImage = make_unique<QImage>(source->getWidth(), source->getHeight(), QImage::Format_RGB32);
-	for (int y = 0; y < source->getHeight(); y++) 
+	auto qImage = make_unique<QImage>(source.getWidth(), source.getHeight(), QImage::Format_RGB32);
+	for (int y = 0; y < source.getHeight(); y++) 
 	{
-		for (int x = 0; x < source->getWidth(); x++) 
+		for (int x = 0; x < source.getWidth(); x++) 
 		{
-			int color = (int)(source->get(x, y));
+			int color = (int)(source.get(x, y));
 			qImage->setPixel(x, y, qRgb(color, color, color));
 		}
 	}
     qImage->save(filePath);
 }
 
-QImage CVImageLoader::CreateQImage(CVImage *source)
+QImage CVImageLoader::CreateQImage(const CVImage &source)
 {
-    auto qImage = QImage(source->GetImageData(), source->getWidth(), source->getHeight(),
+    auto qImage = QImage(source.GetImageData(), source.getWidth(), source.getHeight(),
                            QImage::Format_Grayscale8);
     return qImage;
 }

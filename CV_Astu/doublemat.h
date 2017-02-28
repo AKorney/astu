@@ -41,7 +41,7 @@ public:
 	double get(const int x, const int y, BorderType borderType) const;
 
 
-	DoubleMat Convolve(const DoubleMat& kernel, BorderType border);
+	DoubleMat Convolve(const DoubleMat& kernel, BorderType border) const;
 };
 
 

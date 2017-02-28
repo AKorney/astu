@@ -41,6 +41,15 @@ unsigned char * CVImage::GetImageData() const
 	return _data.get();
 }
 
+int CVImage::getHeight() const
+{
+	return _height;
+}
+
+int CVImage::getWidth() const
+{
+	return _width;
+}
 
 CVImage::CVImage(CVImage&& other)
     : CVImage()
@@ -72,31 +81,31 @@ CVImage& CVImage::operator=(CVImage&& other)
 
 
 
-DoubleMat CVImage::PrepareDoubleMat()
+DoubleMat CVImage::PrepareDoubleMat() const
 {
 	return DoubleMat(_data, _width, _height);
 }
 
-CVImage CVImage::Convolve(const DoubleMat& kernel, BorderType border)
+CVImage CVImage::Convolve(const DoubleMat& kernel, const BorderType border) const
 {
 	auto doubleMat = PrepareDoubleMat().Convolve(kernel, border);
 	
 	return CVImage(doubleMat);
 }
 
-CVImage CVImage::SobelX(BorderType border)
+CVImage CVImage::SobelX(const BorderType border)
 {
 	const auto kernel = KernelBuilder::BuildSobelX();
 	return Convolve(kernel, border);
 }
 
-CVImage CVImage::SobelY(BorderType border)
+CVImage CVImage::SobelY(const BorderType border)
 {
 	const auto kernel = KernelBuilder::BuildSobelY();
 	return Convolve(kernel, border);
 }
 
-CVImage CVImage::Sobel(BorderType border)
+CVImage CVImage::Sobel(const BorderType border)
 {
 	const auto kernelY = KernelBuilder::BuildSobelX();
 	auto doubleMatY = PrepareDoubleMat().Convolve(kernelY, border);
@@ -118,7 +127,7 @@ CVImage CVImage::Sobel(BorderType border)
 	return CVImage(doubleMat);
 }
 
-CVImage CVImage::GaussianSmoothing(const double sigma, BorderType border, bool useAxisSeparation)
+CVImage CVImage::GaussianSmoothing(const double sigma, const BorderType border, bool useAxisSeparation)
 {
 	if (useAxisSeparation)
 	{
@@ -153,7 +162,7 @@ CVImage CVImage::ScaleDown() const
 	return result;
 }
 
-unsigned char CVImage::get(const int x, const int y, BorderType borderType) const
+unsigned char CVImage::get(const int x, const int y, const BorderType borderType) const
 {
 	int effectiveX = x, effectiveY = y;
 	switch (borderType)

@@ -35,13 +35,13 @@ void MainWindow::on_openButton_clicked()
 	auto mat = DoubleMat(imsource, 4, 4);
 	const auto sourceImage = make_unique<CVImage>(mat);
 	//*/
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\source.jpg", sourceImage.get());
-	auto scaled = sourceImage->ScaleDown();
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg", &scaled);
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\source.jpg", sourceImage);
+	auto scaled = sourceImage.ScaleDown();
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg", scaled);
 
 
 	const auto testImage = CVImageLoader::Load("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaled.jpg");
-	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaledrrewr.jpg", testImage.get());
+	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\scaledrrewr.jpg", testImage);
 
 	/*auto sobelResult = sourceImage->Sobel(BorderType::Reflect);
 	CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\SOBEL.jpg", &sobelResult);
