@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     doublemat.cpp \
     kernelbuilder.cpp \
     OctaveLayer.cpp \
-    pyramid.cpp
+    pyramid.cpp \
+    octave.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -38,6 +39,7 @@ HEADERS  += mainwindow.h \
     doublemat.h \
     kernelbuilder.h \
     OctaveLayer.h \
-    pyramid.h
+    pyramid.h \
+    octave.h
 
 FORMS    += mainwindow.ui

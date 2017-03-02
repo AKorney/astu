@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "cvimage.h"
-#include "OctaveLayer.h"
+#include "Octave.h"
 using namespace std;
 class Pyramid
 {
@@ -13,8 +13,9 @@ private:
     double _sigmaStart, _sigmaInput;
     double _k;
     unique_ptr<double[]> _deltas;
-    vector<vector<OctaveLayer>> _octaves;
-    CVImage BuildOctave(vector<OctaveLayer>& octave,
+    //vector<vector<OctaveLayer>> _octaves;
+    vector<Octave> _octaves;
+    CVImage BuildOctave(Octave& octave,
                                const CVImage& firstImage,
                                const int octaveNumber);
     void CalculateDeltas();

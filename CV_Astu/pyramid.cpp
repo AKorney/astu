@@ -9,7 +9,7 @@ Pyramid::Pyramid()
 
 }
 
-CVImage Pyramid::BuildOctave(vector<OctaveLayer>& octave,
+CVImage Pyramid::BuildOctave(Octave& octave,
                              const CVImage& firstImage,
                              const int octaveNumber)
 {
@@ -18,24 +18,25 @@ CVImage Pyramid::BuildOctave(vector<OctaveLayer>& octave,
     double sigmaLocal = _sigmaStart;
     double sigmaGlobal = _sigmaStart * pow(2, octaveNumber);
 
-    octave.emplace_back(OctaveLayer(make_unique<CVImage>(current),
+    octave.AddLayer(OctaveLayer(make_unique<CVImage>(current),
                                     sigmaLocal, sigmaGlobal));
-     CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\temp.jpg", current);
     for(int i=1; i<_octaveSize + _overlapSize; i++)
     {
-        current = move(current.GaussianSmoothing(_deltas[i-1], BorderType::Replicate, true));
-        CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\temp.jpg", current);
-        sigmaLocal = i == _octaveSize
-            ? 2 * _sigmaStart
-            : sigmaLocal * _k;
-        sigmaGlobal = i == _octaveSize
-            ? pow(2, i + 1) * _sigmaStart
-            : sigmaGlobal *_k;
+        current = move(current.GaussianSmoothing(_deltas[i-1],
+                       BorderType::Replicate, true));
         if(i == _octaveSize)
         {
             result = CVImage(current.ScaleDown());
+            //
+            sigmaLocal = 2 * _sigmaStart;
+            sigmaGlobal = _sigmaStart * pow(2, octaveNumber + 1);
         }
-        octave.emplace_back(OctaveLayer(make_unique<CVImage>(current),
+        else
+        {
+            sigmaLocal *= _k;
+            sigmaGlobal *= _k;
+        }
+        octave.AddLayer(OctaveLayer(make_unique<CVImage>(current),
             sigmaLocal, sigmaGlobal));
     }
     return result;
@@ -57,20 +58,24 @@ void Pyramid::CalculateDeltas()
 Pyramid::Pyramid(const int octavesCount, const int octaveSize,
                  const double sigmaStart, const double sigmaInput,
                  const CVImage &source)
-    : _octavesCount(octavesCount), _octaveSize(octaveSize),
+    :  _octaveSize(octaveSize),
       _sigmaStart(sigmaStart), _sigmaInput(sigmaInput)
 {
-
+    int maxOctavesCount = log2(min(source.getHeight(),source.getWidth()));
+    _octavesCount = min(octavesCount, maxOctavesCount);
 	const double startDelta = sqrt(sigmaStart * sigmaStart 
 		- sigmaInput * sigmaInput);
     CalculateDeltas();
-	//first image of first octave
-	CVImage currentImage = source.GaussianSmoothing(startDelta, BorderType::Replicate, true);
-    CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Tests\\temp.jpg", currentImage);
+    CVImage currentImage = source.GaussianSmoothing(startDelta,
+                                                    BorderType::Replicate,
+                                                    true);
 	for (int octave = 0; octave < _octavesCount; octave++)
 	{
-        auto currentOctave = vector<OctaveLayer>();
-        currentImage = move(BuildOctave(currentOctave, currentImage, octave));
+        Octave currentOctave(octave);
+        currentImage = move(BuildOctave(currentOctave, currentImage,
+                                        octave));
+        currentOctave.SaveAll();
+        _octaves.emplace_back(currentOctave);
 	}
 
 }
