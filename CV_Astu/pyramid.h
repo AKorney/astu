@@ -24,6 +24,7 @@ public:
     Pyramid(const int octavesCount, const int octaveSize,
             const double sigmaStart, const double sigmaInput,
             const CVImage& source);
+    unsigned char L(const int x, const int y, const double sigma) const;
 };
 
 #endif // PYRAMID_H

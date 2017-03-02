@@ -41,3 +41,8 @@ void Octave::SaveAll()
     }
 }
 
+const OctaveLayer& Octave::GetLayerAt(int index) const
+{
+    return _layers.at(index);
+}
+
