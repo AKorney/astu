@@ -9,11 +9,15 @@ using namespace std;
 class Pyramid
 {
 private:
-    int _octavesCount, _octaveSize;
+    int _octavesCount, _octaveSize, _overlapSize = 1;
     double _sigmaStart, _sigmaInput;
     double _k;
-
+    unique_ptr<double[]> _deltas;
     vector<vector<OctaveLayer>> _octaves;
+    CVImage BuildOctave(vector<OctaveLayer>& octave,
+                               const CVImage& firstImage,
+                               const int octaveNumber);
+    void CalculateDeltas();
 public:
     Pyramid();
     Pyramid(const int octavesCount, const int octaveSize,
