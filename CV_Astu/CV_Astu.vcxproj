@@ -150,6 +150,7 @@
     <ClCompile Include="kernelbuilder.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
+    <ClCompile Include="octave.cpp" />
     <ClCompile Include="OctaveLayer.cpp" />
     <ClCompile Include="pyramid.cpp" />
   </ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="doublemat.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="kernelbuilder.h" />
+    <ClInclude Include="octave.h" />
     <ClInclude Include="OctaveLayer.h" />
     <ClInclude Include="pyramid.h" />
     <CustomBuild Include="mainwindow.h">
