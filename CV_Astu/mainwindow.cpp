@@ -27,8 +27,11 @@ void MainWindow::on_openButton_clicked()
 {
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
-	const auto pyr = Pyramid(3, 2, 1, 0.5, sourceImage);
-    pyr.L(100,100, 2.5);
+    const auto pyr = Pyramid(5, 4, 1, 0.5, sourceImage);
+    pyr.L(100,100, 32.5);
+    pyr.L(100,100, 7.1);
+    pyr.L(100,100, 0.7);
+    pyr.L(100,100, 2.25);
 	/*
 	const double imsource[16] = {1.0, 0.0, 1.0, 0.0,
 								 0.0, 0.0, 0.0, 0.0,

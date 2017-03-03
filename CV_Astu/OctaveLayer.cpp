@@ -22,7 +22,7 @@ OctaveLayer::OctaveLayer(const OctaveLayer & other)
 
 
 
-CVImage& OctaveLayer::GetImage() const
+const CVImage& OctaveLayer::GetImage() const
 {
 	return *_image;
 }

@@ -20,7 +20,7 @@ public:
     OctaveLayer(OctaveLayer&& other) = default;
     OctaveLayer& operator=(OctaveLayer&& other) = default;
 
-	CVImage& GetImage() const;
+    const CVImage& GetImage() const;
     double GetSigmaGlobal() const {return _sigmaGlobal;}
     double GetSigmaLocal() const {return _sigmaLocal;}
 };

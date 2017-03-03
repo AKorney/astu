@@ -81,8 +81,39 @@ Pyramid::Pyramid(const int octavesCount, const int octaveSize,
 
 unsigned char Pyramid::L(const int x, const int y, const double sigma) const
 {
-    const int globalPosition = log(sigma/_sigmaStart)/log(_k);
-    const int octave = globalPosition/_octaveSize;
+    int globalPosition = log(sigma/_sigmaStart)/log(_k);
+    if(globalPosition < 0)
+    {
+        return GetImageAt(0,0).get(x,y);
+    }
+    if(globalPosition >= _octavesCount*_octaveSize)
+    {
+        return GetImageAt(_octavesCount-1, _octaveSize - 1)
+                .get(x / pow(2, _octavesCount-1), y / pow(2, _octavesCount-1));
+    }
+    double diffLeft = abs(_sigmaStart * pow(_k, globalPosition) - sigma);
+    double diffRight = abs(_sigmaStart * pow(_k, globalPosition+1) - sigma);
+    if(diffRight < diffLeft) globalPosition++;
+
+    const int targetOctave = globalPosition / _octaveSize;
+    const int targetLayer = globalPosition % _octaveSize;
+
+    const int targetX = x / pow(2, targetOctave);
+    const int targetY = y / pow (2, targetOctave);
+
+    return GetImageAt(targetOctave, targetLayer).get(targetX, targetY);
+}
+
+const Octave& Pyramid::GetOctaveAt(const int octave) const
+{
+    return _octaves.at(octave);
+}
+
+const CVImage& Pyramid::GetImageAt(const int octave, const int layer) const
+{
+    return GetOctaveAt(octave).GetLayerAt(layer).GetImage();
+}
+/*    const int octave = globalPosition/_octaveSize;
     const int leftLevel = globalPosition % _octaveSize;
     const int rightLevel = leftLevel + 1;
 
@@ -100,18 +131,6 @@ unsigned char Pyramid::L(const int x, const int y, const double sigma) const
     const int targetY = y / pow (2, octave);
 
     return targetLevel.GetImage().get(targetX, targetY);
-}
-/*
- * const int targetOctave = log2(sigma/_sigmaStart);
-    const int targetX = x / pow(2, targetOctave);
-    const int targetY = y / pow (2, targetOctave);
-    int stopPos = 1;
-    while(octaves.at(targetOctave).GetLayerAt(stopPos).GetSigmaGlobal() < sigma
-          && stopPos<_octaveSize-1)
-        stopPos++;
 
-    const double diffLeft =  abs(octaves.at(targetOctave).GetLayerAt(stopPos-1).GetSigmaGlobal()
-                                 - sigma);
-    const double diffRight =  abs(octaves.at(targetOctave).GetLayerAt(stopPos).GetSigmaGlobal()
-                                 - sigma);
+ *
  */

@@ -19,12 +19,16 @@ private:
                                const CVImage& firstImage,
                                const int octaveNumber);
     void CalculateDeltas();
+
 public:
     Pyramid();
     Pyramid(const int octavesCount, const int octaveSize,
             const double sigmaStart, const double sigmaInput,
             const CVImage& source);
     unsigned char L(const int x, const int y, const double sigma) const;
+    const CVImage& GetImageAt(const int octave, const int layer) const;
+    const Octave& GetOctaveAt(const int octave) const;
+
 };
 
 #endif // PYRAMID_H

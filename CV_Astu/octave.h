@@ -18,7 +18,7 @@ public:
     Octave(const Octave& other);
     void AddLayer(const OctaveLayer& layer);
     void SaveAll();
-    const OctaveLayer& GetLayerAt(int index) const;
+    const OctaveLayer& GetLayerAt(const int index) const;
 };
 
 #endif // OCTAVE_H
