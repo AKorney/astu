@@ -15,8 +15,8 @@ private:
     unique_ptr<double[]> _deltas;
     //vector<vector<OctaveLayer>> _octaves;
     vector<Octave> _octaves;
-    CVImage BuildOctave(Octave& octave,
-                               const CVImage& firstImage,
+    DoubleMat BuildOctave(Octave& octave,
+                               const DoubleMat& firstImage,
                                const int octaveNumber);
     void CalculateDeltas();
 
@@ -26,7 +26,7 @@ public:
             const double sigmaStart, const double sigmaInput,
             const CVImage& source);
     unsigned char L(const int x, const int y, const double sigma) const;
-    const CVImage& GetImageAt(const int octave, const int layer) const;
+    const DoubleMat& GetImageAt(const int octave, const int layer) const;
     const Octave& GetOctaveAt(const int octave) const;
 
 };

@@ -151,5 +151,21 @@ DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border) const
 }
 
 
-
+DoubleMat DoubleMat::ScaleDown() const
+{
+    DoubleMat result(_width/2, _height/2);
+    for (int y = 0; y < result._height; y++)
+    {
+        for (int x = 0; x < result._width; x++)
+        {
+            auto value = (get(2 * x, 2 * y)
+                + get(2 * x + 1, 2 * y)
+                + get(2 * x, 2 * y + 1)
+                + get(2 * x + 1, 2 * y + 1))
+                / 4;
+            result._data[y * result._width + x] = value;
+        }
+    }
+    return result;
+}
 

@@ -9,24 +9,25 @@ Pyramid::Pyramid()
 
 }
 
-CVImage Pyramid::BuildOctave(Octave& octave,
-                             const CVImage& firstImage,
+DoubleMat Pyramid::BuildOctave(Octave& octave,
+                             const DoubleMat& firstImage,
                              const int octaveNumber)
 {
-    CVImage result;
+    DoubleMat result;
     auto current = firstImage;
     double sigmaLocal = _sigmaStart;
     double sigmaGlobal = _sigmaStart * pow(2, octaveNumber);
 
-    octave.AddLayer(OctaveLayer(make_unique<CVImage>(current),
+    octave.AddLayer(OctaveLayer(make_unique<DoubleMat>(current),
                                     sigmaLocal, sigmaGlobal));
     for(int i=1; i<_octaveSize + _overlapSize; i++)
     {
-        current = move(current.GaussianSmoothing(_deltas[i-1],
-                       BorderType::Replicate, true));
+        current = move(current
+                       .Convolve(KernelBuilder::BuildGaussX(_deltas[i-1]), BorderType::Replicate)
+                       .Convolve(KernelBuilder::BuildGaussY(_deltas[i-1]), BorderType::Replicate));
         if(i == _octaveSize)
         {
-            result = CVImage(current.ScaleDown());
+            result = DoubleMat(current.ScaleDown());
             //
             sigmaLocal = 2 * _sigmaStart;
             sigmaGlobal = _sigmaStart * pow(2, octaveNumber + 1);
@@ -36,7 +37,7 @@ CVImage Pyramid::BuildOctave(Octave& octave,
             sigmaLocal *= _k;
             sigmaGlobal *= _k;
         }
-        octave.AddLayer(OctaveLayer(make_unique<CVImage>(current),
+        octave.AddLayer(OctaveLayer(make_unique<DoubleMat>(current),
             sigmaLocal, sigmaGlobal));
     }
     return result;
@@ -66,10 +67,11 @@ Pyramid::Pyramid(const int octavesCount, const int octaveSize,
 	const double startDelta = sqrt(sigmaStart * sigmaStart 
 		- sigmaInput * sigmaInput);
     CalculateDeltas();
-    CVImage currentImage = source.GaussianSmoothing(startDelta,
-                                                    BorderType::Replicate,
-                                                    true);
-	for (int octave = 0; octave < _octavesCount; octave++)
+    DoubleMat currentImage = source.PrepareDoubleMat()
+            .Convolve(KernelBuilder::BuildGaussX(startDelta), BorderType::Replicate)
+            .Convolve(KernelBuilder::BuildGaussY(startDelta), BorderType::Replicate);
+
+    for (int octave = 0; octave < _octavesCount; octave++)
 	{
         Octave currentOctave(octave);
         currentImage = move(BuildOctave(currentOctave, currentImage,
@@ -109,28 +111,7 @@ const Octave& Pyramid::GetOctaveAt(const int octave) const
     return _octaves.at(octave);
 }
 
-const CVImage& Pyramid::GetImageAt(const int octave, const int layer) const
+const DoubleMat& Pyramid::GetImageAt(const int octave, const int layer) const
 {
     return GetOctaveAt(octave).GetLayerAt(layer).GetImage();
 }
-/*    const int octave = globalPosition/_octaveSize;
-    const int leftLevel = globalPosition % _octaveSize;
-    const int rightLevel = leftLevel + 1;
-
-
-
-    const double diffLeft =  abs(_octaves.at(octave).GetLayerAt(leftLevel).GetSigmaGlobal()
-                                 - sigma);
-    const double diffRight =  abs(_octaves.at(octave).GetLayerAt(rightLevel).GetSigmaGlobal()
-                                 - sigma);
-    const auto targetLevel = diffLeft < diffRight
-            ? _octaves.at(octave).GetLayerAt(leftLevel)
-            : _octaves.at(octave).GetLayerAt(rightLevel);
-
-    const int targetX = x / pow(2, octave);
-    const int targetY = y / pow (2, octave);
-
-    return targetLevel.GetImage().get(targetX, targetY);
-
- *
- */

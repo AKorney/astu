@@ -40,7 +40,7 @@ public:
 	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax) const;
 	double get(const int x, const int y, BorderType borderType) const;
 
-
+    DoubleMat ScaleDown() const;
 	DoubleMat Convolve(const DoubleMat& kernel, BorderType border) const;
 };
 

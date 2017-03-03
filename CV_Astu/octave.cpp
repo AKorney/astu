@@ -37,7 +37,7 @@ void Octave::SaveAll()
                         + "_G"
                         + QString::number(layer.GetSigmaGlobal())
                         + ".jpg"
-                        , layer.GetImage());
+                        , CVImage(layer.GetImage()));
     }
 }
 
