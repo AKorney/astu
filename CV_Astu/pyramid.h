@@ -15,9 +15,8 @@ private:
     unique_ptr<double[]> _deltas;
     //vector<vector<OctaveLayer>> _octaves;
     vector<Octave> _octaves;
-    DoubleMat BuildOctave(Octave& octave,
-                               const DoubleMat& firstImage,
-                               const int octaveNumber);
+    Octave BuildOctave(const DoubleMat& firstImage,
+                       const int octaveNumber);
     void CalculateDeltas();
 
 public:

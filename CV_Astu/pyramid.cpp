@@ -9,11 +9,10 @@ Pyramid::Pyramid()
 
 }
 
-DoubleMat Pyramid::BuildOctave(Octave& octave,
-                             const DoubleMat& firstImage,
-                             const int octaveNumber)
+Octave Pyramid::BuildOctave(const DoubleMat& firstImage,
+                               const int octaveNumber)
 {
-    DoubleMat result;
+    Octave octave(octaveNumber);
     auto current = firstImage;
     double sigmaLocal = _sigmaStart;
     double sigmaGlobal = _sigmaStart * pow(2, octaveNumber);
@@ -27,7 +26,7 @@ DoubleMat Pyramid::BuildOctave(Octave& octave,
                        .Convolve(KernelBuilder::BuildGaussY(_deltas[i-1]), BorderType::Replicate));
         if(i == _octaveSize)
         {
-            result = DoubleMat(current.ScaleDown());
+            //result = DoubleMat(current.ScaleDown());
             //
             sigmaLocal = 2 * _sigmaStart;
             sigmaGlobal = _sigmaStart * pow(2, octaveNumber + 1);
@@ -40,7 +39,7 @@ DoubleMat Pyramid::BuildOctave(Octave& octave,
         octave.AddLayer(OctaveLayer(make_unique<DoubleMat>(current),
             sigmaLocal, sigmaGlobal));
     }
-    return result;
+    return octave;
 }
 
 void Pyramid::CalculateDeltas()
@@ -73,10 +72,10 @@ Pyramid::Pyramid(const int octavesCount, const int octaveSize,
 
     for (int octave = 0; octave < _octavesCount; octave++)
 	{
-        Octave currentOctave(octave);
-        currentImage = move(BuildOctave(currentOctave, currentImage,
-                                        octave));
+        Octave currentOctave = BuildOctave(currentImage, octave);
         currentOctave.SaveAll();
+        currentImage = currentOctave.GetLayerAt(_octaveSize-1)
+                .GetImage().ScaleDown();
         _octaves.emplace_back(currentOctave);
 	}
 }

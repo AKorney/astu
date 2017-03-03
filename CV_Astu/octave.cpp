@@ -16,6 +16,7 @@ Octave::Octave(int number):
 Octave::Octave(const Octave &other)
 {
     _layers.assign(other._layers.begin(), other._layers.end());
+    _number = other._number;
 }
 
 void Octave::AddLayer(const OctaveLayer& layer)
