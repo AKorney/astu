@@ -74,9 +74,23 @@ Pyramid::Pyramid(const int octavesCount, const int octaveSize,
 	{
         Octave currentOctave = BuildOctave(currentImage, octave);
         currentOctave.SaveAll();
-        currentImage = currentOctave.GetLayerAt(_octaveSize-1)
-                .GetImage().ScaleDown();
         _octaves.emplace_back(currentOctave);
+        if(_overlapSize > 0)
+        {
+            currentImage = currentOctave.GetLayerAt(_octaveSize)
+                .GetImage().ScaleDown();
+        }
+        else
+        {
+            double delta = _sigmaStart * pow(_k, _octaveSize-1)
+                    * sqrt(_k * _k - 1);
+            currentImage = currentOctave.GetLayerAt(_octaveSize-1)
+                    .GetImage()
+                    .Convolve(KernelBuilder::BuildGaussX(delta), BorderType::Replicate)
+                    .Convolve(KernelBuilder::BuildGaussY(delta), BorderType::Replicate)
+                    .ScaleDown();
+        }
+
 	}
 }
 
