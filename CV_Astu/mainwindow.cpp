@@ -30,18 +30,26 @@ void MainWindow::on_openButton_clicked()
 {
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
-    auto detector = HarrisDetector(sourceImage.PrepareDoubleMat());
+    auto detector = MoravecDetector(sourceImage.PrepareDoubleMat());
     auto diffs = detector.CalculateDiffs(3, BorderType::Replicate);
     CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Diffs.jpg", CVImage(diffs));
-    auto points = (&detector)->FindInterestingPoints(3);
+    auto points = detector.FindInterestingPoints(3, 0.015);
     QImage qImage = CVImageLoader::CreateQImage(sourceImage);
     QPainter painter(&qImage);
     for (auto &point : points) {
         painter.setPen(QColor(255, 255, 0));
         painter.drawEllipse(point.x, point.y, 2, 2);
     }
-
     qImage.save("C:\\Users\\Alena\\Pictures\\IPDTEST.jpg");
+
+    auto anmsResult = detector.ANMS(250);
+    QImage qImage2 = CVImageLoader::CreateQImage(sourceImage);
+    QPainter painter2(&qImage2);
+    for (auto &point : anmsResult) {
+        painter2.setPen(QColor(255, 255, 0));
+        painter2.drawEllipse(point.x, point.y, 2, 2);
+    }
+    qImage2.save("C:\\Users\\Alena\\Pictures\\anms.jpg");
 }
 
 
