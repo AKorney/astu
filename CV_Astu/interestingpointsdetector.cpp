@@ -18,22 +18,22 @@ vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
 {
     vector<InterestingPoint> result;
     auto errors =
-            CalculateErrors(windowHalfSize, borderType);
+            CalculateDiffs(windowHalfSize, borderType);
     for(int x = 0; x < errors.getWidth(); x++)
     {
         for(int y = 0; y < errors.getHeight(); y++)
         {
             if(errors.get(x,y, borderType) < threshold) continue;
-            bool maximal = true;
+            bool max = true;
             for(int px = - extractionRadius; px <= extractionRadius; px++)
             {
                 for(int py = -extractionRadius; py <= extractionRadius; py++)
                 {
-                    if(errors.get(x+px, y+py, borderType) > errors.get(x,y, borderType)) maximal = false;
+                    if(errors.get(x+px, y+py, borderType) > errors.get(x,y, borderType)) max = false;
                 }
             }
 
-            if(maximal)
+            if(max)
             {
                 InterestingPoint  newPoint;
                 newPoint.x = x;

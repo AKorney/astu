@@ -32,7 +32,7 @@ double MoravecDetector::CalculateCxy
     return cxy;
 }
 
-DoubleMat MoravecDetector::CalculateErrors
+DoubleMat MoravecDetector::CalculateDiffs
     (const int windowHalfSize, const BorderType borderType) const
 {
     DoubleMat result(_source.getWidth(), _source.getHeight());

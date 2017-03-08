@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     pyramid.cpp \
     octave.cpp \
     interestingpointsdetector.cpp \
-    moravecdetector.cpp
+    moravecdetector.cpp \
+    harrisdetector.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -44,6 +45,7 @@ HEADERS  += mainwindow.h \
     pyramid.h \
     octave.h \
     interestingpointsdetector.h \
-    moravecdetector.h
+    moravecdetector.h \
+    harrisdetector.h
 
 FORMS    += mainwindow.ui

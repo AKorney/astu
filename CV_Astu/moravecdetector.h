@@ -11,7 +11,7 @@ private:
 public:
     MoravecDetector(const DoubleMat& source);
 
-    virtual DoubleMat CalculateErrors(const int windowHalfSize,
+    virtual DoubleMat CalculateDiffs(const int windowHalfSize,
                                const BorderType borderType) const;
 };
 

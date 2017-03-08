@@ -23,7 +23,7 @@ protected:
    //vector<InterestingPoint> FindPoints(const DoubleMat& errorData) const;
 public:    
    InterestingPointsDetector(const DoubleMat& source);
-   virtual DoubleMat CalculateErrors(const int windowHalfSize,
+   virtual DoubleMat CalculateDiffs(const int windowHalfSize,
                                       const BorderType borderType) const = 0;
    vector<InterestingPoint> FindInterestingPoints(const int windowHalfSize = 3,
                                                   const double threshold = 0.075,

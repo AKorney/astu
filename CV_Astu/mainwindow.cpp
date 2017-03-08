@@ -10,6 +10,7 @@
 #include "doublemat.h"
 #include "pyramid.h"
 #include "moravecdetector.h"
+#include "harrisdetector.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,8 +30,8 @@ void MainWindow::on_openButton_clicked()
 {
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
-    auto detector = MoravecDetector(sourceImage.PrepareDoubleMat());
-    auto diffs = detector.CalculateErrors(3, BorderType::Replicate);
+    auto detector = HarrisDetector(sourceImage.PrepareDoubleMat());
+    auto diffs = detector.CalculateDiffs(3, BorderType::Replicate);
     CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Diffs.jpg", CVImage(diffs));
     auto points = (&detector)->FindInterestingPoints(3);
     QImage qImage = CVImageLoader::CreateQImage(sourceImage);
