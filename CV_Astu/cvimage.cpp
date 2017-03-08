@@ -119,8 +119,8 @@ CVImage CVImage::Sobel(const BorderType border)
 	{
 		for (int j = 0; j < _height; j++)
 		{
-			double value = doubleMatX.get(i, j) * doubleMatX.get(i, j) 
-				+ doubleMatY.get(i, j) * doubleMatY.get(i, j);
+            double value = doubleMatX.get(i, j, border) * doubleMatX.get(i, j, border)
+                + doubleMatY.get(i, j, border) * doubleMatY.get(i, j, border);
 			doubleMat.set(sqrt(value), i, j);
 		}
 	}

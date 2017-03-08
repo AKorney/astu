@@ -31,7 +31,9 @@ SOURCES += main.cpp\
     kernelbuilder.cpp \
     OctaveLayer.cpp \
     pyramid.cpp \
-    octave.cpp
+    octave.cpp \
+    interestingpointsdetector.cpp \
+    moravecdetector.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -40,6 +42,8 @@ HEADERS  += mainwindow.h \
     kernelbuilder.h \
     OctaveLayer.h \
     pyramid.h \
-    octave.h
+    octave.h \
+    interestingpointsdetector.h \
+    moravecdetector.h
 
 FORMS    += mainwindow.ui

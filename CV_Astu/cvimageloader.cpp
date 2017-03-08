@@ -47,7 +47,14 @@ void CVImageLoader::Save(const QString filePath, const CVImage &source)
 
 QImage CVImageLoader::CreateQImage(const CVImage &source)
 {
-    auto qImage = QImage(source.GetImageData(), source.getWidth(), source.getHeight(),
-                           QImage::Format_Grayscale8);
+    auto qImage =  QImage(source.getWidth(), source.getHeight(), QImage::Format_RGB32);
+    for (int y = 0; y < source.getHeight(); y++)
+    {
+        for (int x = 0; x < source.getWidth(); x++)
+        {
+            int color = (int)(source.get(x, y));
+            qImage.setPixel(x, y, qRgb(color, color, color));
+        }
+    }
     return qImage;
 }

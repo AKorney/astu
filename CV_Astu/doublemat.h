@@ -34,11 +34,11 @@ public:
 	int getHeight() const;
 	int getWidth() const;
 
-    double get(const int x, const int y) const;
+    //double get(const int x, const int y) const;
     void set(const double value, const int x, const int y);
 
 	unique_ptr<double[]> GetNormalizedData(double newMin, double newMax) const;
-	double get(const int x, const int y, BorderType borderType) const;
+    double get(const int x, const int y, BorderType borderType = BorderType::Constant) const;
 
     DoubleMat ScaleDown() const;
 	DoubleMat Convolve(const DoubleMat& kernel, BorderType border) const;

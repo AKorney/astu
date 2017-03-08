@@ -62,10 +62,10 @@ int DoubleMat::getWidth() const
 }
 
 
-double DoubleMat::get(const int x, const int y) const
-{
-    return _data[y * _width + x];
-}
+//double DoubleMat::get(const int x, const int y) const
+//{
+//    return _data[y * _width + x];
+//}
 
 void DoubleMat::set(const double value,const int x, const int y)
 {
@@ -141,7 +141,7 @@ DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border) const
 				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
 				{
 					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
-						* kernel.get(kernelX, kernelY);
+                        * kernel.get(kernelX, kernelY, border);
 				}
 			}
 			resultMat.set(result, x, y);
@@ -158,10 +158,10 @@ DoubleMat DoubleMat::ScaleDown() const
     {
         for (int x = 0; x < result._width; x++)
         {
-            auto value = (get(2 * x, 2 * y)
-                + get(2 * x + 1, 2 * y)
-                + get(2 * x, 2 * y + 1)
-                + get(2 * x + 1, 2 * y + 1))
+            auto value = (get(2 * x, 2 * y, BorderType::Replicate)
+                + get(2 * x + 1, 2 * y,  BorderType::Replicate)
+                + get(2 * x, 2 * y + 1,  BorderType::Replicate)
+                + get(2 * x + 1, 2 * y + 1,  BorderType::Replicate))
                 / 4;
             result._data[y * result._width + x] = value;
         }
