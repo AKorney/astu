@@ -30,7 +30,8 @@ vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
             {
                 for(int py = -extractionRadius; py <= extractionRadius; py++)
                 {
-                    if(errors.get(x+px, y+py, borderType) > errors.get(x,y, borderType)) max = false;
+                    if(errors.get(x+px, y+py, borderType) > errors.get(x,y, borderType))
+                        max = false;
                 }
             }
 
@@ -50,27 +51,27 @@ vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
 vector<InterestingPoint> InterestingPointsDetector::ANMS
 (int maxCount) const
 {
-    vector<InterestingPoint> supressed;
-    supressed.assign(_points.begin(), _points.end());
+    vector<InterestingPoint> suppressed;
+    suppressed.assign(_points.begin(), _points.end());
     int r = 0;
     while (r < max(_source.getWidth(), _source.getHeight())
-           && supressed.size() > maxCount)
+           && suppressed.size() > maxCount)
     {
-        for(int i = 0; i < supressed.size(); i++)
+        for(int i = 0; i < suppressed.size(); i++)
         {
-            for(int j = i+1; j < supressed.size(); j++)
+            for(int j = i+1; j < suppressed.size(); j++)
             {
-                int dx = supressed[i].x - supressed[j].x;
-                int dy = supressed[i].y - supressed[j].y;
+                int dx = suppressed[i].x - suppressed[j].x;
+                int dy = suppressed[i].y - suppressed[j].y;
                 double distance = sqrt(dx*dx + dy*dy);
-                if(distance <= r &&  supressed[j].w < supressed[i].w * 0.9)
+                if(distance <= r &&  suppressed[j].w < suppressed[i].w * 0.9)
                 {
-                    supressed.erase(supressed.begin() + j);
+                    suppressed.erase(suppressed.begin() + j);
                     --j;
                 }
             }
         }
         ++r;
     }
-    return supressed;
+    return suppressed;
 }
