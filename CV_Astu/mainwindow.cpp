@@ -30,7 +30,9 @@ void MainWindow::on_openButton_clicked()
 {
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
-    auto detector = MoravecDetector(sourceImage.PrepareDoubleMat());
+    auto detector = HarrisDetector(sourceImage.PrepareDoubleMat()
+                                   .Convolve(KernelBuilder::BuildGauss(1),
+                                             BorderType::Replicate));
     auto diffs = detector.CalculateDiffs(3, BorderType::Replicate);
     CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Diffs.jpg", CVImage(diffs));
     auto points = detector.FindInterestingPoints(3, 0.015);
@@ -40,9 +42,10 @@ void MainWindow::on_openButton_clicked()
         painter.setPen(QColor(255, 255, 0));
         painter.drawEllipse(point.x, point.y, 2, 2);
     }
-    qImage.save("C:\\Users\\Alena\\Pictures\\IPDTEST.jpg");
+    qImage.save("C:\\Users\\Alena\\Pictures\\pointsHarris.jpg");
 
-    auto anmsResult = detector.ANMS(250);
+    auto anmsResult = detector.ANMS(points, 250,
+                                    max(sourceImage.getWidth(), sourceImage.getHeight()));
     QImage qImage2 = CVImageLoader::CreateQImage(sourceImage);
     QPainter painter2(&qImage2);
     for (auto &point : anmsResult) {

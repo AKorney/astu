@@ -20,7 +20,7 @@ class InterestingPointsDetector
 {
 protected:
    DoubleMat _source;
-   vector<InterestingPoint> _points;
+
 public:    
    InterestingPointsDetector(const DoubleMat& source);
    virtual DoubleMat CalculateDiffs(const int windowHalfSize,
@@ -28,9 +28,10 @@ public:
    vector<InterestingPoint> FindInterestingPoints(const int windowHalfSize = 3,
                                                   const double threshold = 0.075,
                                                   const int extractionRadius = 3,
-                                                  const BorderType borderType = BorderType::Replicate);
+                                                  const BorderType borderType = BorderType::Replicate) const;
 
-   vector<InterestingPoint> ANMS(int maxCount) const;
+   static vector<InterestingPoint> ANMS(const vector<InterestingPoint> source,
+                                        const int maxCount, const int maxRadius);
    virtual ~InterestingPointsDetector();
 
 

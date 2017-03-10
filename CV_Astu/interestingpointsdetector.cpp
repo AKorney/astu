@@ -14,10 +14,9 @@ InterestingPointsDetector::~InterestingPointsDetector()
 
 vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
 (const int windowHalfSize, const double threshold,
- const int extractionRadius, const BorderType borderType)
+ const int extractionRadius, const BorderType borderType) const
 {
-    //vector<InterestingPoint> result;
-    _points.clear();
+    vector<InterestingPoint> result;
     auto errors =
             CalculateDiffs(windowHalfSize, borderType);
     for(int x = 0; x < errors.getWidth(); x++)
@@ -41,20 +40,21 @@ vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
                 newPoint.x = x;
                 newPoint.y = y;
                 newPoint.w = errors.get(x,y);
-                _points.emplace_back(newPoint);
+                result.emplace_back(newPoint);
             }
         }
     }
-    return _points;
+    return result;
 }
 
 vector<InterestingPoint> InterestingPointsDetector::ANMS
-(int maxCount) const
+(const vector<InterestingPoint> source,
+          const int maxCount, const int maxRadius)
 {
     vector<InterestingPoint> suppressed;
-    suppressed.assign(_points.begin(), _points.end());
+    suppressed.assign(source.begin(), source.end());
     int r = 0;
-    while (r < max(_source.getWidth(), _source.getHeight())
+    while (r < maxRadius
            && suppressed.size() > maxCount)
     {
         for(int i = 0; i < suppressed.size(); i++)
