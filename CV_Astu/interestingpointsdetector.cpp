@@ -23,7 +23,7 @@ InterestingPointsDetector::~InterestingPointsDetector()
 
 }
 DoubleMat InterestingPointsDetector::CalculateHarrisMap
-(const int windowHalfSize, const BorderType borderType) //const
+(const int windowHalfSize, const BorderType borderType) const
 {
     const auto sobelX = _source.Convolve(KernelBuilder::BuildSobelX(), borderType);
     const auto sobelY = _source.Convolve(KernelBuilder::BuildSobelY(), borderType);
@@ -60,7 +60,7 @@ DoubleMat InterestingPointsDetector::CalculateHarrisMap
 
 double InterestingPointsDetector::CalculateCxy
 (const int x, const int y, const int windowHalfSize,
- const BorderType borderType) //const
+ const BorderType borderType) const
 {
     double cxy = INFINITY;
     for(int dx = -1; dx <= 1; dx++)
@@ -85,7 +85,7 @@ double InterestingPointsDetector::CalculateCxy
 }
 
 DoubleMat InterestingPointsDetector::CalculateMoravecMap
-(const int windowHalfSize, const BorderType borderType) //const
+(const int windowHalfSize, const BorderType borderType) const
 {
     DoubleMat result(_source.getWidth(), _source.getHeight());
     for(int x = 0; x < _source.getWidth(); x++)
@@ -101,7 +101,7 @@ DoubleMat InterestingPointsDetector::CalculateMoravecMap
 
 vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
 (const int windowHalfSize, const double threshold,
- const int extractionRadius, const BorderType borderType) //const
+ const int extractionRadius, const BorderType borderType) const
 {
     vector<InterestingPoint> result;
 
