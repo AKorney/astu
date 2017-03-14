@@ -1,17 +1,16 @@
 #include "interestingpointsdetector.h"
 
-InterestingPointsDetector::InterestingPointsDetector(const DoubleMat &source,
-                                                     const DetectionMethod method)
-    :_source(source)
+InterestingPointsDetector::InterestingPointsDetector(const DetectionMethod method)
+
 {
     switch (method) {
     case DetectionMethod::Moravec:
-        _diffCalc =[&](const int ws, const BorderType bt)
-            {return CalculateMoravecMap(ws, bt);};
+        _diffCalc =[&](const DoubleMat& src, const int ws, const BorderType bt)
+            {return CalculateMoravecMap(src, ws, bt);};
         break;
     case DetectionMethod::Harris:
-        _diffCalc =[&](const int ws, const BorderType bt)
-            {return CalculateHarrisMap(ws, bt);};
+        _diffCalc =[&](const DoubleMat& src, const int ws, const BorderType bt)
+            {return CalculateHarrisMap(src, ws, bt);};
         break;
     default:
         break;
@@ -23,17 +22,17 @@ InterestingPointsDetector::~InterestingPointsDetector()
 
 }
 DoubleMat InterestingPointsDetector::CalculateHarrisMap
-(const int windowHalfSize, const BorderType borderType) const
+(const DoubleMat& source, const int windowHalfSize, const BorderType borderType) const
 {
-    const auto sobelX = _source.Convolve(KernelBuilder::BuildSobelX(), borderType);
-    const auto sobelY = _source.Convolve(KernelBuilder::BuildSobelY(), borderType);
+    const auto sobelX = source.Convolve(KernelBuilder::BuildSobelX(), borderType);
+    const auto sobelY = source.Convolve(KernelBuilder::BuildSobelY(), borderType);
     double sigma = 1.0*windowHalfSize/3;
     const auto weights = KernelBuilder::BuildGauss(sigma);
 
-    DoubleMat result(_source.getWidth(), _source.getHeight());
-    for(int x = 0; x < _source.getWidth(); x++)
+    DoubleMat result(source.getWidth(), source.getHeight());
+    for(int x = 0; x < source.getWidth(); x++)
     {
-        for(int y = 0; y < _source.getHeight(); y++)
+        for(int y = 0; y < source.getHeight(); y++)
         {
             double a=0, b=0, c=0;
             for(int u = -windowHalfSize; u<= windowHalfSize; u++)
@@ -59,8 +58,8 @@ DoubleMat InterestingPointsDetector::CalculateHarrisMap
 }
 
 double InterestingPointsDetector::CalculateCxy
-(const int x, const int y, const int windowHalfSize,
- const BorderType borderType) const
+(const DoubleMat& source, const int x, const int y,
+  const int windowHalfSize, const BorderType borderType) const
 {
     double cxy = INFINITY;
     for(int dx = -1; dx <= 1; dx++)
@@ -73,8 +72,8 @@ double InterestingPointsDetector::CalculateCxy
             {
                 for(int u = -windowHalfSize; u<= windowHalfSize; u++)
                 {
-                    double diff = _source.get(x+u, y+v, borderType)
-                            - _source.get(x+u+dx, y+v+dy, borderType);
+                    double diff = source.get(x+u, y+v, borderType)
+                            - source.get(x+u+dx, y+v+dy, borderType);
                     sum += diff*diff;
                 }
             }
@@ -85,14 +84,14 @@ double InterestingPointsDetector::CalculateCxy
 }
 
 DoubleMat InterestingPointsDetector::CalculateMoravecMap
-(const int windowHalfSize, const BorderType borderType) const
+(const DoubleMat& source, const int windowHalfSize, const BorderType borderType) const
 {
-    DoubleMat result(_source.getWidth(), _source.getHeight());
-    for(int x = 0; x < _source.getWidth(); x++)
+    DoubleMat result(source.getWidth(), source.getHeight());
+    for(int x = 0; x < source.getWidth(); x++)
     {
-        for(int y = 0; y < _source.getWidth(); y++)
+        for(int y = 0; y < source.getWidth(); y++)
         {
-            result.set(CalculateCxy(x,y,windowHalfSize, borderType)
+            result.set(CalculateCxy(source, x, y, windowHalfSize, borderType)
                         , x, y);
         }
     }
@@ -100,12 +99,12 @@ DoubleMat InterestingPointsDetector::CalculateMoravecMap
 }
 
 vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
-(const int windowHalfSize, const double threshold,
+(const DoubleMat& source, const int windowHalfSize, const double threshold,
  const int extractionRadius, const BorderType borderType) const
 {
     vector<InterestingPoint> result;
 
-    auto errors = _diffCalc(windowHalfSize, borderType);
+    auto errors = _diffCalc(source, windowHalfSize, borderType);
             //CalculateDiffs(windowHalfSize, borderType);
     for(int x = 0; x < errors.getWidth(); x++)
     {

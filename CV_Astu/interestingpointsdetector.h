@@ -24,20 +24,23 @@ struct InterestingPoint
 class InterestingPointsDetector
 {
 private:
-   DoubleMat _source;
-   function<DoubleMat(const int, const BorderType)> _diffCalc;
-   double CalculateCxy(const int x, const int y,
+
+   function<DoubleMat(const DoubleMat&, const int, const BorderType)> _diffCalc;
+   double CalculateCxy(const DoubleMat& source, const int x, const int y,
                        const int windowHalfSize,
                        const BorderType borderType) const;
-   DoubleMat CalculateMoravecMap(const int windowHalfSize,
-            const BorderType borderType) const;
-   DoubleMat CalculateHarrisMap(const int windowHalfSize,
-            const BorderType borderType) const;
+   DoubleMat CalculateMoravecMap(const DoubleMat& source,
+                                 const int windowHalfSize,
+                                 const BorderType borderType) const;
+   DoubleMat CalculateHarrisMap(const DoubleMat& source,
+                                const int windowHalfSize,
+                                const BorderType borderType) const;
 public:
 
-   InterestingPointsDetector(const DoubleMat& source, const DetectionMethod method);
+   InterestingPointsDetector(const DetectionMethod method);
 
-   vector<InterestingPoint> FindInterestingPoints(const int windowHalfSize = 3,
+   vector<InterestingPoint> FindInterestingPoints(const DoubleMat& source,
+                                                  const int windowHalfSize = 3,
                                                   const double threshold = 0.075,
                                                   const int extractionRadius = 3,
                                                   const BorderType borderType = BorderType::Replicate)

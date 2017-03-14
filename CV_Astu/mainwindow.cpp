@@ -30,13 +30,13 @@ void MainWindow::on_openButton_clicked()
 {
     
 	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
-    auto detector = InterestingPointsDetector(sourceImage.PrepareDoubleMat()
-                                   .Convolve(KernelBuilder::BuildGauss(1),
-                                             BorderType::Replicate),
-                                              DetectionMethod::Harris);
+    auto detector = InterestingPointsDetector(DetectionMethod::Harris);
     //auto diffs = detector.CalculateDiffs(3, BorderType::Replicate);
     //CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Diffs.jpg", CVImage(diffs));
-    auto points = detector.FindInterestingPoints(3, 0.015);
+    auto points = detector.FindInterestingPoints(sourceImage.PrepareDoubleMat()
+                                                 .Convolve(KernelBuilder::BuildGauss(1),
+                                                           BorderType::Replicate),
+                                                 3, 0.015);
     QImage qImage = CVImageLoader::CreateQImage(sourceImage);
     QPainter painter(&qImage);
     for (auto &point : points) {
