@@ -46,7 +46,7 @@ void MainWindow::on_openButton_clicked()
     qImage.save("C:\\Users\\Alena\\Pictures\\pointsHarris.jpg");
     auto descriptorBuilder = DescriptorsBuilder();
     auto descriptors = descriptorBuilder.CalculateSimpleDescriptors(sourceImage.PrepareDoubleMat(), points);
-
+    DescriptorsBuilder::FindMatches(descriptors, descriptors);
 }
 
 

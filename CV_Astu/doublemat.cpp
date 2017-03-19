@@ -108,7 +108,7 @@ double DoubleMat::get(const int x, const int y, BorderType borderType) const
 		if (y < 0) effectiveY = 0;
 		if (x >= _width) effectiveX = _width - 1;
 		if (y >= _height) effectiveY = _height - 1;
-		return _data[effectiveY * _width + effectiveX];
+        return _data[effectiveY * _width + effectiveX];
 	case BorderType::Reflect:
 		if (x < 0) effectiveX = -x;
 		if (y < 0) effectiveY = -y;

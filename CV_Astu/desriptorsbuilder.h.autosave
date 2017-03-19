@@ -1,0 +1,33 @@
+#ifndef DECRIPTORSBUILDER_H
+#define DECRIPTORSBUILDER_H
+
+#include <vector>
+
+#include "interestingpointsdetector.h"
+#include "doublemat.h"
+#include "kernelbuilder.h"
+
+
+using namespace std;
+
+struct Descriptor
+{
+    InterestingPoint targetPoint;
+    vector<double> localDescription;
+};
+
+class DesriptorsBuilder
+{
+    const int windowSize = 16;
+    const int windowStep = 4;
+    const int hgBinsCount = 8;
+    const double nnsr = 0.8;
+public:
+
+    DesriptorsBuilder();
+    vector<Descriptor> CalculateSimpleDescriptors(const DoubleMat& source,
+                                                  const vector<InterestingPoint> points);
+
+};
+
+#endif // DECRIPTORSBUILDER_H
