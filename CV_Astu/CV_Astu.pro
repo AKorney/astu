@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     OctaveLayer.cpp \
     pyramid.cpp \
     octave.cpp \
-    interestingpointsdetector.cpp
+    interestingpointsdetector.cpp \
+    descriptorsbuilder.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -42,6 +43,7 @@ HEADERS  += mainwindow.h \
     OctaveLayer.h \
     pyramid.h \
     octave.h \
-    interestingpointsdetector.h
+    interestingpointsdetector.h \
+    descriptorsbuilder.h
 
 FORMS    += mainwindow.ui

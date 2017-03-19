@@ -9,8 +9,8 @@
 #include "cvimageloader.h"
 #include "doublemat.h"
 #include "pyramid.h"
-#include "moravecdetector.h"
-#include "harrisdetector.h"
+#include "interestingpointsdetector.h"
+#include "descriptorsbuilder.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -44,16 +44,9 @@ void MainWindow::on_openButton_clicked()
         painter.drawEllipse(point.x, point.y, 2, 2);
     }
     qImage.save("C:\\Users\\Alena\\Pictures\\pointsHarris.jpg");
+    auto descriptorBuilder = DescriptorsBuilder();
+    auto descriptors = descriptorBuilder.CalculateSimpleDescriptors(sourceImage.PrepareDoubleMat(), points);
 
-    auto anmsResult = detector.ANMS(points, 250,
-                                    max(sourceImage.getWidth(), sourceImage.getHeight()));
-    QImage qImage2 = CVImageLoader::CreateQImage(sourceImage);
-    QPainter painter2(&qImage2);
-    for (auto &point : anmsResult) {
-        painter2.setPen(QColor(255, 255, 0));
-        painter2.drawEllipse(point.x, point.y, 2, 2);
-    }
-    qImage2.save("C:\\Users\\Alena\\Pictures\\anms.jpg");
 }
 
 
