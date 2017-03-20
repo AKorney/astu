@@ -1,29 +1,48 @@
 #include "descriptorsbuilder.h"
 #include <QTextStream>
 #include "imagehelper.h"
-
+#include <cassert>
 DescriptorsBuilder::DescriptorsBuilder()
 {
 
 }
 
-DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &source)
+DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv)
 {
     BorderType border = BorderType::Replicate;
-    const auto sobelX = source.Convolve(KernelBuilder::BuildSobelX(), border);
-    const auto sobelY = source.Convolve(KernelBuilder::BuildSobelY(), border);
 
-    DoubleMat gradients(source.getWidth(), source.getHeight());
-    for (int i = 0; i < source.getWidth(); i++)
+
+    DoubleMat gradients(xDrv.getWidth(), xDrv.getHeight());
+    for (int i = 0; i < xDrv.getWidth(); i++)
     {
-        for (int j = 0; j < source.getHeight(); j++)
+        for (int j = 0; j < xDrv.getHeight(); j++)
         {
-            double value = sobelX.get(i, j, border) * sobelX.get(i, j, border)
-                + sobelY.get(i, j, border) * sobelY.get(i, j, border);
+            double value = xDrv.get(i, j, border) * xDrv.get(i, j, border)
+                + yDrv.get(i, j, border) * yDrv.get(i, j, border);
             gradients.set(sqrt(value), i, j);
         }
     }
     return gradients;
+}
+
+DoubleMat DescriptorsBuilder::CalculateGradientAngles
+(const DoubleMat &xDrv, const DoubleMat &yDrv)
+{
+    BorderType border = BorderType::Replicate;
+
+
+    DoubleMat angles(xDrv.getWidth(), xDrv.getHeight());
+    for (int i = 0; i < xDrv.getWidth(); i++)
+    {
+        for (int j = 0; j < xDrv.getHeight(); j++)
+        {
+            double value = atan2(yDrv.get(i,j,border), xDrv.get(i,j,border));
+            if(value < 0) value = 2 * M_PI + value;
+
+            angles.set(value, i, j);
+        }
+    }
+    return angles;
 }
 
 Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
@@ -57,10 +76,70 @@ Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
     return result;
 }
 
+Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
+(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint point)
+{
+    const int startX = point.x - GRID_HALFSIZE;
+    const int startY = point.y - GRID_HALFSIZE;
+
+    Descriptor result;
+    result.targetPoint = point;
+    for(int i=0; i<GRID_CELLS_COUNT*G_ANGLES_COUNT; i++)
+    {
+        result.localDescription.emplace_back(0);
+    }
+
+    for(int cell = 0; cell < GRID_CELLS_COUNT; cell++)
+    {
+        const int cellStartX = startX + GRID_STEP * (cell % (GRID_SIZE / GRID_STEP));
+        const int cellStartY = startY + GRID_STEP * (cell / (GRID_SIZE / GRID_STEP));
+        for(int x = cellStartX; x < cellStartX + GRID_STEP; x++)
+        {
+            for(int y = cellStartY; y < cellStartY + GRID_STEP; y++)
+            {
+                int left, right;
+                double cleft, cright;
+                double phi = angles.get(x,y);
+
+                int k = phi / G_ANGLE;
+
+                if(phi > k * G_ANGLE + 0.5 * G_ANGLE)
+                {
+                    left = k;
+                    right = k + 1;
+                    cleft = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
+                    cright = 1 - cleft;
+                }
+                else
+                {
+                    left = k - 1;
+                    right = k;
+                    cright = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
+                    cleft = 1 - cright;
+                }
+                if(right >= G_ANGLES_COUNT) right = 0;
+                if(left < 0) left = G_ANGLES_COUNT - 1;
+
+
+
+                assert(cleft >=0 && cright >=0);
+
+                result.localDescription.at(G_ANGLES_COUNT * cell + left)
+                        += gradients.get(x, y) * cright;
+                result.localDescription.at(G_ANGLES_COUNT * cell + right)
+                        += gradients.get(x, y) * cleft;
+            }
+        }
+    }
+    return result;
+}
+
 vector<Descriptor> DescriptorsBuilder::CalculateSimpleDescriptors
 (const DoubleMat &source, const vector<InterestingPoint> points)
 {
-    auto gradientValues = CalculateGradients(source);
+    const auto xDrv = source.Convolve(KernelBuilder::BuildSobelX(), BorderType::Replicate);
+    const auto yDrv = source.Convolve(KernelBuilder::BuildSobelY(), BorderType::Replicate);
+    auto gradientValues = CalculateGradients(xDrv, yDrv);
 
     vector<Descriptor> descriptors;
 
@@ -70,6 +149,20 @@ vector<Descriptor> DescriptorsBuilder::CalculateSimpleDescriptors
     return descriptors;
 }
 
+vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
+(const DoubleMat &source, const vector<InterestingPoint> points)
+{
+    const auto xDrv = source.Convolve(KernelBuilder::BuildSobelX(), BorderType::Replicate);
+    const auto yDrv = source.Convolve(KernelBuilder::BuildSobelY(), BorderType::Replicate);
+    auto gradientValues = CalculateGradients(xDrv, yDrv);
+    auto angleValues = CalculateGradientAngles(xDrv, yDrv);
+    vector<Descriptor> descriptors;
+
+    for (auto &point : points) {
+       descriptors.emplace_back(CalculateHistogramDescriptor(gradientValues, angleValues, point));
+    }
+    return descriptors;
+}
 
 vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
 (const vector<Descriptor> &first, const vector<Descriptor> &second)

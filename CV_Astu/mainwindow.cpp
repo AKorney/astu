@@ -33,22 +33,28 @@ void MainWindow::on_openButton_clicked()
     const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\test2.png");
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
 
-
-    auto points1 = detector.FindInterestingPoints(sourceImage1.PrepareDoubleMat()
+    auto im1DM = sourceImage1.PrepareDoubleMat();
+    auto im2DM = sourceImage2.PrepareDoubleMat();
+    auto points1 = detector.FindInterestingPoints(im1DM
                                                  .Convolve(KernelBuilder::BuildGauss(1),
                                                            BorderType::Replicate),
                                                  3, 0.075);
-    auto points2 = detector.FindInterestingPoints(sourceImage2.PrepareDoubleMat()
+    auto points2 = detector.FindInterestingPoints(im2DM
                                                  .Convolve(KernelBuilder::BuildGauss(1),
                                                            BorderType::Replicate),
                                                  3, 0.075);
 
     auto descriptorBuilder = DescriptorsBuilder();
     auto descriptors1 = descriptorBuilder.CalculateSimpleDescriptors
-            (sourceImage1.PrepareDoubleMat(), points1);
+            (im1DM, points1);
     auto descriptors2 = descriptorBuilder.CalculateSimpleDescriptors
-            (sourceImage2.PrepareDoubleMat(), points2);
-    auto matches = DescriptorsBuilder::FindMatches(descriptors1, descriptors2);
+            (im2DM, points2);
+
+    auto desc3 = descriptorBuilder.CalculateHistogramDesctiptors
+            (im1DM, points1);
+    auto desc4 = descriptorBuilder.CalculateHistogramDesctiptors
+            (im2DM, points2);
+    auto matches = DescriptorsBuilder::FindMatches(desc3, desc4);
     auto extended = ImageHelper::DrawMatches(sourceImage1, sourceImage2, matches);
     extended.save("C:\\Users\\Alena\\Pictures\\descr\\matches.jpg");
 }
