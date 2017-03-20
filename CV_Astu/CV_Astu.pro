@@ -26,24 +26,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     cvimage.cpp \
-    cvimageloader.cpp \
     doublemat.cpp \
     kernelbuilder.cpp \
     OctaveLayer.cpp \
     pyramid.cpp \
     octave.cpp \
     interestingpointsdetector.cpp \
-    descriptorsbuilder.cpp
+    descriptorsbuilder.cpp \
+    imagehelper.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
-    cvimageloader.h \
     doublemat.h \
     kernelbuilder.h \
     OctaveLayer.h \
     pyramid.h \
     octave.h \
     interestingpointsdetector.h \
-    descriptorsbuilder.h
+    descriptorsbuilder.h \
+    imagehelper.h
 
 FORMS    += mainwindow.ui

@@ -6,7 +6,7 @@
 #include "ui_mainwindow.h"
 
 #include "cvimage.h"
-#include "cvimageloader.h"
+#include "imagehelper.h"
 #include "doublemat.h"
 #include "pyramid.h"
 #include "interestingpointsdetector.h"
@@ -29,24 +29,21 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     
-	const auto sourceImage = CVImageLoader::Load(ui->lineEdit->text());
+    const auto sourceImage = ImageHelper::Load(ui->lineEdit->text());
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
     //auto diffs = detector.CalculateDiffs(3, BorderType::Replicate);
     //CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\Diffs.jpg", CVImage(diffs));
     auto points = detector.FindInterestingPoints(sourceImage.PrepareDoubleMat()
                                                  .Convolve(KernelBuilder::BuildGauss(1),
                                                            BorderType::Replicate),
-                                                 3, 0.015);
-    QImage qImage = CVImageLoader::CreateQImage(sourceImage);
-    QPainter painter(&qImage);
-    for (auto &point : points) {
-        painter.setPen(QColor(255, 255, 0));
-        painter.drawEllipse(point.x, point.y, 2, 2);
-    }
+                                                 3, 0.075);
+    auto qImage = ImageHelper::MarkInterestingPoints(sourceImage, points);
     qImage.save("C:\\Users\\Alena\\Pictures\\pointsHarris.jpg");
     auto descriptorBuilder = DescriptorsBuilder();
     auto descriptors = descriptorBuilder.CalculateSimpleDescriptors(sourceImage.PrepareDoubleMat(), points);
-    DescriptorsBuilder::FindMatches(descriptors, descriptors);
+    auto matches = DescriptorsBuilder::FindMatches(descriptors, descriptors);
+    auto extended = ImageHelper::DrawMatches(sourceImage, sourceImage, matches);
+    extended.save("C:\\Users\\Alena\\Pictures\\matches.jpg");
 }
 
 

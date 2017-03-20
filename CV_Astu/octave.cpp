@@ -1,6 +1,6 @@
 #include "octave.h"
 #include <QString>
-#include "cvimageloader.h"
+#include "imagehelper.h"
 Octave::Octave():
     _number(-1)
 {
@@ -30,7 +30,7 @@ void Octave::SaveAll()
     for(int i=0;i<_layers.size(); i++)
     {
         auto layer = _layers.at(i);
-        CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\CV_Pyr\\Oct"
+        ImageHelper::Save("C:\\Users\\Alena\\Pictures\\CV_Pyr\\Oct"
                         + QString::number(_number)
                         + "_La" + QString::number(i)
                         + "_L"

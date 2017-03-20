@@ -1,7 +1,7 @@
 #include "pyramid.h"
 #include <math.h>
 
-#include "cvimageloader.h"
+#include "imagehelper.h"
 
 
 Pyramid::Pyramid()

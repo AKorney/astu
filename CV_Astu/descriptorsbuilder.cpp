@@ -1,6 +1,6 @@
 #include "descriptorsbuilder.h"
 #include <QTextStream>
-#include "cvimageloader.h"
+#include "imagehelper.h"
 
 DescriptorsBuilder::DescriptorsBuilder()
 {
