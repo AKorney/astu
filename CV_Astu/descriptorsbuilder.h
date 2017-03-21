@@ -37,7 +37,7 @@ private:
                                          const InterestingPoint point);
     Descriptor CalculateHistogramDescriptor(DoubleMat& gradients, DoubleMat& angles,
                                          const InterestingPoint point);
-
+    double CalculateNorm(const Descriptor& descriptor);
 public:
 
     DescriptorsBuilder();

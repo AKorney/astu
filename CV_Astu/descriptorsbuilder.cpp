@@ -79,6 +79,7 @@ Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
 Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 (DoubleMat& gradients, DoubleMat& angles, const InterestingPoint point)
 {
+    double sigma = 2.0;
     const int startX = point.x - GRID_HALFSIZE;
     const int startY = point.y - GRID_HALFSIZE;
 
@@ -120,18 +121,40 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
                 if(right >= G_ANGLES_COUNT) right = 0;
                 if(left < 0) left = G_ANGLES_COUNT - 1;
 
-
-
                 assert(cleft >=0 && cright >=0);
 
+
+                int dx = point.x - x;
+                int dy = point.y - y;
+                double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
+                        / (2 * M_PI * sigma * sigma);
+                double L = w * gradients.get(x, y);
+
+
                 result.localDescription.at(G_ANGLES_COUNT * cell + left)
-                        += gradients.get(x, y) * cright;
+                        += L * cright;
                 result.localDescription.at(G_ANGLES_COUNT * cell + right)
-                        += gradients.get(x, y) * cleft;
+                        += L * cleft;
             }
         }
     }
+    //norm
+    double norm = CalculateNorm(result);
+    for(int i=0; i<result.localDescription.size(); i++)
+    {
+        result.localDescription.at(i) = result.localDescription.at(i)/norm;
+    }
     return result;
+}
+
+double DescriptorsBuilder::CalculateNorm(const Descriptor &descriptor)
+{
+    double sum;
+    for(double element: descriptor.localDescription)
+    {
+        sum += element*element;
+    }
+    return sqrt(sum);
 }
 
 vector<Descriptor> DescriptorsBuilder::CalculateSimpleDescriptors
@@ -201,7 +224,7 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
                 bestMatchForNearest = check;
             }
         }
-        if(bestMatchForNearest == i)
+        if(bestMatchForNearest == i && bestDistanceForNearest < 0.001 * first.at(0).localDescription.size())
         {
             //Descriptor secondDescriptor = second.at(bestDistanceForFirst);
             //Descriptor firstDescriptor = first.at(i);
@@ -216,7 +239,8 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
             result.emplace_back(match);
             QString debugInf = QString::number(i) +" and " +QString::number(bestMatchForFirst)
                     + " coords: " + QString::number(match.first.x) +":" + QString::number(match.first.y)
-                    + " and: " + QString::number(match.second.x) +":" + QString::number(match.second.y);
+                    + " and " + QString::number(match.second.x) +":" + QString::number(match.second.y)
+                    + " L = " + QString::number(bestDistanceForFirst);
             qDebug(debugInf.toStdString().c_str());
         }
     }
