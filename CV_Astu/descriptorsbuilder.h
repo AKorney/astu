@@ -31,20 +31,20 @@ private:
     const int GRID_CELLS_COUNT = (GRID_SIZE * GRID_SIZE)/(GRID_STEP*GRID_STEP);
     const double G_ANGLE = 2 * M_PI / G_ANGLES_COUNT;
 
-    DoubleMat CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv);
-    DoubleMat CalculateGradientAngles(const DoubleMat& xDrv, const DoubleMat& yDrv);
+    DoubleMat CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv) const;
+    DoubleMat CalculateGradientAngles(const DoubleMat& xDrv, const DoubleMat& yDrv) const;
     Descriptor CalculateSimpleDescriptor(DoubleMat& gradients,
-                                         const InterestingPoint point);
+                                         const InterestingPoint point) const;
     Descriptor CalculateHistogramDescriptor(DoubleMat& gradients, DoubleMat& angles,
-                                         const InterestingPoint point);
-    double CalculateNorm(const Descriptor& descriptor);
+                                         const InterestingPoint point) const;
+    double CalculateNorm(const Descriptor& descriptor) const;
 public:
 
     DescriptorsBuilder();
     vector<Descriptor> CalculateSimpleDescriptors(const DoubleMat& source,
-                                                  const vector<InterestingPoint> points);
+                                                  const vector<InterestingPoint> points) const;
     vector<Descriptor> CalculateHistogramDesctiptors(const DoubleMat& source,
-                                                     const vector<InterestingPoint> points);
+                                                     const vector<InterestingPoint> points) const;
     static vector<pair<Point, Point>> FindMatches(const vector<Descriptor>& first,
                                                   const vector<Descriptor>& second);
     static double CalcDistance(const Descriptor& left, const Descriptor& right);

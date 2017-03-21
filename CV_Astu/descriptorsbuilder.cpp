@@ -7,7 +7,7 @@ DescriptorsBuilder::DescriptorsBuilder()
 
 }
 
-DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv)
+DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv) const
 {
     BorderType border = BorderType::Replicate;
 
@@ -26,7 +26,7 @@ DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &xDrv, const Do
 }
 
 DoubleMat DescriptorsBuilder::CalculateGradientAngles
-(const DoubleMat &xDrv, const DoubleMat &yDrv)
+(const DoubleMat &xDrv, const DoubleMat &yDrv) const
 {
     BorderType border = BorderType::Replicate;
 
@@ -46,7 +46,7 @@ DoubleMat DescriptorsBuilder::CalculateGradientAngles
 }
 
 Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
-(DoubleMat &gradients, const InterestingPoint point)
+(DoubleMat &gradients, const InterestingPoint point) const
 {
     Descriptor result;
     result.targetPoint = point;
@@ -77,7 +77,7 @@ Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
 }
 
 Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
-(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint point)
+(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint point) const
 {
     double sigma = 2.0;
     const int startX = point.x - GRID_HALFSIZE;
@@ -147,7 +147,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     return result;
 }
 
-double DescriptorsBuilder::CalculateNorm(const Descriptor &descriptor)
+double DescriptorsBuilder::CalculateNorm(const Descriptor &descriptor) const
 {
     double sum;
     for(double element: descriptor.localDescription)
@@ -158,7 +158,7 @@ double DescriptorsBuilder::CalculateNorm(const Descriptor &descriptor)
 }
 
 vector<Descriptor> DescriptorsBuilder::CalculateSimpleDescriptors
-(const DoubleMat &source, const vector<InterestingPoint> points)
+(const DoubleMat &source, const vector<InterestingPoint> points) const
 {
     const auto xDrv = source.Convolve(KernelBuilder::BuildSobelX(), BorderType::Replicate);
     const auto yDrv = source.Convolve(KernelBuilder::BuildSobelY(), BorderType::Replicate);
@@ -173,7 +173,7 @@ vector<Descriptor> DescriptorsBuilder::CalculateSimpleDescriptors
 }
 
 vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
-(const DoubleMat &source, const vector<InterestingPoint> points)
+(const DoubleMat &source, const vector<InterestingPoint> points) const
 {
     const auto xDrv = source.Convolve(KernelBuilder::BuildSobelX(), BorderType::Replicate);
     const auto yDrv = source.Convolve(KernelBuilder::BuildSobelY(), BorderType::Replicate);
