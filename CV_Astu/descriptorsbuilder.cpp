@@ -22,6 +22,7 @@ DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &xDrv, const Do
             gradients.set(sqrt(value), i, j);
         }
     }
+
     return gradients;
 }
 
@@ -50,10 +51,12 @@ Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
 {
     Descriptor result;
     result.targetPoint = point;
-    for(int valueIndex = 0; valueIndex < GRID_CELLS_COUNT; valueIndex ++)
-    {
-        result.localDescription.emplace_back(0);
-    }
+    //for(int valueIndex = 0; valueIndex < GRID_CELLS_COUNT; valueIndex ++)
+    //{
+    //    result.localDescription.emplace_back(0);
+    //}
+    result.localDescription.resize( GRID_CELLS_COUNT, 0 );
+
     const int xLeft = point.x - GRID_HALFSIZE;
     const int xRight = point.x + GRID_HALFSIZE + GRID_SIZE % 2;
     const int yTop = point.y - GRID_HALFSIZE;
@@ -85,11 +88,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 
     Descriptor result;
     result.targetPoint = point;
-    for(int i=0; i<GRID_CELLS_COUNT*G_ANGLES_COUNT; i++)
-    {
-        result.localDescription.emplace_back(0);
-    }
-
+    result.localDescription.resize( GRID_CELLS_COUNT * G_ANGLES_COUNT, 0 );
     for(int cell = 0; cell < GRID_CELLS_COUNT; cell++)
     {
         const int cellStartX = startX + GRID_STEP * (cell % (GRID_SIZE / GRID_STEP));
@@ -126,6 +125,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 
                 int dx = point.x - x;
                 int dy = point.y - y;
+                
                 double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
                         / (2 * M_PI * sigma * sigma);
                 double L = w * gradients.get(x, y);
@@ -149,7 +149,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 
 double DescriptorsBuilder::CalculateNorm(const Descriptor &descriptor) const
 {
-    double sum;
+    double sum = 0;
     for(double element: descriptor.localDescription)
     {
         sum += element*element;
