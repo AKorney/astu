@@ -83,12 +83,65 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 (DoubleMat& gradients, DoubleMat& angles, const InterestingPoint point) const
 {
     double sigma = 2.0;
-    const int startX = point.x - GRID_HALFSIZE;
-    const int startY = point.y - GRID_HALFSIZE;
-
+    const int xLeft = point.x - GRID_HALFSIZE;
+    const int xRight = point.x + GRID_HALFSIZE + GRID_SIZE % 2;
+    const int yTop = point.y - GRID_HALFSIZE;
+    const int yBottom = point.y + GRID_HALFSIZE + GRID_SIZE % 2;
     Descriptor result;
     result.targetPoint = point;
     result.localDescription.resize( GRID_CELLS_COUNT * G_ANGLES_COUNT, 0 );
+
+    for(int x = xLeft; x < xRight; x++)
+    {
+        for(int y = yTop; y < yBottom; y++)
+        {
+            int cellX = (x - point.x + GRID_HALFSIZE)/GRID_STEP;
+            int cellY = (y - point.y + GRID_HALFSIZE)/GRID_STEP;
+            int cell = cellY * (GRID_SIZE/GRID_STEP) + cellX;
+
+            int left, right;
+            double cleft, cright;
+            double phi = angles.get(x,y);
+
+            int k = phi / G_ANGLE;
+
+            if(phi > k * G_ANGLE + 0.5 * G_ANGLE)
+            {
+                left = k;
+                right = k + 1;
+                cleft = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
+                cright = 1 - cleft;
+            }
+            else
+            {
+                left = k - 1;
+                right = k;
+                cright = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
+                cleft = 1 - cright;
+            }
+            if(right >= G_ANGLES_COUNT) right = 0;
+            if(left < 0) left = G_ANGLES_COUNT - 1;
+
+            assert(cleft >=0 && cright >=0);
+
+
+            int dx = point.x - x;
+            int dy = point.y - y;
+
+            double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
+                    / (2 * M_PI * sigma * sigma);
+            double L = w * gradients.get(x, y);
+
+
+            result.localDescription.at(G_ANGLES_COUNT * cell + left)
+                    += L * cright;
+            result.localDescription.at(G_ANGLES_COUNT * cell + right)
+                    += L * cleft;
+
+        }
+    }
+
+    /*
     for(int cell = 0; cell < GRID_CELLS_COUNT; cell++)
     {
         const int cellStartX = startX + GRID_STEP * (cell % (GRID_SIZE / GRID_STEP));
@@ -138,6 +191,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
             }
         }
     }
+    //*/
     //norm
     double norm = CalculateNorm(result);
     for(int i=0; i<result.localDescription.size(); i++)
