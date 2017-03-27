@@ -51,18 +51,13 @@ Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
 {
     Descriptor result;
     result.targetPoint = point;
-    //for(int valueIndex = 0; valueIndex < GRID_CELLS_COUNT; valueIndex ++)
-    //{
-    //    result.localDescription.emplace_back(0);
-    //}
+
     result.localDescription.resize( GRID_CELLS_COUNT, 0 );
 
     const int xLeft = point.x - GRID_HALFSIZE;
     const int xRight = point.x + GRID_HALFSIZE + GRID_SIZE % 2;
     const int yTop = point.y - GRID_HALFSIZE;
     const int yBottom = point.y + GRID_HALFSIZE + GRID_SIZE % 2;
-
-    //CVImageLoader::Save("C:\\Users\\Alena\\Pictures\\gradsinside.jpg", CVImage(gradients));
 
     for(int x = xLeft; x < xRight; x++)
     {
@@ -95,19 +90,14 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     {
         for(int y = yTop; y < yBottom; y++)
         {
-
-
             int cellX = (x - point.x + GRID_HALFSIZE)/GRID_STEP;
             int cellY = (y - point.y + GRID_HALFSIZE)/GRID_STEP;
             int cell = cellY * (GRID_SIZE/GRID_STEP) + cellX;
 
             int left, right;
             double cleft, cright;
-            double phi = angles.get(x,y);//- point.alpha;
-            //if(phi < 0) phi += 2* M_PI;
-
+            double phi = angles.get(x,y);
             int k = phi / G_ANGLE ;
-
 
             if(phi > k * G_ANGLE + 0.5 * G_ANGLE)
             {
@@ -117,7 +107,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
                 cright = 1 - cleft;
             }
             else
-            {
+            {            
                 left = k - 1;
                 right = k;
                 cright = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
@@ -127,7 +117,6 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
             if(left < 0) left = BINS_COUNT - 1;
 
             assert(cleft >=0 && cright >=0);
-
 
             int dx = point.x - x;
             int dy = point.y - y;
@@ -228,19 +217,13 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
 
                 assert(cleft >=0 && cright >=0);
 
-
                 int dx = point.x - x;
                 int dy = point.y - y;
-
                 double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
                         / (2 * M_PI * sigma * sigma);
                 double L = w * gradientValues.get(x, y);
-
-
-                hist.at(left)
-                        += L * cright;
-                hist.at(right)
-                        += L * cleft;
+                hist.at(left) += L * cright;
+                hist.at(right) += L * cleft;
 
             }
         }
