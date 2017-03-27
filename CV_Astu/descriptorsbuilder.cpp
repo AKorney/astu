@@ -78,25 +78,33 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 (DoubleMat& gradients, DoubleMat& angles, const InterestingPoint &point) const
 {
     double sigma = 2.0;
-    const int xLeft = point.x - GRID_HALFSIZE;
-    const int xRight = point.x + GRID_HALFSIZE + GRID_SIZE % 2;
-    const int yTop = point.y - GRID_HALFSIZE;
-    const int yBottom = point.y + GRID_HALFSIZE + GRID_SIZE % 2;
     Descriptor result;
     result.targetPoint = point;
     result.localDescription.resize( GRID_CELLS_COUNT * BINS_COUNT, 0 );
 
-    for(int x = xLeft; x < xRight; x++)
+    const double cosAlpha = cos(point.alpha);
+    const double sinAlpha = sin(point.alpha);
+
+    for(int dx = -GRID_HALFSIZE; dx < GRID_HALFSIZE; dx++)
     {
-        for(int y = yTop; y < yBottom; y++)
+        for(int dy = -GRID_HALFSIZE; dy < GRID_HALFSIZE; dy++)
         {
-            int cellX = (x - point.x + GRID_HALFSIZE)/GRID_STEP;
-            int cellY = (y - point.y + GRID_HALFSIZE)/GRID_STEP;
+            int rdx = floor(cosAlpha * dx + sinAlpha * dy);
+            int rdy = floor(-sinAlpha * dx + cosAlpha * dy);
+            if(rdx < -GRID_HALFSIZE || rdy < - GRID_HALFSIZE
+                ||  rdx >= GRID_HALFSIZE || rdy >= GRID_HALFSIZE)
+                continue;
+
+            int cellX = (rdx + GRID_HALFSIZE)/GRID_STEP;
+            int cellY = (rdy + GRID_HALFSIZE)/GRID_STEP;
             int cell = cellY * (GRID_SIZE/GRID_STEP) + cellX;
+
+            assert(cell >=0 && cell < GRID_CELLS_COUNT);
 
             int left, right;
             double cleft, cright;
-            double phi = angles.get(x,y);
+            double phi = angles.get(dx + point.x, dy + point.y) - point.alpha;
+            if(phi < 0) phi += 2*M_PI;
             int k = phi / G_ANGLE ;
 
             if(phi > k * G_ANGLE + 0.5 * G_ANGLE)
@@ -118,12 +126,9 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
 
             assert(cleft >=0 && cright >=0);
 
-            int dx = point.x - x;
-            int dy = point.y - y;
-
             double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
                     / (2 * M_PI * sigma * sigma);
-            double L = w * gradients.get(x, y);
+            double L = w * gradients.get(dx + point.x, dy + point.y);
 
 
             result.localDescription.at(BINS_COUNT * cell + left)
