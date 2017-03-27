@@ -26,17 +26,20 @@ class DescriptorsBuilder
 private:
     const int GRID_SIZE = 16;
     const int GRID_STEP = 4;
-    const int G_ANGLES_COUNT = 8;
+    const int BINS_COUNT = 8;
     const int GRID_HALFSIZE = GRID_SIZE/2;
     const int GRID_CELLS_COUNT = (GRID_SIZE * GRID_SIZE)/(GRID_STEP*GRID_STEP);
-    const double G_ANGLE = 2 * M_PI / G_ANGLES_COUNT;
+    const double G_ANGLE = 2 * M_PI / BINS_COUNT;
+    const int ORIENTATION_BINS_COUNT = 36;
+    const double ORIENTATION_ANGLE_STEP = 2 * M_PI / ORIENTATION_BINS_COUNT;
 
     DoubleMat CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv) const;
     DoubleMat CalculateGradientAngles(const DoubleMat& xDrv, const DoubleMat& yDrv) const;
     Descriptor CalculateSimpleDescriptor(DoubleMat& gradients,
                                          const InterestingPoint point) const;
     Descriptor CalculateHistogramDescriptor(DoubleMat& gradients, DoubleMat& angles,
-                                         const InterestingPoint point) const;
+                                         const InterestingPoint &point) const;
+
     double CalculateNorm(const Descriptor& descriptor) const;
 public:
 

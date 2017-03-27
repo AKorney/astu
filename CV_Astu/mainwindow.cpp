@@ -55,6 +55,10 @@ void MainWindow::on_openButton_clicked()
     auto desc4 = descriptorBuilder.CalculateHistogramDesctiptors
             (im2DM, points2);
     auto matches = DescriptorsBuilder::FindMatches(desc3, desc4);
+    auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points1);
+    ip1.save("C:\\Users\\Alena\\Pictures\\descr\\ip1.jpg");
+    auto ip2 = ImageHelper::MarkInterestingPoints(sourceImage2, points2);
+    ip2.save("C:\\Users\\Alena\\Pictures\\descr\\ip2.jpg");
     auto extended = ImageHelper::DrawMatches(sourceImage1, sourceImage2, matches);
     extended.save("C:\\Users\\Alena\\Pictures\\descr\\matches.jpg");
 }

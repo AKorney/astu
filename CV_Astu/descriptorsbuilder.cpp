@@ -80,7 +80,7 @@ Descriptor DescriptorsBuilder::CalculateSimpleDescriptor
 }
 
 Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
-(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint point) const
+(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint &point) const
 {
     double sigma = 2.0;
     const int xLeft = point.x - GRID_HALFSIZE;
@@ -89,21 +89,25 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     const int yBottom = point.y + GRID_HALFSIZE + GRID_SIZE % 2;
     Descriptor result;
     result.targetPoint = point;
-    result.localDescription.resize( GRID_CELLS_COUNT * G_ANGLES_COUNT, 0 );
+    result.localDescription.resize( GRID_CELLS_COUNT * BINS_COUNT, 0 );
 
     for(int x = xLeft; x < xRight; x++)
     {
         for(int y = yTop; y < yBottom; y++)
         {
+
+
             int cellX = (x - point.x + GRID_HALFSIZE)/GRID_STEP;
             int cellY = (y - point.y + GRID_HALFSIZE)/GRID_STEP;
             int cell = cellY * (GRID_SIZE/GRID_STEP) + cellX;
 
             int left, right;
             double cleft, cright;
-            double phi = angles.get(x,y);
+            double phi = angles.get(x,y);//- point.alpha;
+            //if(phi < 0) phi += 2* M_PI;
 
-            int k = phi / G_ANGLE;
+            int k = phi / G_ANGLE ;
+
 
             if(phi > k * G_ANGLE + 0.5 * G_ANGLE)
             {
@@ -119,8 +123,8 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
                 cright = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
                 cleft = 1 - cright;
             }
-            if(right >= G_ANGLES_COUNT) right = 0;
-            if(left < 0) left = G_ANGLES_COUNT - 1;
+            if(right >= BINS_COUNT) right = 0;
+            if(left < 0) left = BINS_COUNT - 1;
 
             assert(cleft >=0 && cright >=0);
 
@@ -133,65 +137,14 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
             double L = w * gradients.get(x, y);
 
 
-            result.localDescription.at(G_ANGLES_COUNT * cell + left)
+            result.localDescription.at(BINS_COUNT * cell + left)
                     += L * cright;
-            result.localDescription.at(G_ANGLES_COUNT * cell + right)
+            result.localDescription.at(BINS_COUNT * cell + right)
                     += L * cleft;
 
         }
     }
 
-    /*
-    for(int cell = 0; cell < GRID_CELLS_COUNT; cell++)
-    {
-        const int cellStartX = startX + GRID_STEP * (cell % (GRID_SIZE / GRID_STEP));
-        const int cellStartY = startY + GRID_STEP * (cell / (GRID_SIZE / GRID_STEP));
-        for(int x = cellStartX; x < cellStartX + GRID_STEP; x++)
-        {
-            for(int y = cellStartY; y < cellStartY + GRID_STEP; y++)
-            {
-                int left, right;
-                double cleft, cright;
-                double phi = angles.get(x,y);
-
-                int k = phi / G_ANGLE;
-
-                if(phi > k * G_ANGLE + 0.5 * G_ANGLE)
-                {
-                    left = k;
-                    right = k + 1;
-                    cleft = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
-                    cright = 1 - cleft;
-                }
-                else
-                {
-                    left = k - 1;
-                    right = k;
-                    cright = abs(phi - (k + 0.5) * G_ANGLE)/G_ANGLE;
-                    cleft = 1 - cright;
-                }
-                if(right >= G_ANGLES_COUNT) right = 0;
-                if(left < 0) left = G_ANGLES_COUNT - 1;
-
-                assert(cleft >=0 && cright >=0);
-
-
-                int dx = point.x - x;
-                int dy = point.y - y;
-                
-                double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
-                        / (2 * M_PI * sigma * sigma);
-                double L = w * gradients.get(x, y);
-
-
-                result.localDescription.at(G_ANGLES_COUNT * cell + left)
-                        += L * cright;
-                result.localDescription.at(G_ANGLES_COUNT * cell + right)
-                        += L * cleft;
-            }
-        }
-    }
-    //*/
     //norm
     double norm = CalculateNorm(result);
     for(int i=0; i<result.localDescription.size(); i++)
@@ -221,6 +174,8 @@ vector<Descriptor> DescriptorsBuilder::CalculateSimpleDescriptors
     vector<Descriptor> descriptors;
 
     for (auto &point : points) {
+
+
        descriptors.emplace_back(CalculateSimpleDescriptor(gradientValues, point));
     }
     return descriptors;
@@ -236,7 +191,104 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
     vector<Descriptor> descriptors;
 
     for (auto &point : points) {
-       descriptors.emplace_back(CalculateHistogramDescriptor(gradientValues, angleValues, point));
+        double sigma = 1.5;
+        vector<double> hist;
+        hist.resize(ORIENTATION_BINS_COUNT, 0);
+
+        const int xLeft = point.x - GRID_HALFSIZE;
+        const int xRight = point.x + GRID_HALFSIZE + GRID_SIZE % 2;
+        const int yTop = point.y - GRID_HALFSIZE;
+        const int yBottom = point.y + GRID_HALFSIZE + GRID_SIZE % 2;
+        for(int x = xLeft; x < xRight; x++)
+        {
+            for(int y = yTop; y < yBottom; y++)
+            {
+                int left, right;
+                double cleft, cright;
+                double phi = angleValues.get(x,y);
+
+                int k = phi / ORIENTATION_ANGLE_STEP;
+
+                if(phi > k * ORIENTATION_ANGLE_STEP + 0.5 * ORIENTATION_ANGLE_STEP)
+                {
+                    left = k;
+                    right = k + 1;
+                    cleft = abs(phi - (k + 0.5) * ORIENTATION_ANGLE_STEP)/ORIENTATION_ANGLE_STEP;
+                    cright = 1 - cleft;
+                }
+                else
+                {
+                    left = k - 1;
+                    right = k;
+                    cright = abs(phi - (k + 0.5) * ORIENTATION_ANGLE_STEP)/ORIENTATION_ANGLE_STEP;
+                    cleft = 1 - cright;
+                }
+                if(right >= ORIENTATION_BINS_COUNT) right = 0;
+                if(left < 0) left = ORIENTATION_BINS_COUNT - 1;
+
+                assert(cleft >=0 && cright >=0);
+
+
+                int dx = point.x - x;
+                int dy = point.y - y;
+
+                double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
+                        / (2 * M_PI * sigma * sigma);
+                double L = w * gradientValues.get(x, y);
+
+
+                hist.at(left)
+                        += L * cright;
+                hist.at(right)
+                        += L * cleft;
+
+            }
+        }
+        int first, second;
+        double firstValue, secondValue;
+        if(hist.at(0) > hist.at(1))
+        {
+            first = 0; second = 1;
+        }
+        else
+        {
+            first = 1; second = 0;
+        }
+        firstValue = hist.at(first);
+        secondValue = hist.at(second);
+        for(int i = 2; i<hist.size(); i++)
+        {
+            if(hist.at(i) > firstValue)
+            {
+                secondValue = firstValue;
+                second=first;
+                firstValue = hist.at(i);
+                first = i;
+                continue;
+            }
+            if(hist.at(i) > secondValue)
+            {
+                secondValue = hist.at(i);
+                second = i;
+            }
+        }
+
+        if(secondValue < firstValue * 0.8)
+        {
+            InterestingPoint point1;
+            point1 = point;
+            point1.alpha = ORIENTATION_ANGLE_STEP * (first + 0.5);
+            descriptors.emplace_back(CalculateHistogramDescriptor(gradientValues, angleValues, point1));
+        }
+        else
+        {
+            InterestingPoint point1, point2;
+            point1 = point;
+            point1.alpha = ORIENTATION_ANGLE_STEP * (first + 0.5);
+            descriptors.emplace_back(CalculateHistogramDescriptor(gradientValues, angleValues, point1));
+            point2.alpha = ORIENTATION_ANGLE_STEP * (second + 0.5);
+            descriptors.emplace_back(CalculateHistogramDescriptor(gradientValues, angleValues, point2));
+        }
     }
     return descriptors;
 }
@@ -278,7 +330,7 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
                 bestMatchForNearest = check;
             }
         }
-        if(bestMatchForNearest == i && bestDistanceForNearest < 0.001 * first.at(0).localDescription.size())
+        if(bestMatchForNearest == i && bestDistanceForNearest)// < 0.001 * first.at(0).localDescription.size())
         {
             //Descriptor secondDescriptor = second.at(bestDistanceForFirst);
             //Descriptor firstDescriptor = first.at(i);
@@ -290,11 +342,12 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
             match.second.x = second.at(bestMatchForFirst).targetPoint.x;
             match.second.y = second.at(bestMatchForFirst).targetPoint.y;
 
+            double rotation = first.at(i).targetPoint.alpha - second.at(bestMatchForFirst).targetPoint.alpha;
             result.emplace_back(match);
             QString debugInf = QString::number(i) +" and " +QString::number(bestMatchForFirst)
-                    + " coords: " + QString::number(match.first.x) +":" + QString::number(match.first.y)
+                    + " values: " + QString::number(match.first.x) +":" + QString::number(match.first.y)
                     + " and " + QString::number(match.second.x) +":" + QString::number(match.second.y)
-                    + " L = " + QString::number(bestDistanceForFirst);
+                    + " L = " + QString::number(bestDistanceForFirst) + " rot=" + QString::number(rotation);
             qDebug(debugInf.toStdString().c_str());
         }
     }

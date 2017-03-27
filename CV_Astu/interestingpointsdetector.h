@@ -19,6 +19,7 @@ struct InterestingPoint
 {
     int x, y;
     double w;
+    double alpha;
 };
 
 class InterestingPointsDetector
