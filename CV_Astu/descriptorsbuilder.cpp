@@ -292,28 +292,39 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
 
     for(int i = 0; i < first.size(); i++)
     {
-        double bestDistanceForFirst = INFINITY;
-        int bestMatchForFirst = -1;
-        for(int j = 0; j < second.size(); j++)
+        int firstBest, secondBest;
+        double firstDistance, secondDistance;
+        if(distances.get(i, 0) < distances.get(i,1))
         {
-            if(distances.get(i,j) < bestDistanceForFirst)
+            firstBest = 0; secondBest = 1;
+            firstDistance = distances.get(i,0);
+            secondDistance = distances.get(i,1);
+        }
+        else
+        {
+            firstBest = 1; secondBest = 0;
+            firstDistance = distances.get(i,1);
+            secondDistance = distances.get(i,0);
+        }
+        for(int j = 2; j < second.size(); j++)
+        {
+            if(distances.get(i,j) < firstDistance)
             {
-                bestDistanceForFirst = distances.get(i,j);
-                bestMatchForFirst = j;
+                secondBest = firstBest;
+                secondDistance = firstDistance;
+                firstBest = j;
+                firstDistance = distances.get(i,j);
+                continue;
             }
+            if(distances.get(i,j) < secondDistance)
+            {
+                secondBest = j;
+                secondDistance = distances.get(i,j);
+            }
+        }
 
-        }
-        double bestDistanceForNearest = INFINITY;
-        int bestMatchForNearest = -1;
-        for(int check = 0; check < first.size(); check++)
-        {
-            if(distances.get(check, bestMatchForFirst) < bestDistanceForNearest)
-            {
-                bestDistanceForNearest = distances.get(check, bestMatchForFirst);
-                bestMatchForNearest = check;
-            }
-        }
-        if(bestMatchForNearest == i && bestDistanceForNearest)// < 0.001 * first.at(0).localDescription.size())
+
+        if(firstDistance/secondDistance < 0.8)
         {
             //Descriptor secondDescriptor = second.at(bestDistanceForFirst);
             //Descriptor firstDescriptor = first.at(i);
@@ -322,15 +333,15 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
             match.first.x = first.at(i).targetPoint.x;
             match.first.y= first.at(i).targetPoint.y;
 
-            match.second.x = second.at(bestMatchForFirst).targetPoint.x;
-            match.second.y = second.at(bestMatchForFirst).targetPoint.y;
+            match.second.x = second.at(firstBest).targetPoint.x;
+            match.second.y = second.at(firstBest).targetPoint.y;
 
-            double rotation = first.at(i).targetPoint.alpha - second.at(bestMatchForFirst).targetPoint.alpha;
+            double rotation = first.at(i).targetPoint.alpha - second.at(firstBest).targetPoint.alpha;
             result.emplace_back(match);
-            QString debugInf = QString::number(i) +" and " +QString::number(bestMatchForFirst)
+            QString debugInf = QString::number(i) +" and " +QString::number(firstBest)
                     + " values: " + QString::number(match.first.x) +":" + QString::number(match.first.y)
                     + " and " + QString::number(match.second.x) +":" + QString::number(match.second.y)
-                    + " L = " + QString::number(bestDistanceForFirst) + " rot=" + QString::number(rotation);
+                    + " L = " + QString::number(firstDistance) + " rot=" + QString::number(rotation);
             qDebug(debugInf.toStdString().c_str());
         }
     }
