@@ -75,28 +75,18 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 
             assert(cell >=0 && cell < cellsCount);
 
-            int left, right;
+            int leftBin, rightBin;
             double cleft, cright;
             double phi = angles.get(dx + point.x, dy + point.y) - alpha;
             if(phi < 0) phi += 2*M_PI;
-            int k = phi / binAngle ;
 
-            if(phi > (k + 0.5) * binAngle)
-            {
-                left = k;
-                right = k + 1;
-                cleft = abs(phi - (k + 0.5) * binAngle)/binAngle;
-                cright = 1 - cleft;
-            }
-            else
-            {
-                left = k - 1;
-                right = k;
-                cright = abs(phi - (k + 0.5) * binAngle)/binAngle;
-                cleft = 1 - cright;
-            }
-            if(right >= bins) right = 0;
-            if(left < 0) left = bins - 1;
+            rightBin = floor(phi/binAngle + 0.5);
+            leftBin = rightBin - 1;
+            cright = abs(rightBin + 0.5 - phi / binAngle);
+            cleft = 1 - cright;
+
+            if(rightBin >= bins) rightBin = 0;
+            if(leftBin < 0) leftBin = bins - 1;
 
             assert(cleft >=0 && cright >=0);
 
@@ -105,9 +95,9 @@ vector<double> DescriptorsBuilder::CalculateHistogram
             double L = w * gradients.get(dx + point.x, dy + point.y);
 
 
-            result.at(bins * cell + left)
+            result.at(bins * cell + leftBin)
                     += L * cright;
-            result.at(bins * cell + right)
+            result.at(bins * cell + rightBin)
                     += L * cleft;
 
         }
@@ -160,53 +150,7 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
         vector<double> hist = CalculateHistogram(gradientValues, angleValues, point,
                                                  GRID_SIZE, GRID_SIZE, ORIENTATION_BINS_COUNT,
                                                  sigma);
-        /*
-        hist.resize(ORIENTATION_BINS_COUNT, 0);
 
-        const int xLeft = point.x - GRID_HALFSIZE;
-        const int xRight = point.x + GRID_HALFSIZE + GRID_SIZE % 2;
-        const int yTop = point.y - GRID_HALFSIZE;
-        const int yBottom = point.y + GRID_HALFSIZE + GRID_SIZE % 2;
-        for(int x = xLeft; x < xRight; x++)
-        {
-            for(int y = yTop; y < yBottom; y++)
-            {
-                int left, right;
-                double cleft, cright;
-                double phi = angleValues.get(x,y);
-
-                int k = phi / ORIENTATION_ANGLE_STEP;
-
-                if(phi > k * ORIENTATION_ANGLE_STEP + 0.5 * ORIENTATION_ANGLE_STEP)
-                {
-                    left = k;
-                    right = k + 1;
-                    cleft = abs(phi - (k + 0.5) * ORIENTATION_ANGLE_STEP)/ORIENTATION_ANGLE_STEP;
-                    cright = 1 - cleft;
-                }
-                else
-                {
-                    left = k - 1;
-                    right = k;
-                    cright = abs(phi - (k + 0.5) * ORIENTATION_ANGLE_STEP)/ORIENTATION_ANGLE_STEP;
-                    cleft = 1 - cright;
-                }
-                if(right >= ORIENTATION_BINS_COUNT) right = 0;
-                if(left < 0) left = ORIENTATION_BINS_COUNT - 1;
-
-                assert(cleft >=0 && cright >=0);
-
-                int dx = point.x - x;
-                int dy = point.y - y;
-                double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
-                        / (2 * M_PI * sigma * sigma);
-                double L = w * gradientValues.get(x, y);
-                hist.at(left) += L * cright;
-                hist.at(right) += L * cleft;
-
-            }
-        }
-        */
         int first, second;
         double firstValue, secondValue;
         if(hist.at(0) > hist.at(1))
