@@ -7,9 +7,7 @@ CVImage ImageHelper::Load(QString filePath)
 	auto format = qImage.format();
 	if (qImage.format() == QImage::Format_RGB888)
 	{
-		qImage = qImage.convertToFormat(QImage::Format_RGB888);
-
-		auto result = CVImage(qImage.bits(), qImage.width(), qImage.height());
+        auto result = CVImage(qImage.bits(), qImage.width(), qImage.height());
 		return result;
 	}
 	else

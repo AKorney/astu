@@ -45,10 +45,7 @@ void MainWindow::on_openButton_clicked()
                                                  3, 0.075);
 
     auto descriptorBuilder = DescriptorsBuilder();
-    auto descriptors1 = descriptorBuilder.CalculateSimpleDescriptors
-            (im1DM, points1);
-    auto descriptors2 = descriptorBuilder.CalculateSimpleDescriptors
-            (im2DM, points2);
+
 
     auto desc3 = descriptorBuilder.CalculateHistogramDesctiptors
             (im1DM, points1);
