@@ -36,12 +36,13 @@ private:
     DoubleMat CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv) const;
     DoubleMat CalculateGradientAngles(const DoubleMat& xDrv, const DoubleMat& yDrv) const;
 
-    Descriptor CalculateHistogramDescriptor(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint &point,
-                                            const double alpha) const;
-    vector<double> CalculateHistogram(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint &point,
-                                      const int gridSize, const int gridStep, const int bins, const double sigma,
-                                      const double alpha = 0) const;
+    Descriptor CalculateHistogramDescriptor(const DoubleMat& gradients, const DoubleMat& angles,
+                                            const InterestingPoint &point, const double alpha) const;
+    vector<double> CalculateHistogram(const DoubleMat& gradients, const DoubleMat& angles,
+                                      const InterestingPoint &point, const int gridSize, const int gridStep,
+                                      const int bins, const double sigma, const double alpha = 0) const;
     double CalculateNorm(const vector<double>& histogram) const;
+    vector<double> DescriptorOrientations( const vector<double>& anglesHistogram) const;
 public:
 
     DescriptorsBuilder();

@@ -47,7 +47,7 @@ DoubleMat DescriptorsBuilder::CalculateGradientAngles
 }
 
 vector<double> DescriptorsBuilder::CalculateHistogram
-(DoubleMat &gradients, DoubleMat &angles, const InterestingPoint &point,
+(const DoubleMat &gradients, const DoubleMat &angles, const InterestingPoint &point,
  const int gridSize, const int gridStep, const int bins, const double sigma, const double alpha) const
 {
     vector<double> result;
@@ -102,17 +102,12 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 
         }
     }
-    double norm = CalculateNorm(result);
 
-    for(int i=0; i<result.size(); i++)
-    {
-        result.at(i) = result.at(i)/norm;
-    }
     return result;
 }
 
 Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
-(DoubleMat& gradients, DoubleMat& angles, const InterestingPoint &point, const double alpha) const
+(const DoubleMat& gradients, const DoubleMat& angles, const InterestingPoint &point, const double alpha) const
 {
     double sigma = 2.0;
     Descriptor result;
@@ -122,19 +117,64 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     result.targetPoint.alpha = alpha;
     result.localDescription = CalculateHistogram(gradients, angles, point, GRID_SIZE, GRID_STEP,
                                                  BINS_COUNT, sigma, alpha);
+
+    double norm = sqrt(accumulate(result.localDescription.begin(), result.localDescription.end(), 0.0));
+    transform(result.localDescription.begin(), result.localDescription.end(),
+              result.localDescription.begin(), [norm] (double element)->double {return element/norm;});
     return result;
 }
 
 double DescriptorsBuilder::CalculateNorm(const vector<double>& histogram) const
 {
     double sum = 0;
-    for(double element: histogram)
-    {
-        sum += element*element;
-    }
+    sum = accumulate(histogram.begin(), histogram.end(), 0);
+    //for(double element: histogram)
+    //{
+    //   sum += element*element;
+    //}
     return sqrt(sum);
 }
 
+vector<double> DescriptorsBuilder::DescriptorOrientations
+(const vector<double> &orientationHistogram) const
+{
+    vector<double> result;
+    int first, second;
+    double firstValue, secondValue;
+    if(orientationHistogram.at(0) > orientationHistogram.at(1))
+    {
+        first = 0; second = 1;
+    }
+    else
+    {
+        first = 1; second = 0;
+    }
+    firstValue = orientationHistogram.at(first);
+    secondValue = orientationHistogram.at(second);
+    for(int i = 2; i<orientationHistogram.size(); i++)
+    {
+        if(orientationHistogram[i] > firstValue)
+        {
+            secondValue = firstValue;
+            second=first;
+            firstValue = orientationHistogram[i];
+            first = i;
+            continue;
+        }
+        if(orientationHistogram[i] > secondValue)
+        {
+            secondValue = orientationHistogram[i];
+            second = i;
+        }
+    }
+    result.emplace_back(ORIENTATION_ANGLE_STEP * (first + 0.5));
+
+    if(secondValue >= firstValue * 0.8)
+    {
+        result.emplace_back(ORIENTATION_ANGLE_STEP * (second + 0.5));
+    }
+    return result;
+}
 
 vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
 (const DoubleMat &source, const vector<InterestingPoint> points) const
@@ -147,51 +187,16 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
 
     for (auto &point : points) {
         double sigma = 1.5;
-        vector<double> hist = CalculateHistogram(gradientValues, angleValues, point,
+        const auto orientationHistogram = CalculateHistogram(gradientValues, angleValues, point,
                                                  GRID_SIZE, GRID_SIZE, ORIENTATION_BINS_COUNT,
                                                  sigma);
 
-        int first, second;
-        double firstValue, secondValue;
-        if(hist.at(0) > hist.at(1))
+        const auto orientations = DescriptorOrientations(orientationHistogram);
+        for(double angle : orientations)
         {
-            first = 0; second = 1;
-        }
-        else
-        {
-            first = 1; second = 0;
-        }
-        firstValue = hist.at(first);
-        secondValue = hist.at(second);
-        for(int i = 2; i<hist.size(); i++)
-        {
-            if(hist.at(i) > firstValue)
-            {
-                secondValue = firstValue;
-                second=first;
-                firstValue = hist.at(i);
-                first = i;
-                continue;
-            }
-            if(hist.at(i) > secondValue)
-            {
-                secondValue = hist.at(i);
-                second = i;
-            }
-        }
+            descriptors.emplace_back(CalculateHistogramDescriptor
+                                     (gradientValues, angleValues, point, angle));
 
-        if(secondValue < firstValue * 0.8)
-        {           
-            descriptors.emplace_back(CalculateHistogramDescriptor
-                                     (gradientValues, angleValues, point, ORIENTATION_ANGLE_STEP * (first + 0.5)));
-        }
-        else
-        {           
-            descriptors.emplace_back(CalculateHistogramDescriptor
-                                     (gradientValues, angleValues, point, ORIENTATION_ANGLE_STEP * (first + 0.5)));
-
-            descriptors.emplace_back(CalculateHistogramDescriptor
-                                     (gradientValues, angleValues, point, ORIENTATION_ANGLE_STEP * (second + 0.5)));
         }
     }
     return descriptors;
@@ -206,7 +211,7 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
     {
         for(int j =0; j<second.size(); j++)
         {
-            distances.set(CalcDistance(first.at(i), second.at(j)),
+            distances.set(CalcDistance(first[i], second[j]),
                           i,j);
         }
     }
@@ -249,13 +254,13 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
         {
             pair<Point,Point> match;
 
-            match.first.x = first.at(i).targetPoint.x;
-            match.first.y = first.at(i).targetPoint.y;
+            match.first.x = first[i].targetPoint.x;
+            match.first.y = first[i].targetPoint.y;
 
-            match.second.x = second.at(firstBest).targetPoint.x;
-            match.second.y = second.at(firstBest).targetPoint.y;
+            match.second.x = second[firstBest].targetPoint.x;
+            match.second.y = second[firstBest].targetPoint.y;
 
-            double rotation = first.at(i).targetPoint.alpha - second.at(firstBest).targetPoint.alpha;
+            double rotation = first[i].targetPoint.alpha - second[firstBest].targetPoint.alpha;
             result.emplace_back(match);
             QString debugInf = QString::number(i) +" and " +QString::number(firstBest)
                     + " values: " + QString::number(match.first.x) +":" + QString::number(match.first.y)

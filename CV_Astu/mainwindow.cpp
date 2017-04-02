@@ -29,8 +29,8 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     
-    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\test1.png");
-    const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\test2.png");
+    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\lena1.jpg");
+    const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\lena2.jpg");
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
 
     auto im1DM = sourceImage1.PrepareDoubleMat();
@@ -38,19 +38,21 @@ void MainWindow::on_openButton_clicked()
     auto points1 = detector.FindInterestingPoints(im1DM
                                                  .Convolve(KernelBuilder::BuildGauss(1),
                                                            BorderType::Replicate),
-                                                 3, 0.075);
+                                                 3, 0.025);
     auto points2 = detector.FindInterestingPoints(im2DM
                                                  .Convolve(KernelBuilder::BuildGauss(1),
                                                            BorderType::Replicate),
-                                                 3, 0.075);
+                                                 3, 0.025);
 
+    auto sup1 = InterestingPointsDetector::ANMS(points1, 200, 512);
+    auto sup2 = InterestingPointsDetector::ANMS(points2, 200, 512);
     auto descriptorBuilder = DescriptorsBuilder();
 
 
     auto desc3 = descriptorBuilder.CalculateHistogramDesctiptors
-            (im1DM, points1);
+            (im1DM, sup1);
     auto desc4 = descriptorBuilder.CalculateHistogramDesctiptors
-            (im2DM, points2);
+            (im2DM, sup2);
     auto matches = DescriptorsBuilder::FindMatches(desc3, desc4);
     auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points1);
     ip1.save("C:\\Users\\Alena\\Pictures\\descr\\ip1.jpg");

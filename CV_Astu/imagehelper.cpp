@@ -98,7 +98,8 @@ QImage ImageHelper::DrawMatches
      QPainter painter(&qImage);
      for(auto& match: matches)
      {
-         painter.setPen(QColor(255, 255, 0));
+         //painter.setPen(QColor(255, 255, 0));
+         painter.setPen(QColor(abs(rand()) % 256, abs(rand()) % 256, abs(rand()) % 256));
          painter.drawEllipse(match.first.x, match.first.y, 2, 2);
          painter.drawEllipse(match.second.x + left.getWidth() + middle, match.second.y, 2, 2);
 
