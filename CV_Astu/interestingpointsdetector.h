@@ -6,6 +6,7 @@
 
 
 #include "kernelbuilder.h"
+#include "pyramid.h"
 using namespace std;
 
 enum class DetectionMethod { Moravec, Harris};
@@ -20,6 +21,7 @@ struct InterestingPoint
     int x, y;
     double w;
     double alpha;
+    double sigma;
 };
 
 class InterestingPointsDetector
@@ -49,6 +51,7 @@ public:
 
    static vector<InterestingPoint> ANMS(const vector<InterestingPoint> source,
                                         const int maxCount, const int maxRadius);
+
    virtual ~InterestingPointsDetector();
 
 

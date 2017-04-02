@@ -40,6 +40,8 @@ DoubleMat::DoubleMat(DoubleMat && other)
 	_data = move(other._data);
 }
 
+
+
 DoubleMat & DoubleMat::operator=(DoubleMat && other)
 {
 	if (this != &other)

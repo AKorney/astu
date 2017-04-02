@@ -31,6 +31,7 @@ public:
     DoubleMat(const double * doubleSource, const int width, const int height);
 	DoubleMat(DoubleMat&& other); 
 	DoubleMat& operator=(DoubleMat&& other);
+
 	int getHeight() const;
 	int getWidth() const;
 

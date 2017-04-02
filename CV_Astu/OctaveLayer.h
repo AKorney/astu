@@ -6,6 +6,12 @@
 #include "doublemat.h"
 
 using namespace std;
+struct DoG
+{
+    DoubleMat diff;
+    double sigmaLow;
+    double sigmaHigh;
+};
 
 class OctaveLayer
 {

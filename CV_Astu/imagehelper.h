@@ -6,6 +6,7 @@
 
 #include "cvimage.h"
 #include "interestingpointsdetector.h"
+#include "pyramid.h"
 
 class ImageHelper
 {
@@ -26,6 +27,7 @@ public:
     static QImage MarkInterestingPoints(const CVImage& source, vector<InterestingPoint> points);
     static QImage DrawMatches(const CVImage& left, const CVImage& right,
                               vector <pair<Point, Point>> matches);
+    static QImage DrawBlobs(const CVImage& source, vector<BlobDescription> blobs);
 };
 
 #endif // CVIMAGELOADER_H

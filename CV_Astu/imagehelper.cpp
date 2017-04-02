@@ -108,3 +108,15 @@ QImage ImageHelper::DrawMatches
      }
      return qImage;
 }
+
+QImage ImageHelper::DrawBlobs(const CVImage &source, vector<BlobDescription> blobs)
+{
+    QImage qImage = ImageHelper::CreateQImage(source);
+    QPainter painter(&qImage);
+    for (auto &blob : blobs) {
+        painter.setPen(blob.pointType==DoGPointType::Maximal? QColor(0,0,255) : QColor(255,0,0));
+        double r = sqrt(2)*blob.sigma;
+        painter.drawEllipse(blob.x, blob.y, r,r);
+    }
+    return qImage;
+}

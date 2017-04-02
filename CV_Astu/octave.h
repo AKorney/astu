@@ -6,6 +6,7 @@
 #include <OctaveLayer.h>
 
 
+
 using namespace std;
 class Octave
 {
@@ -19,6 +20,7 @@ public:
     void AddLayer(const OctaveLayer& layer);
     void SaveAll();
     const OctaveLayer& GetLayerAt(const int index) const;
+
 };
 
 #endif // OCTAVE_H
