@@ -39,6 +39,7 @@ Octave Pyramid::BuildOctave(const DoubleMat& firstImage,
         octave.AddLayer(OctaveLayer(make_unique<DoubleMat>(current),
             sigmaLocal, sigmaGlobal));
     }
+    octave.BuildDiffs();
     return octave;
 }
 
@@ -134,7 +135,6 @@ vector<BlobDescription> Pyramid::FindBlobs() const
     vector<BlobDescription> result;
     for(int octave = 0; octave < _octavesCount; octave++)
     {
-        //in each octave try to find blobs
         for(int diffIndex = 1; diffIndex < _octaveSize + _overlapSize - 2; diffIndex++)
         {
             const int width = GetImageAt(octave, 0).getWidth();
@@ -149,9 +149,9 @@ vector<BlobDescription> Pyramid::FindBlobs() const
                         case DoGPointType::Maximal:
                         {
                             BlobDescription blobMax;
-                            blobMax.x = x*pow(2, octave);
-                            blobMax.y = y*pow(2, octave);
-                            blobMax.sigma = GetOctaveAt(octave).GetLayerAt(diffIndex+1).GetSigmaGlobal();
+                            blobMax.x = (x + 0.5)*pow(2, octave) - 0.5;
+                            blobMax.y = (y + 0.5)*pow(2, octave) - 0.5;
+                            blobMax.sigma = GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
                             blobMax.pointType = DoGPointType::Maximal;
                             result.emplace_back(blobMax);
                             break;
@@ -159,9 +159,9 @@ vector<BlobDescription> Pyramid::FindBlobs() const
                         case DoGPointType::Minimal:
                         {
                             BlobDescription blobMin;
-                            blobMin.x = x*pow(2, octave);
-                            blobMin.y = y*pow(2, octave);
-                            blobMin.sigma = GetOctaveAt(octave).GetLayerAt(diffIndex+1).GetSigmaGlobal();
+                            blobMin.x = (x + 0.5)*pow(2, octave) - 0.5;
+                            blobMin.y = (y + 0.5)*pow(2, octave) - 0.5;
+                            blobMin.sigma = GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
                             blobMin.pointType = DoGPointType::Minimal;
                             result.emplace_back(blobMin);
                             break;
@@ -182,22 +182,29 @@ DoGPointType Pyramid::GetDoGPointType(const int x,const int y,const int octave, 
 
     bool minimal = true;
     bool maximal = true;
-    double targetValue = _octaves[octave].GetLayerAt(diffIndex+1).GetImage().get(x,y, border)
+    double targetValue = GetOctaveAt(octave)
+            .GetDiffAt(diffIndex)
+            .GetImage().get(x, y, border);
+    double old = _octaves[octave].GetLayerAt(diffIndex+1).GetImage().get(x,y, border)
             -_octaves[octave].GetLayerAt(diffIndex).GetImage().get(x,y, border);
-    for(int dx=-1;dx<=1;dx++)
+    for(int dz=-1; dz<=1; dz++)
     {
-        for(int dy=-1;dy<=1; dy++)
+        for(int dx=-1;dx<=1;dx++)
         {
-            for(int dz=-1; dz<=1; dz++)
+            for(int dy=-1;dy<=1; dy++)
             {
-                if(dx || dy || dz)
-                {
-                    double diff = GetImageAt(octave, diffIndex + dz + 1).get(x + dx, y + dy, border)
-                            - GetImageAt(octave, diffIndex + dz).get(x + dx, y + dy, border);
-                    if(diff <= targetValue) minimal = false;
-                    if(diff >= targetValue) maximal = false;
+
+                    if(dx || dy || dz)
+                    {
+                        double diff = GetOctaveAt(octave)
+                                .GetDiffAt(diffIndex + dz)
+                                .GetImage().get(x + dx, y + dy, border);
+                        double oldDiff = GetImageAt(octave, diffIndex + dz + 1).get(x + dx, y + dy, border)
+                                - GetImageAt(octave, diffIndex + dz).get(x + dx, y + dy, border);
+                        if(diff <= targetValue) minimal = false;
+                        if(diff >= targetValue) maximal = false;
+                    }
                 }
-            }
 
         }
     }

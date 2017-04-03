@@ -149,7 +149,14 @@ DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border) const
 			resultMat.set(result, x, y);
 		}
 	}
-	return resultMat;
+    return resultMat;
+}
+
+DoubleMat DoubleMat::Sub(const DoubleMat &other) const
+{
+    DoubleMat result(_width, _height);
+    transform(_data.get(), _data.get() + _width * _height, other._data.get(), result._data.get(), minus<double>());
+    return result;
 }
 
 

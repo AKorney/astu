@@ -12,6 +12,7 @@ class Octave
 {
 private:
     vector<OctaveLayer> _layers;
+    vector<OctaveLayer> _diffs;
     int _number;
 public:
     Octave();
@@ -20,7 +21,8 @@ public:
     void AddLayer(const OctaveLayer& layer);
     void SaveAll();
     const OctaveLayer& GetLayerAt(const int index) const;
-
+    void BuildDiffs();
+    const OctaveLayer& GetDiffAt(const int index) const;
 };
 
 #endif // OCTAVE_H
