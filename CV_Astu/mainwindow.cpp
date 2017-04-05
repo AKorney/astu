@@ -31,9 +31,9 @@ void MainWindow::on_openButton_clicked()
     
     const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\blob\\1.jpg");
     auto pyr = Pyramid(5, 5, 1.6, 0.5, sourceImage1);
-    const auto blobs = pyr.FindBlobs();
-    auto blobImage = ImageHelper::DrawBlobs(sourceImage1, blobs);
-    blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\result1.jpg");
+    //const auto blobs = pyr.FindBlobs();
+    //auto blobImage = ImageHelper::DrawBlobs(sourceImage1, blobs);
+    //blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\result1.jpg");
 
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
     const auto points = detector.FindBlobBasedPoints(pyr);

@@ -1,4 +1,5 @@
 #include "interestingpointsdetector.h"
+#include "imagehelper.h"
 
 InterestingPointsDetector::InterestingPointsDetector(const DetectionMethod method)
 
@@ -85,6 +86,70 @@ const int windowHalfSize, const BorderType borderType, const int x, const int y)
     l1 = abs((a+c+d)/2);
     l2 = abs((a+c-d)/2);
     return min(l1,l2);
+}
+
+vector<BlobDescription> InterestingPointsDetector::FindBlobs(const Pyramid &pyramid, const double diffThreshold) const
+{
+    BorderType border = BorderType::Replicate;
+    vector<BlobDescription> result;
+    for(int octave = 0; octave < pyramid.OctavesCount(); octave++)
+    {
+        for(int diffIndex = 1; diffIndex < pyramid.OctaveSize() + pyramid.OverlapSize() - 2; diffIndex++)
+        {
+            const int width = pyramid.GetImageAt(octave, 0).getWidth();
+            const int height = pyramid.GetImageAt(octave, 0).getHeight();
+            for(int x=0; x<width; x++)
+            {
+                for(int y=0;y<height;y++)
+                {
+                    bool minimal = true;
+                    bool maximal = true;
+                    double targetValue = pyramid.GetOctaveAt(octave)
+                            .GetDiffAt(diffIndex)
+                            .GetImage().get(x, y, border);
+                    if(abs(targetValue) < diffThreshold) continue;
+                    for(int dz=-1; dz<=1; dz++)
+                    {
+                        for(int dx=-1;dx<=1;dx++)
+                        {
+                            for(int dy=-1;dy<=1; dy++)
+                            {
+                                 if(dx || dy || dz)
+                                 {
+                                     double diff = pyramid.GetOctaveAt(octave)
+                                             .GetDiffAt(diffIndex + dz)
+                                             .GetImage().get(x + dx, y + dy, border);
+                                    if(diff <= targetValue) minimal = false;
+                                     if(diff >= targetValue) maximal = false;
+                                 }
+                             }
+                        }
+                    }
+                    if(maximal)
+                    {
+                        BlobDescription blobMax;
+                        blobMax.x = x*pow(2, octave);
+                        blobMax.y = y*pow(2, octave);
+                        blobMax.sigma = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blobMax.pointType = DoGPointType::Maximal;
+                        result.emplace_back(blobMax);
+                        continue;
+                    }
+                    if(minimal)
+                    {
+                        BlobDescription blobMin;
+                        blobMin.x = x*pow(2, octave);
+                        blobMin.y = y*pow(2, octave);
+                        blobMin.sigma = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blobMin.pointType = DoGPointType::Minimal;
+                        result.emplace_back(blobMin);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return result;
 }
 
 double InterestingPointsDetector::CalculateCxy
@@ -196,7 +261,9 @@ vector<InterestingPoint> InterestingPointsDetector::ANMS
 vector<InterestingPoint> InterestingPointsDetector::FindBlobBasedPoints(const Pyramid &pyramid)
 {
     vector<InterestingPoint> result;
-    const auto blobs = pyramid.FindBlobs();
+    const auto blobs = FindBlobs(pyramid, 0.03);
+    auto blobImage = ImageHelper::DrawBlobs(pyramid.GetImageAt(0,0), blobs);
+    blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\result1.jpg");
 
     for(auto& blob : blobs)
     {
@@ -218,6 +285,5 @@ vector<InterestingPoint> InterestingPointsDetector::FindBlobBasedPoints(const Py
     }
     return result;
 }
-
 
 

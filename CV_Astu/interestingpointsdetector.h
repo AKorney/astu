@@ -40,6 +40,8 @@ private:
                                 const BorderType borderType) const;
    double CalculateHarrisValue(const DoubleMat& source, const int windowHalfSize,
                           const BorderType borderType, const int x, const int y) const;
+   vector<BlobDescription> FindBlobs(const Pyramid& pyramid, const double diffThreshold) const;
+   //DoGPointType GetDoGPointType(const int x,const int y,const int octave, const int diffIndex) const;
 public:
 
    InterestingPointsDetector(const DetectionMethod method);
