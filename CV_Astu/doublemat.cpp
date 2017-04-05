@@ -135,17 +135,17 @@ DoubleMat DoubleMat::Convolve(const DoubleMat & kernel, BorderType border) const
 	{
 		for (int y = 0; y < _height; y++)
 		{
-			double result = 0;
-			int kernelWidth = kernel.getWidth();
-			int kernelHeight = kernel.getHeight();
-			for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
-			{
-				for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
-				{
-					result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
-                        * kernel.get(kernelX, kernelY, border);
-				}
-			}
+            double result = ConvolveCell(kernel, border, x,y);//0;
+            //int kernelWidth = kernel.getWidth();
+            //int kernelHeight = kernel.getHeight();
+            //for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
+            //{
+            //	for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
+            //	{
+            //		result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
+            //            * kernel.get(kernelX, kernelY, border);
+            //	}
+            //}
 			resultMat.set(result, x, y);
 		}
 	}
@@ -156,6 +156,23 @@ DoubleMat DoubleMat::Sub(const DoubleMat &other) const
 {
     DoubleMat result(_width, _height);
     transform(_data.get(), _data.get() + _width * _height, other._data.get(), result._data.get(), minus<double>());
+    return result;
+}
+
+double DoubleMat::ConvolveCell(const DoubleMat &kernel, const BorderType border
+                               , const int x, const int y) const
+{
+    double result = 0;
+    int kernelWidth = kernel.getWidth();
+    int kernelHeight = kernel.getHeight();
+    for (int kernelX = 0; kernelX < kernelWidth; kernelX++)
+    {
+        for (int kernelY = 0; kernelY < kernelHeight; kernelY++)
+        {
+            result += get(x - kernelX + kernelWidth / 2, y - kernelY + kernelHeight / 2, border)
+                * kernel.get(kernelX, kernelY, border);
+        }
+    }
     return result;
 }
 

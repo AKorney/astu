@@ -144,13 +144,14 @@ vector<BlobDescription> Pyramid::FindBlobs() const
                 for(int y=0;y<height;y++)
                 {
                     auto pointType = GetDoGPointType(x,y,octave, diffIndex);
+
                     switch(pointType)
                     {
                         case DoGPointType::Maximal:
                         {
                             BlobDescription blobMax;
-                            blobMax.x = (x + 0.5)*pow(2, octave) - 0.5;
-                            blobMax.y = (y + 0.5)*pow(2, octave) - 0.5;
+                            blobMax.x = x*pow(2, octave);
+                            blobMax.y = y*pow(2, octave);
                             blobMax.sigma = GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
                             blobMax.pointType = DoGPointType::Maximal;
                             result.emplace_back(blobMax);
@@ -159,8 +160,8 @@ vector<BlobDescription> Pyramid::FindBlobs() const
                         case DoGPointType::Minimal:
                         {
                             BlobDescription blobMin;
-                            blobMin.x = (x + 0.5)*pow(2, octave) - 0.5;
-                            blobMin.y = (y + 0.5)*pow(2, octave) - 0.5;
+                            blobMin.x = x*pow(2, octave);
+                            blobMin.y = y*pow(2, octave);
                             blobMin.sigma = GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
                             blobMin.pointType = DoGPointType::Minimal;
                             result.emplace_back(blobMin);
@@ -176,6 +177,58 @@ vector<BlobDescription> Pyramid::FindBlobs() const
     return result;
 }
 
+const pair<int, int> Pyramid::GetOctaveAndLayer(double sigma) const
+{
+    pair<int, int> position;
+    int globalPosition = log(sigma/_sigmaStart)/log(_k);
+
+    if(globalPosition < 0)
+    {
+        position.first = 0;
+        position.second = 0;
+    }
+    if(globalPosition >= _octavesCount*_octaveSize)
+    {
+        position.first = _octavesCount - 1;
+        position.second =  _octaveSize - 1;
+    }
+    double diffLeft = abs(_sigmaStart * pow(_k, globalPosition) - sigma);
+    double diffRight = abs(_sigmaStart * pow(_k, globalPosition+1) - sigma);
+    if(diffRight < diffLeft) globalPosition++;
+
+    position.first  = globalPosition / _octaveSize;
+    position.second = globalPosition % _octaveSize;
+    return position;
+}
+
+const DoubleMat &Pyramid::GetNearestImage(double sigma) const
+{
+    const auto pos = GetOctaveAndLayer(sigma);
+
+    //int globalPosition = log(sigma/_sigmaStart)/log(_k);
+    //if(globalPosition < 0)
+    //{
+    //    return GetImageAt(0,0);//.get(x,y);
+    //}
+    //if(globalPosition >= _octavesCount*_octaveSize)
+    //{
+    //    return GetImageAt(_octavesCount-1, _octaveSize - 1);
+    //            //.get(x / pow(2, _octavesCount-1), y / pow(2, _octavesCount-1));
+    //}
+    //double diffLeft = abs(_sigmaStart * pow(_k, globalPosition) - sigma);
+    //double diffRight = abs(_sigmaStart * pow(_k, globalPosition+1) - sigma);
+    //if(diffRight < diffLeft) globalPosition++;
+    //
+    //const int targetOctave = globalPosition / _octaveSize;
+    //const int targetLayer = globalPosition % _octaveSize;
+    //
+    ////const int targetX = x / pow(2, targetOctave);
+    ////const int targetY = y / pow (2, targetOctave);
+    //
+    //return GetImageAt(targetOctave, targetLayer);//.get(targetX, targetY);
+    return GetImageAt(pos.first, pos.second);//.get(targetX, targetY);
+}
+
 DoGPointType Pyramid::GetDoGPointType(const int x,const int y,const int octave, const int diffIndex) const
 {
     BorderType border = BorderType::Replicate;
@@ -185,9 +238,8 @@ DoGPointType Pyramid::GetDoGPointType(const int x,const int y,const int octave, 
     double targetValue = GetOctaveAt(octave)
             .GetDiffAt(diffIndex)
             .GetImage().get(x, y, border);
-    double old = _octaves[octave].GetLayerAt(diffIndex+1).GetImage().get(x,y, border)
-            -_octaves[octave].GetLayerAt(diffIndex).GetImage().get(x,y, border);
-    for(int dz=-1; dz<=1; dz++)
+    if(abs(targetValue) < 0.03) return DoGPointType::Regular;
+   for(int dz=-1; dz<=1; dz++)
     {
         for(int dx=-1;dx<=1;dx++)
         {
@@ -199,9 +251,7 @@ DoGPointType Pyramid::GetDoGPointType(const int x,const int y,const int octave, 
                         double diff = GetOctaveAt(octave)
                                 .GetDiffAt(diffIndex + dz)
                                 .GetImage().get(x + dx, y + dy, border);
-                        double oldDiff = GetImageAt(octave, diffIndex + dz + 1).get(x + dx, y + dy, border)
-                                - GetImageAt(octave, diffIndex + dz).get(x + dx, y + dy, border);
-                        if(diff <= targetValue) minimal = false;
+                       if(diff <= targetValue) minimal = false;
                         if(diff >= targetValue) maximal = false;
                     }
                 }

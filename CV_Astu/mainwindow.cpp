@@ -29,13 +29,20 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     
-    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\blob\\1.png");
+    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\blob\\1.jpg");
     auto pyr = Pyramid(5, 5, 1.6, 0.5, sourceImage1);
     const auto blobs = pyr.FindBlobs();
     auto blobImage = ImageHelper::DrawBlobs(sourceImage1, blobs);
     blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\result1.jpg");
+
+    auto detector = InterestingPointsDetector(DetectionMethod::Harris);
+    const auto points = detector.FindBlobBasedPoints(pyr);
+
+    auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points);
+    ip1.save("C:\\Users\\Alena\\Pictures\\blob\\ip1.jpg");
+
     //const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\lena2.jpg");
-    //auto detector = InterestingPointsDetector(DetectionMethod::Harris);
+    //
     //
     //auto im1DM = sourceImage1.PrepareDoubleMat();
     //auto im2DM = sourceImage2.PrepareDoubleMat();

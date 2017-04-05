@@ -44,6 +44,9 @@ public:
     DoubleMat ScaleDown() const;
 	DoubleMat Convolve(const DoubleMat& kernel, BorderType border) const;
     DoubleMat Sub(const DoubleMat& other) const;
+
+    double ConvolveCell(const DoubleMat& kernel, const BorderType border
+                        , const int x, const int y) const;
 };
 
 

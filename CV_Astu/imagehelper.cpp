@@ -63,7 +63,7 @@ QImage ImageHelper::MarkInterestingPoints
     QImage qImage = ImageHelper::CreateQImage(source);
     QPainter painter(&qImage);
     for (auto &point : points) {
-        painter.setPen(QColor(255, 255, 0));
+        painter.setPen(QColor(255, 0, 0));
         painter.drawEllipse(point.x, point.y, 2, 2);
     }
     return qImage;
@@ -116,10 +116,7 @@ QImage ImageHelper::DrawBlobs(const CVImage &source, vector<BlobDescription> blo
     for (auto &blob : blobs) {
         painter.setPen(blob.pointType==DoGPointType::Maximal? QColor(0,255,0) : QColor(255,0,0));
         double r = sqrt(2)*blob.sigma;
-        if(blob.pointType == DoGPointType::Maximal)
-        {
-            painter.drawEllipse(QPoint(blob.x, blob.y), (int)r, (int)r);
-        }
+        painter.drawEllipse(QPoint(blob.x, blob.y), (int)r, (int)r);
     }
     return qImage;
 }

@@ -38,6 +38,8 @@ private:
    DoubleMat CalculateHarrisMap(const DoubleMat& source,
                                 const int windowHalfSize,
                                 const BorderType borderType) const;
+   double CalculateHarrisValue(const DoubleMat& source, const int windowHalfSize,
+                          const BorderType borderType, const int x, const int y) const;
 public:
 
    InterestingPointsDetector(const DetectionMethod method);
@@ -51,6 +53,8 @@ public:
 
    static vector<InterestingPoint> ANMS(const vector<InterestingPoint> source,
                                         const int maxCount, const int maxRadius);
+
+   vector<InterestingPoint> FindBlobBasedPoints(const Pyramid& pyramid);
 
    virtual ~InterestingPointsDetector();
 

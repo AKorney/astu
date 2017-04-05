@@ -43,6 +43,8 @@ public:
     const DoubleMat& GetImageAt(const int octave, const int layer) const;
     const Octave& GetOctaveAt(const int octave) const;
     vector<BlobDescription> FindBlobs() const;
+    const DoubleMat& GetNearestImage(double sigma) const;
+    const pair<int, int> GetOctaveAndLayer(double sigma) const;
 };
 
 #endif // PYRAMID_H

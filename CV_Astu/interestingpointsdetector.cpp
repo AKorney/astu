@@ -57,6 +57,36 @@ DoubleMat InterestingPointsDetector::CalculateHarrisMap
     return result;
 }
 
+double InterestingPointsDetector::CalculateHarrisValue(const DoubleMat &source,
+const int windowHalfSize, const BorderType borderType, const int x, const int y) const
+{
+    double sigma = 1.0*windowHalfSize/3;
+    const auto weights = KernelBuilder::BuildGauss(sigma);
+
+    const auto sxKernel = KernelBuilder::BuildSobelX();
+    const auto syKernel = KernelBuilder::BuildSobelY();
+    double a=0, b=0, c=0;
+    for(int u = -windowHalfSize; u<= windowHalfSize; u++)
+    {
+        for(int v = -windowHalfSize; v <= windowHalfSize; v++)
+        {
+            double Ix = source.ConvolveCell(sxKernel, borderType, x+u, y+v);
+            //sobelX.get(x+u, y+v, borderType);
+            double Iy = source.ConvolveCell(syKernel, borderType, x+u, y+v);
+            //sobelY.get(x+u, y+v, borderType);
+            double w = weights.get(u+windowHalfSize, v+windowHalfSize);
+            a += w * Ix*Ix;
+            b += w * Ix*Iy;
+            c += w * Iy*Iy;
+        }
+    }
+    double d = sqrt((a-c)*(a-c) + 4*b*b);
+    double l1, l2;
+    l1 = abs((a+c+d)/2);
+    l2 = abs((a+c-d)/2);
+    return min(l1,l2);
+}
+
 double InterestingPointsDetector::CalculateCxy
 (const DoubleMat& source, const int x, const int y,
   const int windowHalfSize, const BorderType borderType) const
@@ -161,6 +191,32 @@ vector<InterestingPoint> InterestingPointsDetector::ANMS
         ++r;
     }
     return suppressed;
+}
+
+vector<InterestingPoint> InterestingPointsDetector::FindBlobBasedPoints(const Pyramid &pyramid)
+{
+    vector<InterestingPoint> result;
+    const auto blobs = pyramid.FindBlobs();
+
+    for(auto& blob : blobs)
+    {
+        int octave = pyramid.GetOctaveAndLayer(blob.sigma).first;
+        double harrisValue = CalculateHarrisValue(pyramid.GetNearestImage(blob.sigma),
+                                                  3, BorderType::Replicate,
+                                                  blob.x / pow(2, octave),
+                                                  blob.y / pow(2, octave));
+        if(harrisValue > 0.018)
+        {
+            InterestingPoint point;
+            point.x = blob.x;
+            point.y = blob.y;
+            point.sigma = blob.sigma;
+            point.w = harrisValue;
+
+            result.emplace_back(point);
+        }
+    }
+    return result;
 }
 
 
