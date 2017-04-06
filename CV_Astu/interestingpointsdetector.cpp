@@ -130,7 +130,8 @@ vector<BlobDescription> InterestingPointsDetector::FindBlobs(const Pyramid &pyra
                         BlobDescription blobMax;
                         blobMax.x = x*pow(2, octave);
                         blobMax.y = y*pow(2, octave);
-                        blobMax.sigma = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blobMax.sigmaGlobal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blobMax.sigmaLocal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaLocal();
                         blobMax.pointType = DoGPointType::Maximal;
                         result.emplace_back(blobMax);
                         continue;
@@ -140,7 +141,8 @@ vector<BlobDescription> InterestingPointsDetector::FindBlobs(const Pyramid &pyra
                         BlobDescription blobMin;
                         blobMin.x = x*pow(2, octave);
                         blobMin.y = y*pow(2, octave);
-                        blobMin.sigma = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blobMin.sigmaGlobal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blobMin.sigmaLocal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaLocal();
                         blobMin.pointType = DoGPointType::Minimal;
                         result.emplace_back(blobMin);
                         break;
@@ -262,22 +264,22 @@ vector<InterestingPoint> InterestingPointsDetector::FindBlobBasedPoints(const Py
 {
     vector<InterestingPoint> result;
     const auto blobs = FindBlobs(pyramid, 0.03);
-    auto blobImage = ImageHelper::DrawBlobs(pyramid.GetImageAt(0,0), blobs);
-    blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\result1.jpg");
-
+    auto blobImage = ImageHelper::DrawBlobs(CVImage(pyramid.Source()), blobs);
+    blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\blobs"+ QString::number(blobImage.width()) + ".jpg");
     for(auto& blob : blobs)
     {
-        int octave = pyramid.GetOctaveAndLayer(blob.sigma).first;
-        double harrisValue = CalculateHarrisValue(pyramid.GetNearestImage(blob.sigma),
+        int octave = pyramid.GetOctaveAndLayer(blob.sigmaGlobal).first;
+        double harrisValue = CalculateHarrisValue(pyramid.GetNearestImage(blob.sigmaGlobal),
                                                   3, BorderType::Replicate,
                                                   blob.x / pow(2, octave),
                                                   blob.y / pow(2, octave));
-        if(harrisValue > 0.018)
+        if(harrisValue > 0.01)
         {
             InterestingPoint point;
             point.x = blob.x;
             point.y = blob.y;
-            point.sigma = blob.sigma;
+            point.sigmaLocal = blob.sigmaLocal;
+            point.sigmaGlobal = blob.sigmaGlobal;
             point.w = harrisValue;
 
             result.emplace_back(point);

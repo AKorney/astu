@@ -45,10 +45,10 @@ private:
      *
      */
 
-    Descriptor CalculateHistogramDescriptor(const DoubleMat& source,
+    Descriptor CalculateHistogramDescriptor(const Pyramid& pyramid,//const DoubleMat& source,
                                             const InterestingPoint &point, const double alpha) const;
-    vector<double> CalculateHistogram(const DoubleMat& source,
-                                      const InterestingPoint &point, const int gridSize, const int gridStep,
+    vector<double> CalculateHistogram(const Pyramid& pyramid,//const DoubleMat& source,
+                                      const InterestingPoint &point, const double gridSize, const int gridStep,
                                       const int bins, const double sigma, const double alpha = 0) const;
     double CalculateNorm(const vector<double>& histogram) const;
     vector<double> DescriptorOrientations( const vector<double>& anglesHistogram) const;
@@ -56,7 +56,7 @@ public:
 
     DescriptorsBuilder();
 
-    vector<Descriptor> CalculateHistogramDesctiptors(const DoubleMat& source,
+    vector<Descriptor> CalculateHistogramDesctiptors(const Pyramid& pyramid,//const DoubleMat& source,
                                                      const vector<InterestingPoint> points) const;
     static vector<pair<Point, Point>> FindMatches(const vector<Descriptor>& first,
                                                   const vector<Descriptor>& second);

@@ -21,7 +21,8 @@ struct InterestingPoint
     int x, y;
     double w;
     double alpha;
-    double sigma;
+    double sigmaLocal;
+    double sigmaGlobal;
 };
 
 class InterestingPointsDetector

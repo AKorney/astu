@@ -62,6 +62,7 @@ Pyramid::Pyramid(const int octavesCount, const int octaveSize,
     :  _octaveSize(octaveSize),
       _sigmaStart(sigmaStart), _sigmaInput(sigmaInput)
 {
+    _sourceImage = source.PrepareDoubleMat();
     int maxOctavesCount = log2(min(source.getHeight(),source.getWidth()));
     _octavesCount = min(octavesCount, maxOctavesCount);
 	const double startDelta = sqrt(sigmaStart * sigmaStart 
@@ -74,7 +75,7 @@ Pyramid::Pyramid(const int octavesCount, const int octaveSize,
     for (int octave = 0; octave < _octavesCount; octave++)
 	{
         Octave currentOctave = BuildOctave(currentImage, octave);
-        currentOctave.SaveAll();
+        //currentOctave.SaveAll();
         _octaves.emplace_back(currentOctave);
         if(_overlapSize > 0)
         {

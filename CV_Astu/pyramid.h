@@ -14,7 +14,8 @@ enum class DoGPointType
 struct BlobDescription
 {
     int x,y;
-    double sigma;
+    double sigmaGlobal;
+    double sigmaLocal;
     DoGPointType pointType;
 };
 
@@ -31,7 +32,7 @@ private:
     Octave BuildOctave(const DoubleMat& firstImage,
                        const int octaveNumber);
     void CalculateDeltas();
-
+    DoubleMat _sourceImage;
 public:
     Pyramid();
     Pyramid(const int octavesCount, const int octaveSize,
@@ -45,6 +46,8 @@ public:
     int OctaveSize() const {return _octaveSize; }
     int OverlapSize() const {return _overlapSize;}
     int OctavesCount() const {return _octavesCount; }
+    double SigmaStart() const {return _sigmaStart;}
+    const DoubleMat& Source() const { return _sourceImage; }
 };
 
 #endif // PYRAMID_H
