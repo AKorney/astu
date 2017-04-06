@@ -29,18 +29,20 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     
-    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\lena1.jpg");
-    //auto pyr = Pyramid(5, 5, 1.6, 0.5, sourceImage1);
+    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\2.jpg");
+    const auto test = sourceImage1.GaussianSmoothing(1.5, BorderType::Replicate, true);
+    ImageHelper::Save("C:\\Users\\Alena\\Pictures\\2_test_1_5.jpg", test);
+    auto pyr = Pyramid(5, 5, 1.6, 0.5, sourceImage1);
     //const auto blobs = pyr.FindBlobs();
     //auto blobImage = ImageHelper::DrawBlobs(sourceImage1, blobs);
     //blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\result1.jpg");
 
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
-    //const auto points = detector.FindBlobBasedPoints(pyr);
+    const auto points = detector.FindBlobBasedPoints(pyr);
 
-    //auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points);
-    //ip1.save("C:\\Users\\Alena\\Pictures\\blob\\ip1.jpg");
-
+    auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points);
+    ip1.save("C:\\Users\\Alena\\Pictures\\blob\\ip1.jpg");
+    /*
     const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\descr\\lena2.jpg");
 
 
@@ -71,6 +73,7 @@ void MainWindow::on_openButton_clicked()
     ip2.save("C:\\Users\\Alena\\Pictures\\descr\\ip2.jpg");
     auto extended = ImageHelper::DrawMatches(sourceImage1, sourceImage2, matches);
     extended.save("C:\\Users\\Alena\\Pictures\\descr\\matches.jpg");
+    //*/
 }
 
 

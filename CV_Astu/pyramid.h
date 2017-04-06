@@ -27,12 +27,10 @@ private:
     double _sigmaStart, _sigmaInput;
     double _k;
     unique_ptr<double[]> _deltas;
-    //vector<vector<OctaveLayer>> _octaves;
     vector<Octave> _octaves;
     Octave BuildOctave(const DoubleMat& firstImage,
                        const int octaveNumber);
     void CalculateDeltas();
-    //DoGPointType GetDoGPointType(const int x,const int y,const int octave, const int diffIndex) const;
 
 public:
     Pyramid();
@@ -42,7 +40,6 @@ public:
     unsigned char L(const int x, const int y, const double sigma) const;
     const DoubleMat& GetImageAt(const int octave, const int layer) const;
     const Octave& GetOctaveAt(const int octave) const;
-    //vector<BlobDescription> FindBlobs() const;
     const DoubleMat& GetNearestImage(double sigma) const;
     const pair<int, int> GetOctaveAndLayer(double sigma) const;
     int OctaveSize() const {return _octaveSize; }

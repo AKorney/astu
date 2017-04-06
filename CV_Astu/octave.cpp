@@ -41,6 +41,7 @@ void Octave::SaveAll()
                         + ".jpg"
                         , CVImage(layer.GetImage()));
     }
+    /*
     for(auto& diff : _diffs)
     {
         ImageHelper::Save("C:\\Users\\Alena\\Pictures\\CV_Pyr\\diff\\Oct"
@@ -50,6 +51,7 @@ void Octave::SaveAll()
                         + ".jpg"
                         , CVImage(diff.GetImage()));
     }
+    */
 }
 
 const OctaveLayer& Octave::GetLayerAt(const int index) const
@@ -62,8 +64,8 @@ void Octave::BuildDiffs()
     for(int i=0; i<_layers.size()-1; i++)
     {
         OctaveLayer diff(make_unique<DoubleMat>(_layers[i+1].GetImage().Sub(_layers[i].GetImage()))
-                , (_layers[i].GetSigmaLocal() + _layers[i+1].GetSigmaLocal())/2
-                , (_layers[i].GetSigmaGlobal() +_layers[i+1].GetSigmaGlobal())/2);
+                , sqrt(_layers[i].GetSigmaLocal() * _layers[i+1].GetSigmaLocal())
+                , sqrt(_layers[i].GetSigmaGlobal() *_layers[i+1].GetSigmaGlobal()));
         _diffs.emplace_back(diff);
     }
 }

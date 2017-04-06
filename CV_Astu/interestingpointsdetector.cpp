@@ -94,10 +94,10 @@ vector<BlobDescription> InterestingPointsDetector::FindBlobs(const Pyramid &pyra
     vector<BlobDescription> result;
     for(int octave = 0; octave < pyramid.OctavesCount(); octave++)
     {
+        const int width = pyramid.GetImageAt(octave, 0).getWidth();
+        const int height = pyramid.GetImageAt(octave, 0).getHeight();
         for(int diffIndex = 1; diffIndex < pyramid.OctaveSize() + pyramid.OverlapSize() - 2; diffIndex++)
         {
-            const int width = pyramid.GetImageAt(octave, 0).getWidth();
-            const int height = pyramid.GetImageAt(octave, 0).getHeight();
             for(int x=0; x<width; x++)
             {
                 for(int y=0;y<height;y++)
