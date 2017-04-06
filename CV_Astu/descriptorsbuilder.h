@@ -34,12 +34,20 @@ private:
     const int ORIENTATION_BINS_COUNT = 36;
     const double ORIENTATION_ANGLE_STEP = 2 * M_PI / ORIENTATION_BINS_COUNT;
 
-    DoubleMat CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv) const;
-    DoubleMat CalculateGradientAngles(const DoubleMat& xDrv, const DoubleMat& yDrv) const;
+    /*
+     * Что сделать?
+     * 1. убрать предварительный рассчет градиентов и углов, считать по запросу в точке
+     * 2. передавать вместо целевого изображения пирамиду, и используя методы доступа к
+     * данным из пирамиды вычисление нужного слоя, находить целевую картинку и считать дескриптор
+     * 3. Внести корректировки в вычисление сетки
+     *
+     *
+     *
+     */
 
-    Descriptor CalculateHistogramDescriptor(const DoubleMat& gradients, const DoubleMat& angles,
+    Descriptor CalculateHistogramDescriptor(const DoubleMat& source,
                                             const InterestingPoint &point, const double alpha) const;
-    vector<double> CalculateHistogram(const DoubleMat& gradients, const DoubleMat& angles,
+    vector<double> CalculateHistogram(const DoubleMat& source,
                                       const InterestingPoint &point, const int gridSize, const int gridStep,
                                       const int bins, const double sigma, const double alpha = 0) const;
     double CalculateNorm(const vector<double>& histogram) const;

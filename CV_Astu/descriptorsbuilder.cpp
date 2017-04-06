@@ -7,49 +7,13 @@ DescriptorsBuilder::DescriptorsBuilder()
 
 }
 
-DoubleMat DescriptorsBuilder::CalculateGradients(const DoubleMat &xDrv, const DoubleMat &yDrv) const
-{
-    BorderType border = BorderType::Replicate;
-
-
-    DoubleMat gradients(xDrv.getWidth(), xDrv.getHeight());
-    for (int i = 0; i < xDrv.getWidth(); i++)
-    {
-        for (int j = 0; j < xDrv.getHeight(); j++)
-        {
-            double value = xDrv.get(i, j, border) * xDrv.get(i, j, border)
-                + yDrv.get(i, j, border) * yDrv.get(i, j, border);
-            gradients.set(sqrt(value), i, j);
-        }
-    }
-
-    return gradients;
-}
-
-DoubleMat DescriptorsBuilder::CalculateGradientAngles
-(const DoubleMat &xDrv, const DoubleMat &yDrv) const
-{
-    BorderType border = BorderType::Replicate;
-
-
-    DoubleMat angles(xDrv.getWidth(), xDrv.getHeight());
-    for (int i = 0; i < xDrv.getWidth(); i++)
-    {
-        for (int j = 0; j < xDrv.getHeight(); j++)
-        {
-            double value = atan2(yDrv.get(i,j,border), xDrv.get(i,j,border));
-            if(value < 0) value = 2 * M_PI + value;
-
-            angles.set(value, i, j);
-        }
-    }
-    return angles;
-}
 
 vector<double> DescriptorsBuilder::CalculateHistogram
-(const DoubleMat &gradients, const DoubleMat &angles, const InterestingPoint &point,
+(const DoubleMat &source, const InterestingPoint &point,
  const int gridSize, const int gridStep, const int bins, const double sigma, const double alpha) const
 {
+    const auto sxKernel = KernelBuilder::BuildSobelX();
+    const auto syKernel = KernelBuilder::BuildSobelY();
     vector<double> result;
     const int cellsCount = (gridSize/gridStep) * (gridSize/gridStep);
     const double binAngle = 2 * M_PI / bins;
@@ -63,6 +27,12 @@ vector<double> DescriptorsBuilder::CalculateHistogram
     {
         for(int dy = -gridHalfSize; dy < gridHalfSize; dy++)
         {
+            const double xDrv = source.ConvolveCell(sxKernel, BorderType::Replicate, dx + point.x, dy + point.y);
+            const double yDrv = source.ConvolveCell(syKernel, BorderType::Replicate, dx + point.x, dy + point.y);
+
+            const double gradValue = sqrt(xDrv * xDrv + yDrv * yDrv);
+            const double gradAngle = fmod(atan2(yDrv, xDrv) + 2*M_PI, 2*M_PI);
+
             int rdx = floor(cosAlpha * dx + sinAlpha * dy);
             int rdy = floor(-sinAlpha * dx + cosAlpha * dy);
             if(rdx < -gridHalfSize || rdy < - gridHalfSize
@@ -77,7 +47,8 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 
             int leftBin, rightBin;
             double cleft, cright;
-            double phi = angles.get(dx + point.x, dy + point.y) - alpha;
+
+            double phi = gradAngle - alpha;
             if(phi < 0) phi += 2*M_PI;
 
             rightBin = floor(phi/binAngle + 0.5);
@@ -92,7 +63,7 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 
             double w = exp(-(dx*dx + dy*dy) / (2 * sigma*sigma))
                     / (2 * M_PI * sigma * sigma);
-            double L = w * gradients.get(dx + point.x, dy + point.y);
+            double L = w * gradValue;
 
 
             result.at(bins * cell + leftBin)
@@ -107,7 +78,7 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 }
 
 Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
-(const DoubleMat& gradients, const DoubleMat& angles, const InterestingPoint &point, const double alpha) const
+(const DoubleMat& source, const InterestingPoint &point, const double alpha) const
 {
     double sigma = 2.0;
     Descriptor result;
@@ -115,7 +86,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     result.targetPoint.x = point.x;
     result.targetPoint.y = point.y;
     result.targetPoint.alpha = alpha;
-    result.localDescription = CalculateHistogram(gradients, angles, point, GRID_SIZE, GRID_STEP,
+    result.localDescription = CalculateHistogram(source, point, GRID_SIZE, GRID_STEP,
                                                  BINS_COUNT, sigma, alpha);
 
     double norm = sqrt(accumulate(result.localDescription.begin(), result.localDescription.end(), 0.0));
@@ -128,10 +99,7 @@ double DescriptorsBuilder::CalculateNorm(const vector<double>& histogram) const
 {
     double sum = 0;
     sum = accumulate(histogram.begin(), histogram.end(), 0);
-    //for(double element: histogram)
-    //{
-    //   sum += element*element;
-    //}
+
     return sqrt(sum);
 }
 
@@ -179,15 +147,11 @@ vector<double> DescriptorsBuilder::DescriptorOrientations
 vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
 (const DoubleMat &source, const vector<InterestingPoint> points) const
 {
-    const auto xDrv = source.Convolve(KernelBuilder::BuildSobelX(), BorderType::Replicate);
-    const auto yDrv = source.Convolve(KernelBuilder::BuildSobelY(), BorderType::Replicate);
-    auto gradientValues = CalculateGradients(xDrv, yDrv);
-    auto angleValues = CalculateGradientAngles(xDrv, yDrv);
     vector<Descriptor> descriptors;
 
     for (auto &point : points) {
         double sigma = 1.5;
-        const auto orientationHistogram = CalculateHistogram(gradientValues, angleValues, point,
+        const auto orientationHistogram = CalculateHistogram(source, point,
                                                  GRID_SIZE, GRID_SIZE, ORIENTATION_BINS_COUNT,
                                                  sigma);
 
@@ -195,7 +159,7 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
         for(double angle : orientations)
         {
             descriptors.emplace_back(CalculateHistogramDescriptor
-                                     (gradientValues, angleValues, point, angle));
+                                     (source, point, angle));
 
         }
     }
@@ -260,7 +224,7 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
             match.second.x = second[firstBest].targetPoint.x;
             match.second.y = second[firstBest].targetPoint.y;
 
-            double rotation = first[i].targetPoint.alpha - second[firstBest].targetPoint.alpha;
+            double rotation = fmod(2*M_PI + first[i].targetPoint.alpha - second[firstBest].targetPoint.alpha, 2*M_PI);
             result.emplace_back(match);
             QString debugInf = QString::number(i) +" and " +QString::number(firstBest)
                     + " values: " + QString::number(match.first.x) +":" + QString::number(match.first.y)
