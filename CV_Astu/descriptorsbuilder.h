@@ -58,7 +58,7 @@ public:
 
     vector<Descriptor> CalculateHistogramDesctiptors(const Pyramid& pyramid,//const DoubleMat& source,
                                                      const vector<InterestingPoint> points) const;
-    static vector<pair<Point, Point>> FindMatches(const vector<Descriptor>& first,
+    static vector<pair<InterestingPoint,InterestingPoint>> FindMatches(const vector<Descriptor>& first,
                                                   const vector<Descriptor>& second);
     static double CalcDistance(const Descriptor& left, const Descriptor& right);
 };

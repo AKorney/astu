@@ -13,8 +13,6 @@ vector<double> DescriptorsBuilder::CalculateHistogram
  const double gridSize, const int gridLineCellsCount, const int bins, const double sigmaBase, const double alpha) const
 {
     const auto targetImagePosition = pyramid.GetOctaveAndLayer(point.sigmaGlobal);
-    const int localX = point.x / pow(2, targetImagePosition.first);
-    const int localY = point.y / pow(2, targetImagePosition.first);
 
     const auto& source = pyramid.GetImageAt(targetImagePosition.first, targetImagePosition.second);
 
@@ -35,8 +33,8 @@ vector<double> DescriptorsBuilder::CalculateHistogram
     {
         for(int dy = -gridHalfSize; dy < gridHalfSize; dy++)
         {
-            const double xDrv = source.ConvolveCell(sxKernel, BorderType::Replicate, dx + localX, dy + localY);
-            const double yDrv = source.ConvolveCell(syKernel, BorderType::Replicate, dx + localY, dy + localY);
+            const double xDrv = source.ConvolveCell(sxKernel, BorderType::Replicate, dx + point.x, dy + point.y);
+            const double yDrv = source.ConvolveCell(syKernel, BorderType::Replicate, dx + point.x, dy + point.y);
 
             const double gradValue = sqrt(xDrv * xDrv + yDrv * yDrv);
             const double gradAngle = fmod(atan2(yDrv, xDrv) + 2*M_PI, 2*M_PI);
@@ -91,12 +89,17 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     double sigmaBase = 2.0;
     Descriptor result;
     double scale = point.sigmaLocal/pyramid.SigmaStart();
+    //const auto targetImagePosition = pyramid.GetOctaveAndLayer(point.sigmaGlobal);
+    //const int localX = point.x;// / pow(2, targetImagePosition.first);
+    //const int localY = point.y;// / pow(2, targetImagePosition.first);
+
 
     result.targetPoint.x = point.x;
     result.targetPoint.y = point.y;
     result.targetPoint.alpha = alpha;
     result.targetPoint.sigmaLocal = point.sigmaLocal;
     result.targetPoint.sigmaGlobal = point.sigmaGlobal;
+    result.targetPoint.octave = point.octave;
     result.localDescription = CalculateHistogram(pyramid, point, GRID_SIZE * scale, GRID_SIZE/GRID_STEP,
                                                  BINS_COUNT, sigmaBase * scale, alpha);
 
@@ -178,10 +181,10 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
     return descriptors;
 }
 
-vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
+vector<pair<InterestingPoint,InterestingPoint>> DescriptorsBuilder::FindMatches
 (const vector<Descriptor> &first, const vector<Descriptor> &second)
 {
-    vector<pair<Point,Point>> result;
+    vector<pair<InterestingPoint,InterestingPoint>> result;
     DoubleMat distances(first.size(), second.size());
     for(int i =0; i<first.size(); i++)
     {
@@ -228,13 +231,15 @@ vector<pair<Point,Point>> DescriptorsBuilder::FindMatches
 
         if(firstDistance/secondDistance < 0.8)
         {
-            pair<Point,Point> match;
+            pair<InterestingPoint,InterestingPoint> match;
 
-            match.first.x = first[i].targetPoint.x;
-            match.first.y = first[i].targetPoint.y;
+            //match.first.x = first[i].targetPoint.x;
+            //match.first.y = first[i].targetPoint.y;
 
-            match.second.x = second[firstBest].targetPoint.x;
-            match.second.y = second[firstBest].targetPoint.y;
+            //match.second.x = second[firstBest].targetPoint.x;
+            //match.second.y = second[firstBest].targetPoint.y;
+            match.first = first[i].targetPoint;
+            match.second = second[firstBest].targetPoint;
 
             double rotation = fmod(2*M_PI + first[i].targetPoint.alpha - second[firstBest].targetPoint.alpha, 2*M_PI);
             result.emplace_back(match);

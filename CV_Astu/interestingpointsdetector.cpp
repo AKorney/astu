@@ -240,7 +240,7 @@ vector<InterestingPoint> InterestingPointsDetector::FindBlobBasedPoints(const Py
                     double harrisValue = CalculateHarrisValue(image,
                                                               3, BorderType::Replicate,
                                                               x, y);
-                    if(harrisValue < 0.018) continue;
+                    if(harrisValue < 0.01) continue;
 
                     if(maximal || minimal)
                     {
