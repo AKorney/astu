@@ -108,9 +108,11 @@ unsigned char Pyramid::L(const int x, const int y, const double sigma) const
         return GetImageAt(_octavesCount-1, _octaveSize - 1)
                 .get(x / pow(2, _octavesCount-1), y / pow(2, _octavesCount-1));
     }
+
     double diffLeft = abs(_sigmaStart * pow(_k, globalPosition) - sigma);
     double diffRight = abs(_sigmaStart * pow(_k, globalPosition+1) - sigma);
     if(diffRight < diffLeft) globalPosition++;
+
 
     const int targetOctave = globalPosition / _octaveSize;
     const int targetLayer = globalPosition % _octaveSize;
@@ -142,11 +144,13 @@ const pair<int, int> Pyramid::GetOctaveAndLayer(double sigma) const
     {
         position.first = 0;
         position.second = 0;
+        return position;
     }
     if(globalPosition >= _octavesCount*_octaveSize)
     {
         position.first = _octavesCount - 1;
         position.second =  _octaveSize - 1;
+        return position;
     }
     double diffLeft = abs(_sigmaStart * pow(_k, globalPosition) - sigma);
     double diffRight = abs(_sigmaStart * pow(_k, globalPosition+1) - sigma);

@@ -26,8 +26,8 @@ public:
 	static void Save(const QString filePath, const CVImage & source);
     static QImage MarkInterestingPoints(const CVImage& source, vector<InterestingPoint> points);
     static QImage DrawMatches(const CVImage& left, const CVImage& right,
-                              vector <pair<Point, Point>> matches);
-    static QImage DrawBlobs(const CVImage& source, vector<BlobDescription> blobs);
+                              vector <pair<InterestingPoint,InterestingPoint>> matches);
+    static QImage DrawBlobs(const CVImage& source, vector<InterestingPoint> blobs);
 };
 
 #endif // CVIMAGELOADER_H

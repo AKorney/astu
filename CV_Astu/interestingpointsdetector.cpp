@@ -88,71 +88,6 @@ const int windowHalfSize, const BorderType borderType, const int x, const int y)
     return min(l1,l2);
 }
 
-vector<BlobDescription> InterestingPointsDetector::FindBlobs(const Pyramid &pyramid, const double diffThreshold) const
-{
-    BorderType border = BorderType::Replicate;
-    vector<BlobDescription> result;
-    for(int octave = 0; octave < pyramid.OctavesCount(); octave++)
-    {
-        const int width = pyramid.GetImageAt(octave, 0).getWidth();
-        const int height = pyramid.GetImageAt(octave, 0).getHeight();
-        for(int diffIndex = 1; diffIndex < pyramid.OctaveSize() + pyramid.OverlapSize() - 2; diffIndex++)
-        {
-            for(int x=0; x<width; x++)
-            {
-                for(int y=0;y<height;y++)
-                {
-                    bool minimal = true;
-                    bool maximal = true;
-                    double targetValue = pyramid.GetOctaveAt(octave)
-                            .GetDiffAt(diffIndex)
-                            .GetImage().get(x, y, border);
-                    if(abs(targetValue) < diffThreshold) continue;
-                    for(int dz=-1; dz<=1; dz++)
-                    {
-                        for(int dx=-1;dx<=1;dx++)
-                        {
-                            for(int dy=-1;dy<=1; dy++)
-                            {
-                                 if(dx || dy || dz)
-                                 {
-                                     double diff = pyramid.GetOctaveAt(octave)
-                                             .GetDiffAt(diffIndex + dz)
-                                             .GetImage().get(x + dx, y + dy, border);
-                                    if(diff <= targetValue) minimal = false;
-                                     if(diff >= targetValue) maximal = false;
-                                 }
-                             }
-                        }
-                    }
-                    if(maximal)
-                    {
-                        BlobDescription blobMax;
-                        blobMax.x = x*pow(2, octave);
-                        blobMax.y = y*pow(2, octave);
-                        blobMax.sigmaGlobal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
-                        blobMax.sigmaLocal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaLocal();
-                        blobMax.pointType = DoGPointType::Maximal;
-                        result.emplace_back(blobMax);
-                        continue;
-                    }
-                    if(minimal)
-                    {
-                        BlobDescription blobMin;
-                        blobMin.x = x*pow(2, octave);
-                        blobMin.y = y*pow(2, octave);
-                        blobMin.sigmaGlobal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
-                        blobMin.sigmaLocal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaLocal();
-                        blobMin.pointType = DoGPointType::Minimal;
-                        result.emplace_back(blobMin);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return result;
-}
 
 double InterestingPointsDetector::CalculateCxy
 (const DoubleMat& source, const int x, const int y,
@@ -223,6 +158,7 @@ vector<InterestingPoint> InterestingPointsDetector::FindInterestingPoints
                 InterestingPoint  newPoint;
                 newPoint.x = x;
                 newPoint.y = y;
+                newPoint.octave = 0;
                 newPoint.w = errors.get(x,y);
                 result.emplace_back(newPoint);
             }
@@ -262,29 +198,68 @@ vector<InterestingPoint> InterestingPointsDetector::ANMS
 
 vector<InterestingPoint> InterestingPointsDetector::FindBlobBasedPoints(const Pyramid &pyramid)
 {
-    vector<InterestingPoint> result;
-    const auto blobs = FindBlobs(pyramid, 0.03);
-    auto blobImage = ImageHelper::DrawBlobs(CVImage(pyramid.Source()), blobs);
-    blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\blobs"+ QString::number(blobImage.width()) + ".jpg");
-    for(auto& blob : blobs)
-    {
-        int octave = pyramid.GetOctaveAndLayer(blob.sigmaGlobal).first;
-        double harrisValue = CalculateHarrisValue(pyramid.GetNearestImage(blob.sigmaGlobal),
-                                                  3, BorderType::Replicate,
-                                                  blob.x / pow(2, octave),
-                                                  blob.y / pow(2, octave));
-        if(harrisValue > 0.01)
-        {
-            InterestingPoint point;
-            point.x = blob.x;
-            point.y = blob.y;
-            point.sigmaLocal = blob.sigmaLocal;
-            point.sigmaGlobal = blob.sigmaGlobal;
-            point.w = harrisValue;
 
-            result.emplace_back(point);
+    BorderType border = BorderType::Replicate;
+    vector<InterestingPoint> result;
+    for(int octave = 0; octave < pyramid.OctavesCount(); octave++)
+    {
+        const int width = pyramid.GetImageAt(octave, 0).getWidth();
+        const int height = pyramid.GetImageAt(octave, 0).getHeight();
+        for(int diffIndex = 1; diffIndex < pyramid.OctaveSize() + pyramid.OverlapSize() - 2; diffIndex++)
+        {
+            const auto& image = pyramid.GetNearestImage(pyramid.GetOctaveAt(octave)
+                                                       .GetDiffAt(diffIndex).GetSigmaGlobal());
+            for(int x=0; x<width; x++)
+            {
+                for(int y=0;y<height;y++)
+                {
+                    bool minimal = true;
+                    bool maximal = true;
+                    double targetValue = pyramid.GetOctaveAt(octave)
+                            .GetDiffAt(diffIndex)
+                            .GetImage().get(x, y, border);
+                    for(int dz=-1; dz<=1; dz++)
+                    {
+                        for(int dx=-1;dx<=1;dx++)
+                        {
+                            for(int dy=-1;dy<=1; dy++)
+                            {
+                                 if(dx || dy || dz)
+                                 {
+                                     double diff = pyramid.GetOctaveAt(octave)
+                                             .GetDiffAt(diffIndex + dz)
+                                             .GetImage().get(x + dx, y + dy, border);
+                                    if(diff <= targetValue) minimal = false;
+                                     if(diff >= targetValue) maximal = false;
+                                 }
+                             }
+                        }
+                    }
+                    if(abs(targetValue) < 0.03) continue;
+
+                    double harrisValue = CalculateHarrisValue(image,
+                                                              3, BorderType::Replicate,
+                                                              x, y);
+                    if(harrisValue < 0.018) continue;
+
+                    if(maximal || minimal)
+                    {
+                        InterestingPoint blob;
+                        blob.w = harrisValue;
+                        blob.x = x;
+                        blob.y = y;
+                        blob.octave = octave;
+                        blob.sigmaGlobal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaGlobal();
+                        blob.sigmaLocal = pyramid.GetOctaveAt(octave).GetDiffAt(diffIndex).GetSigmaLocal();
+                        result.emplace_back(blob);
+                    }
+
+                }
+            }
         }
     }
+    auto blobImage = ImageHelper::DrawBlobs(CVImage(pyramid.Source()), result);
+    blobImage.save("C:\\Users\\Alena\\Pictures\\blob\\blobs"+ QString::number(blobImage.width()) + ".jpg");
     return result;
 }
 

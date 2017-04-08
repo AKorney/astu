@@ -64,13 +64,13 @@ QImage ImageHelper::MarkInterestingPoints
     QPainter painter(&qImage);
     for (auto &point : points) {
         painter.setPen(QColor(255, 255, 0));
-        painter.drawEllipse(point.x, point.y, 2, 2);
+        painter.drawEllipse(point.x * pow(2, point.octave), point.y * pow(2, point.octave), 2, 2);
     }
     return qImage;
 }
 
 QImage ImageHelper::DrawMatches
-(const CVImage &left, const CVImage &right,  vector<pair<Point, Point> > matches)
+(const CVImage &left, const CVImage &right,  vector<pair<InterestingPoint,InterestingPoint> > matches)
 {
      const int middle = 20;
      const int width = right.getWidth() + left.getWidth() + middle;
@@ -100,23 +100,30 @@ QImage ImageHelper::DrawMatches
      {
          //painter.setPen(QColor(255, 255, 0));
          painter.setPen(QColor(abs(rand()) % 256, abs(rand()) % 256, abs(rand()) % 256));
-         painter.drawEllipse(match.first.x, match.first.y, 2, 2);
-         painter.drawEllipse(match.second.x + left.getWidth() + middle, match.second.y, 2, 2);
+         QPoint leftPt;
+         leftPt.setX(match.first.x * pow(2, match.first.octave));
+         leftPt.setY(match.first.y * pow(2, match.first.octave));
 
-         painter.drawLine(match.first.x, match.first.y,
-                          match.second.x + left.getWidth() + middle, match.second.y);
+         QPoint rightPt;
+         rightPt.setX(match.second.x * pow(2, match.second.octave) + left.getWidth() + middle);
+         rightPt.setY(match.second.y * pow(2, match.second.octave));
+         painter.drawEllipse(leftPt, 2, 2);
+         painter.drawEllipse(rightPt, 2, 2);
+
+         painter.drawLine(leftPt, rightPt);
      }
      return qImage;
 }
 
-QImage ImageHelper::DrawBlobs(const CVImage &source, vector<BlobDescription> blobs)
+QImage ImageHelper::DrawBlobs(const CVImage &source, vector<InterestingPoint> blobs)
 {
     QImage qImage = ImageHelper::CreateQImage(source);
     QPainter painter(&qImage);
     for (auto &blob : blobs) {
-        painter.setPen(blob.pointType==DoGPointType::Maximal? QColor(0,255,0) : QColor(255,0,0));
+        painter.setPen(QColor(abs(rand()) % 256, abs(rand()) % 256, abs(rand()) % 256));
+        //painter.setPen(blob.pointType==DoGPointType::Maximal? QColor(0,255,0) : QColor(255,0,0));
         double r = sqrt(2)*blob.sigmaGlobal;
-        painter.drawEllipse(QPoint(blob.x, blob.y), (int)r, (int)r);
+        painter.drawEllipse(QPoint(blob.x*pow(2, blob.octave), blob.y * pow(2, blob.octave)), (int)r, (int)r);
     }
     return qImage;
 }
