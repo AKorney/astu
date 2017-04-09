@@ -149,13 +149,28 @@ vector<double> DescriptorsBuilder::DescriptorOrientations
             second = i;
         }
     }
-    result.emplace_back(ORIENTATION_ANGLE_STEP * (first + 0.5));
+    result.emplace_back(ORIENTATION_ANGLE_STEP * (first + 0.5 + PeakShift(orientationHistogram, first)));
 
-    if(secondValue >= firstValue * 0.8)
+    if(secondValue >= firstValue * 0.8 && abs(first-second) > 1 && abs(first-second) < ORIENTATION_BINS_COUNT - 1)
     {
-        result.emplace_back(ORIENTATION_ANGLE_STEP * (second + 0.5));
+        result.emplace_back(ORIENTATION_ANGLE_STEP * (second + 0.5 + PeakShift(orientationHistogram, second)));
     }
     return result;
+}
+
+double DescriptorsBuilder::PeakShift(const vector<double> histogram, const int peakBinIndex) const
+{
+    //https://www.dsprelated.com/freebooks/sasp/Quadratic_Interpolation_Spectral_Peaks.html
+    const int left = (peakBinIndex - 1 + histogram.size())%histogram.size();
+    const int right = (peakBinIndex + 1)%histogram.size();
+    assert(left >=0 && left < histogram.size());
+    assert(right >=0 && right < histogram.size());
+    const double alpha = histogram[left];
+    const double betta = histogram[peakBinIndex];
+    const double gamma = histogram[right];
+    const double peakCorrection = 0.5*(alpha-gamma)/(alpha - 2*betta + gamma);
+    assert(abs(peakCorrection)<=0.5);
+    return peakCorrection;
 }
 
 vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors

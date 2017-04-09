@@ -52,6 +52,7 @@ private:
                                       const int bins, const double sigma, const double alpha = 0) const;
     double CalculateNorm(const vector<double>& histogram) const;
     vector<double> DescriptorOrientations( const vector<double>& anglesHistogram) const;
+    double PeakShift(const vector<double> histogram, const int peakBinIndex) const;
 public:
 
     DescriptorsBuilder();
