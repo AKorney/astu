@@ -67,6 +67,10 @@ vector<double> DescriptorsBuilder::CalculateHistogram
             double w = exp(-(dx*dx + dy*dy) / (2 * sigmaBase*sigmaBase))
                     / (2 * M_PI * sigmaBase * sigmaBase);
             double L = w * gradValue;
+            result.at(bins * cell + leftBin)
+                    += L * cright;
+            result.at(bins * cell + rightBin)
+                    += L * cleft;
         }
     }
 

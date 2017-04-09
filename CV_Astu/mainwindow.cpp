@@ -36,7 +36,7 @@ void MainWindow::on_openButton_clicked()
     auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points1);
     ip1.save("C:\\Users\\Alena\\Pictures\\blob\\ip1.jpg");
 
-    /*
+    ///*
     const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\blob\\22.jpg");
     const auto pyr2 = Pyramid(10, 3, 1.6, 0.5, sourceImage2);
     const auto points2 = detector.FindBlobBasedPoints(pyr2);
