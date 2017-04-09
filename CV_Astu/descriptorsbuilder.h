@@ -47,8 +47,8 @@ private:
 
     Descriptor CalculateHistogramDescriptor(const Pyramid& pyramid,//const DoubleMat& source,
                                             const InterestingPoint &point, const double alpha) const;
-    vector<double> CalculateHistogram(const Pyramid& pyramid,//const DoubleMat& source,
-                                      const InterestingPoint &point, const double gridSize, const int gridStep,
+    vector<double> CalculateHistogram(const DoubleMat& source, const InterestingPoint &point,
+                                      const double gridSize, const int gridStep,
                                       const int bins, const double sigma, const double alpha = 0) const;
     double CalculateNorm(const vector<double>& histogram) const;
     vector<double> DescriptorOrientations( const vector<double>& anglesHistogram) const;

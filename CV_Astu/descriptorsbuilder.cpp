@@ -9,12 +9,9 @@ DescriptorsBuilder::DescriptorsBuilder()
 
 
 vector<double> DescriptorsBuilder::CalculateHistogram
-(const Pyramid& pyramid, const InterestingPoint &point,
+(const DoubleMat& source, const InterestingPoint &point,
  const double gridSize, const int gridLineCellsCount, const int bins, const double sigmaBase, const double alpha) const
 {
-    const auto targetImagePosition = pyramid.GetOctaveAndLayer(point.sigmaGlobal);
-
-    const auto& source = pyramid.GetImageAt(targetImagePosition.first, targetImagePosition.second);
 
     double cellSize = gridSize/gridLineCellsCount;
 
@@ -23,7 +20,7 @@ vector<double> DescriptorsBuilder::CalculateHistogram
     vector<double> result;
     const int cellsCount = gridLineCellsCount*gridLineCellsCount;//(gridSize/gridStep) * (gridSize/gridStep);
     const double binAngle = 2 * M_PI / bins;
-    const int gridHalfSize = (gridSize + 0.5)/2;
+    const int gridHalfSize = round(gridSize)/2;
     result.resize( cellsCount * bins, 0 );
 
     const double cosAlpha = cos(alpha);
@@ -70,13 +67,6 @@ vector<double> DescriptorsBuilder::CalculateHistogram
             double w = exp(-(dx*dx + dy*dy) / (2 * sigmaBase*sigmaBase))
                     / (2 * M_PI * sigmaBase * sigmaBase);
             double L = w * gradValue;
-
-
-            result.at(bins * cell + leftBin)
-                    += L * cright;
-            result.at(bins * cell + rightBin)
-                    += L * cleft;
-
         }
     }
 
@@ -89,9 +79,9 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     double sigmaBase = 2.0;
     Descriptor result;
     double scale = point.sigmaLocal/pyramid.SigmaStart();
-    //const auto targetImagePosition = pyramid.GetOctaveAndLayer(point.sigmaGlobal);
-    //const int localX = point.x;// / pow(2, targetImagePosition.first);
-    //const int localY = point.y;// / pow(2, targetImagePosition.first);
+    const auto targetImagePosition = pyramid.GetOctaveAndLayer(point.sigmaGlobal);
+    const auto& source = pyramid.GetImageAt(targetImagePosition.first, targetImagePosition.second);
+
 
 
     result.targetPoint.x = point.x;
@@ -100,7 +90,7 @@ Descriptor DescriptorsBuilder::CalculateHistogramDescriptor
     result.targetPoint.sigmaLocal = point.sigmaLocal;
     result.targetPoint.sigmaGlobal = point.sigmaGlobal;
     result.targetPoint.octave = point.octave;
-    result.localDescription = CalculateHistogram(pyramid, point, GRID_SIZE * scale, GRID_SIZE/GRID_STEP,
+    result.localDescription = CalculateHistogram(source, point, GRID_SIZE * scale, GRID_SIZE/GRID_STEP,
                                                  BINS_COUNT, sigmaBase * scale, alpha);
 
     double norm = sqrt(accumulate(result.localDescription.begin(), result.localDescription.end(), 0.0));
@@ -179,9 +169,12 @@ vector<Descriptor> DescriptorsBuilder::CalculateHistogramDesctiptors
     vector<Descriptor> descriptors;
 
     for (auto &point : points) {
+        const auto targetImagePosition = pyramid.GetOctaveAndLayer(point.sigmaGlobal);
+        const auto& source = pyramid.GetImageAt(targetImagePosition.first, targetImagePosition.second);
+
         double sigma = 1.5;
         double scale = point.sigmaLocal/pyramid.SigmaStart();
-        const auto orientationHistogram = CalculateHistogram(pyramid, point,
+        const auto orientationHistogram = CalculateHistogram(source, point,
                                                  GRID_SIZE * scale, 1, ORIENTATION_BINS_COUNT,
                                                  sigma * scale);
 
