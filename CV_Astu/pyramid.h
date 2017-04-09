@@ -7,17 +7,6 @@
 #include "Octave.h"
 using namespace std;
 
-enum class DoGPointType
-{
-    Minimal, Regular, Maximal
-};
-struct BlobDescription
-{
-    int x,y;
-    double sigmaGlobal;
-    double sigmaLocal;
-    DoGPointType pointType;
-};
 
 
 

@@ -11,19 +11,18 @@ using namespace std;
 
 enum class DetectionMethod { Moravec, Harris};
 
-struct Point
-{
-    int x, y;
-};
+
 
 struct InterestingPoint
 {
-    int x,y;
+    double x,y;
     double w;
     int octave;
     double alpha;
     double sigmaLocal;
     double sigmaGlobal;
+    double GlobalX() const {return x*pow(2, octave);}
+    double GlobalY() const {return y*pow(2, octave);}
 };
 
 class InterestingPointsDetector
