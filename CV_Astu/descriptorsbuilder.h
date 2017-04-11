@@ -6,6 +6,7 @@
 #include <cmath>
 #include <math.h>
 #include <stdlib.h>
+#include <map>
 
 #include "interestingpointsdetector.h"
 #include "doublemat.h"
@@ -15,6 +16,11 @@
 
 using namespace std;
 
+struct GridInterpolationInfo
+{
+    int cell;
+    double wx, wy;
+};
 
 struct Descriptor
 {
@@ -33,17 +39,6 @@ private:
     const double G_ANGLE = 2 * M_PI / BINS_COUNT;
     const int ORIENTATION_BINS_COUNT = 36;
     const double ORIENTATION_ANGLE_STEP = 2 * M_PI / ORIENTATION_BINS_COUNT;
-
-    /*
-     * Что сделать?
-     * 1. убрать предварительный рассчет градиентов и углов, считать по запросу в точке
-     * 2. передавать вместо целевого изображения пирамиду, и используя методы доступа к
-     * данным из пирамиды вычисление нужного слоя, находить целевую картинку и считать дескриптор
-     * 3. Внести корректировки в вычисление сетки
-     *
-     *
-     *
-     */
 
     Descriptor CalculateHistogramDescriptor(const Pyramid& pyramid,//const DoubleMat& source,
                                             const InterestingPoint &point, const double alpha) const;
