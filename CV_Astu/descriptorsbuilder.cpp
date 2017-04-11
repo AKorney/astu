@@ -66,13 +66,16 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 
             assert(cleft >=0 && cright >=0);
 
-            vector<GridInterpolationInfo> interpolation;
+            double w = exp(-(dx*dx + dy*dy) / (2 * sigmaBase*sigmaBase))
+                    / (2 * M_PI * sigmaBase * sigmaBase);
+            double L = w * gradValue;
+
             if(cellsCount == 1)
             {
-                GridInterpolationInfo defaultInfo;
-                defaultInfo.cell = cell;
-                defaultInfo.wx = defaultInfo.wy = 1.0;
-                interpolation.emplace_back(defaultInfo);
+                result.at(bins * cell + leftBin)
+                    += L * cright;
+                result.at(bins * cell + rightBin)
+                    += L * cleft;
             }
             else
             {
@@ -81,37 +84,29 @@ vector<double> DescriptorsBuilder::CalculateHistogram
 
                 for(int xstep = 0; xstep < 2; xstep++)
                 {
+                    int currentCellX = cellX + xstep*xDir;
+                    if(currentCellX < 0 || currentCellX >= gridLineCellsCount) continue;
+                    double cx = (currentCellX+0.5)*cellSize-gridHalfSize;
+                    double wx = 1 - abs(rdx-cx)/cellSize;
                     for(int ystep = 0; ystep < 2; ystep++)
                     {
-                        int currentCellX = cellX + xstep*xDir;
                         int currentCellY = cellY + ystep*yDir;
-                        if(currentCellX < 0 || currentCellX >= gridLineCellsCount) continue;
+
                         if(currentCellY < 0 || currentCellY >= gridLineCellsCount) continue;
-
-                        double cx = (currentCellX+0.5)*cellSize-gridHalfSize;
                         double cy = (currentCellY+0.5)*cellSize-gridHalfSize;
-
+                        double wy = 1 - abs(rdy-cy)/cellSize;
                         int currentCell = currentCellY * gridLineCellsCount + currentCellX;
-                        //if(currentCell < 0 || currentCell >= cellsCount) continue;
-                        GridInterpolationInfo info;
-                        info.cell = currentCell;
-                        info.wx = 1 - abs(rdx-cx)/cellSize;
-                        info.wy = 1 - abs(rdy-cy)/cellSize;
-                        interpolation.emplace_back(info);
+
+
+                        result.at(bins * currentCell + leftBin)
+                            += L * cright * wx * wy;
+                        result.at(bins * currentCell + rightBin)
+                            += L * cleft * wx * wy;
                     }
                 }
             }
 
-            double w = exp(-(dx*dx + dy*dy) / (2 * sigmaBase*sigmaBase))
-                    / (2 * M_PI * sigmaBase * sigmaBase);
-            double L = w * gradValue;
-            for(auto& info : interpolation)
-            {
-                result.at(bins * info.cell + leftBin)
-                    += L * cright * info.wx * info.wy;
-                result.at(bins * info.cell + rightBin)
-                    += L * cleft * info.wx * info.wy;
-            }
+
         }
     }
 
