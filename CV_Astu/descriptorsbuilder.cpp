@@ -156,8 +156,35 @@ vector<double> DescriptorsBuilder::DescriptorOrientations
 (const vector<double> &orientationHistogram) const
 {
     vector<double> result;
+    vector<pair<int,double>> validPeaks;
+    double maxValue = *max_element(orientationHistogram.begin(), orientationHistogram.end());
+    for(int i=0;i<orientationHistogram.size();i++)
+    {
+        if(orientationHistogram[i] < 0.8*maxValue) continue;
+        int left = (i-1+orientationHistogram.size())%orientationHistogram.size();
+        int right = (i+1)%orientationHistogram.size();
+        if(orientationHistogram[i] > orientationHistogram[left]
+                && orientationHistogram[i] > orientationHistogram[right])
+        {
+            validPeaks.emplace_back(i, orientationHistogram[i]);
+        }
+    }
+    sort(validPeaks.begin(), validPeaks.end(), [=](auto& a, auto& b)
+        {
+            return a.second > b.second;
+        });
+    result.emplace_back(ORIENTATION_ANGLE_STEP * (validPeaks[0].first + 0.5 + PeakShift(orientationHistogram, validPeaks[0].first)));
+
+    if(validPeaks.size() > 1)
+    {
+        result.emplace_back(ORIENTATION_ANGLE_STEP * (validPeaks[1].first + 0.5 + PeakShift(orientationHistogram, validPeaks[1].first)));
+    }
+    /*
     int first, second;
-    double firstValue, secondValue;
+
+    first = 0;
+    firstValue = orientationHistogram.at(first);
+
     if(orientationHistogram.at(0) > orientationHistogram.at(1))
     {
         first = 0; second = 1;
@@ -184,12 +211,14 @@ vector<double> DescriptorsBuilder::DescriptorOrientations
             second = i;
         }
     }
+
     result.emplace_back(ORIENTATION_ANGLE_STEP * (first + 0.5 + PeakShift(orientationHistogram, first)));
 
     if(secondValue >= firstValue * 0.8 && abs(first-second) > 1 && abs(first-second) < ORIENTATION_BINS_COUNT - 1)
     {
         result.emplace_back(ORIENTATION_ANGLE_STEP * (second + 0.5 + PeakShift(orientationHistogram, second)));
     }
+    */
     return result;
 }
 
