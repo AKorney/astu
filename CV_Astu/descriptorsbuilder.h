@@ -16,11 +16,7 @@
 
 using namespace std;
 
-struct GridInterpolationInfo
-{
-    int cell;
-    double wx, wy;
-};
+
 
 struct Descriptor
 {
