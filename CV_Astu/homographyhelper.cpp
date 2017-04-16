@@ -52,6 +52,21 @@ HomographyHelper::HomographyHelper()
 
 
 
+void HomographyHelper::FillMatrixH(gsl_matrix* H, gsl_vector_view hVec)
+{
+    gsl_matrix_set(H,0,0,gsl_vector_get(&hVec.vector,0));
+    gsl_matrix_set(H,0,1,gsl_vector_get(&hVec.vector,1));
+    gsl_matrix_set(H,0,2,gsl_vector_get(&hVec.vector,2));
+
+    gsl_matrix_set(H,1,0,gsl_vector_get(&hVec.vector,3));
+    gsl_matrix_set(H,1,1,gsl_vector_get(&hVec.vector,4));
+    gsl_matrix_set(H,1,2,gsl_vector_get(&hVec.vector,5));
+
+    gsl_matrix_set(H,2,0,gsl_vector_get(&hVec.vector,6));
+    gsl_matrix_set(H,2,1,gsl_vector_get(&hVec.vector,7));
+    gsl_matrix_set(H,2,2,gsl_vector_get(&hVec.vector,8));
+}
+
 DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, InterestingPoint>> matches)
 {
     if(matches.size() < 4)
@@ -89,17 +104,7 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
         gsl_linalg_SV_decomp(ATA, V, temp1, temp2);
 
         auto hVec = gsl_matrix_column(V, 8);
-        gsl_matrix_set(H,0,0,gsl_vector_get(&hVec.vector,0));
-        gsl_matrix_set(H,0,1,gsl_vector_get(&hVec.vector,1));
-        gsl_matrix_set(H,0,2,gsl_vector_get(&hVec.vector,2));
-
-        gsl_matrix_set(H,1,0,gsl_vector_get(&hVec.vector,3));
-        gsl_matrix_set(H,1,1,gsl_vector_get(&hVec.vector,4));
-        gsl_matrix_set(H,1,2,gsl_vector_get(&hVec.vector,5));
-
-        gsl_matrix_set(H,2,0,gsl_vector_get(&hVec.vector,6));
-        gsl_matrix_set(H,2,1,gsl_vector_get(&hVec.vector,7));
-        gsl_matrix_set(H,2,2,gsl_vector_get(&hVec.vector,8));
+        FillMatrixH(H, hVec);
 
         int inliers = 0;
         vector<int> localInliers;
@@ -147,19 +152,8 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
 
     auto hV1 = gsl_matrix_column(V, 8);
     double scale = gsl_vector_get(&hV1.vector, 8);
+    FillMatrixH(H, hV1);
 
-    ///*
-    gsl_matrix_set(H,0,0,gsl_vector_get(&hV1.vector,0));
-    gsl_matrix_set(H,0,1,gsl_vector_get(&hV1.vector,1));
-    gsl_matrix_set(H,0,2,gsl_vector_get(&hV1.vector,2));
-
-    gsl_matrix_set(H,1,0,gsl_vector_get(&hV1.vector,3));
-    gsl_matrix_set(H,1,1,gsl_vector_get(&hV1.vector,4));
-    gsl_matrix_set(H,1,2,gsl_vector_get(&hV1.vector,5));
-
-    gsl_matrix_set(H,2,0,gsl_vector_get(&hV1.vector,6));
-    gsl_matrix_set(H,2,1,gsl_vector_get(&hV1.vector,7));
-    gsl_matrix_set(H,2,2,gsl_vector_get(&hV1.vector,8));
 
 
     for(int i=0; i<3; i++)
