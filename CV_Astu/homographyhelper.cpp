@@ -1,6 +1,49 @@
 #include "homographyhelper.h"
+#include <cassert>
 
 
+void HomographyHelper::FillMatrixA(const vector<pair<InterestingPoint, InterestingPoint>> &matches, const vector<int> &indeciesMap, gsl_matrix *a)
+{
+    const int equationsCount = a->size1;
+    const int pairsCount = equationsCount/2;
+    assert(pairsCount <= indeciesMap.size());
+    for(int match=0; match<pairsCount; match++)
+    {
+        const auto pointR = matches[indeciesMap[match]].second;
+        const auto pointL = matches[indeciesMap[match]].first;
+
+        const double xR = pointR.x;
+        const double yR = pointR.y;
+        const double xL = pointL.x;
+        const double yL = pointL.y;
+
+
+        gsl_matrix_set(a, match*2, 0, xR);
+        gsl_matrix_set(a, match*2, 1, yR);
+        gsl_matrix_set(a, match*2, 2, 1);
+
+        gsl_matrix_set(a, match*2, 3, 0);
+        gsl_matrix_set(a, match*2, 4, 0);
+        gsl_matrix_set(a, match*2, 5, 0);
+
+        gsl_matrix_set(a, match*2, 6, -xL*xR);
+        gsl_matrix_set(a, match*2, 7, -xL*yR);
+        gsl_matrix_set(a, match*2, 8, -xL);
+
+
+        gsl_matrix_set(a, match*2+1, 0, 0);
+        gsl_matrix_set(a, match*2+1, 1, 0);
+        gsl_matrix_set(a, match*2+1, 2, 0);
+
+        gsl_matrix_set(a, match*2+1, 3, xR);
+        gsl_matrix_set(a, match*2+1, 4, yR);
+        gsl_matrix_set(a, match*2+1, 5, 1);
+
+        gsl_matrix_set(a, match*2+1, 6, -yL*xR);
+        gsl_matrix_set(a, match*2+1, 7, -yL*yR);
+        gsl_matrix_set(a, match*2+1, 8, -yL);
+    }
+}
 
 HomographyHelper::HomographyHelper()
 {
@@ -39,45 +82,8 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
     for(int iteration = 0; iteration < iterationsCount; iteration++)
     {
         shuffle(indecies.begin(), indecies.end(), g);
-        //prepare A
 
-        for(int match = 0; match < 4; match++)
-        {
-            const auto pointR = matches[indecies[match]].second;
-            const auto pointL = matches[indecies[match]].first;
-
-            const double xR = pointR.x;
-            const double yR = pointR.y;
-            const double xL = pointL.x;
-            const double yL = pointL.y;
-
-
-            gsl_matrix_set(A, match*2, 0, xR);
-            gsl_matrix_set(A, match*2, 1, yR);
-            gsl_matrix_set(A, match*2, 2, 1);
-
-            gsl_matrix_set(A, match*2, 3, 0);
-            gsl_matrix_set(A, match*2, 4, 0);
-            gsl_matrix_set(A, match*2, 5, 0);
-
-            gsl_matrix_set(A, match*2, 6, -xL*xR);
-            gsl_matrix_set(A, match*2, 7, -xL*yR);
-            gsl_matrix_set(A, match*2, 8, -xL);
-
-
-            gsl_matrix_set(A, match*2+1, 0, 0);
-            gsl_matrix_set(A, match*2+1, 1, 0);
-            gsl_matrix_set(A, match*2+1, 2, 0);
-
-            gsl_matrix_set(A, match*2+1, 3, xR);
-            gsl_matrix_set(A, match*2+1, 4, yR);
-            gsl_matrix_set(A, match*2+1, 5, 1);
-
-            gsl_matrix_set(A, match*2+1, 6, -yL*xR);
-            gsl_matrix_set(A, match*2+1, 7, -yL*yR);
-            gsl_matrix_set(A, match*2+1, 8, -yL);
-        }
-
+        FillMatrixA(matches, indecies, A);
         gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
                        A, A, 0.0, ATA);
         gsl_linalg_SV_decomp(ATA, V, temp1, temp2);
@@ -94,8 +100,6 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
         gsl_matrix_set(H,2,0,gsl_vector_get(&hVec.vector,6));
         gsl_matrix_set(H,2,1,gsl_vector_get(&hVec.vector,7));
         gsl_matrix_set(H,2,2,gsl_vector_get(&hVec.vector,8));
-        //gsl_matrix_scale(&H.matrix, gsl_matrix_get(&H.matrix,2,2));
-
 
         int inliers = 0;
         vector<int> localInliers;
@@ -113,7 +117,7 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
             gsl_blas_dgemv(CblasNoTrans, 1.0, H,
                            &vecr.vector, 0.0, &vecl.vector);
             double scaleL = vL[2];
-            //gsl_vector_scale(&vecr.vector, 1.0/gsl_vector_get(&vecr.vector, 2));
+
             double xl = vL[0];
             double yl = vL[1];
             double dist = hypot(pointL.x - xl/scaleL,
@@ -130,57 +134,20 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
            bestInliers = inliers;
            inliersList.clear();
            inliersList.assign(localInliers.begin(), localInliers.end());
-           //double scale = gsl_matrix_get(H, 2,2);
-           //for(int i=0; i<3; i++)
-           //    for(int j=0; j<3; j++)
-           //        best.set(gsl_matrix_get(H, i, j)/scale, i,j);
         }
     }
-    ///*
+
     gsl_matrix* ExtA = gsl_matrix_alloc(2*inliersList.size(), 9);
     gsl_matrix* ExtATA = gsl_matrix_alloc(9,9);
-    for(int match = 0; match < inliersList.size(); match++)
-    {
-        const auto pointR = matches[inliersList[match]].second;
-        const auto pointL = matches[inliersList[match]].first;
 
-        const double xR = pointR.x;
-        const double yR = pointR.y;
-        const double xL = pointL.x;
-        const double yL = pointL.y;
-
-
-        gsl_matrix_set(ExtA, match*2, 0, xR);
-        gsl_matrix_set(ExtA, match*2, 1, yR);
-        gsl_matrix_set(ExtA, match*2, 2, 1);
-
-        gsl_matrix_set(ExtA, match*2, 3, 0);
-        gsl_matrix_set(ExtA, match*2, 4, 0);
-        gsl_matrix_set(ExtA, match*2, 5, 0);
-
-        gsl_matrix_set(ExtA, match*2, 6, -xL*xR);
-        gsl_matrix_set(ExtA, match*2, 7, -xL*yR);
-        gsl_matrix_set(ExtA, match*2, 8, -xL);
-
-
-        gsl_matrix_set(ExtA, match*2+1, 0, 0);
-        gsl_matrix_set(ExtA, match*2+1, 1, 0);
-        gsl_matrix_set(ExtA, match*2+1, 2, 0);
-
-        gsl_matrix_set(ExtA, match*2+1, 3, xR);
-        gsl_matrix_set(ExtA, match*2+1, 4, yR);
-        gsl_matrix_set(ExtA, match*2+1, 5, 1);
-
-        gsl_matrix_set(ExtA, match*2+1, 6, -yL*xR);
-        gsl_matrix_set(ExtA, match*2+1, 7, -yL*yR);
-        gsl_matrix_set(ExtA, match*2+1, 8, -yL);
-    }
-
+    FillMatrixA(matches, inliersList, ExtA);
     gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
                    ExtA, ExtA, 0.0, ExtATA);
     gsl_linalg_SV_decomp(ExtATA, V, temp1, temp2);
 
     auto hV1 = gsl_matrix_column(V, 8);
+    double scale = gsl_vector_get(&hV1.vector, 8);
+
     ///*
     gsl_matrix_set(H,0,0,gsl_vector_get(&hV1.vector,0));
     gsl_matrix_set(H,0,1,gsl_vector_get(&hV1.vector,1));
@@ -193,20 +160,11 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
     gsl_matrix_set(H,2,0,gsl_vector_get(&hV1.vector,6));
     gsl_matrix_set(H,2,1,gsl_vector_get(&hV1.vector,7));
     gsl_matrix_set(H,2,2,gsl_vector_get(&hV1.vector,8));
-    //
-    //auto invH = gsl_matrix_alloc_from_matrix(H,0,0,3,3);
-
-    //int s;
-    //gsl_permutation * p = gsl_permutation_alloc(3);
-    //gsl_linalg_LU_decomp(H, p, &s);
-    //gsl_linalg_LU_invert(H, p, invH);
 
 
-    double scale = gsl_vector_get(&hV1.vector, 8);
     for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
-            best.set(gsl_matrix_get(H, i,j)/scale, i,j);
-    //gsl_vector_get(&hV1.vector, j*3 + i)/scale, i,j);
+            best.set(gsl_matrix_get(H, i, j)/scale, i,j);
     //*/
     return best;
 }

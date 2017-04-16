@@ -13,7 +13,8 @@ using namespace std;
 class HomographyHelper
 {
     static const int iterationsCount = 400;
-
+    static void FillMatrixA(const vector<pair<InterestingPoint, InterestingPoint>> &mathces,
+                           const vector<int> &indeciesMap, gsl_matrix* a);
 public:
     HomographyHelper();
     static DoubleMat RANSAC(const vector<pair<InterestingPoint, InterestingPoint>> mathces);
