@@ -23,6 +23,7 @@ struct InterestingPoint
     double sigmaGlobal;
     double GlobalX() const {return x*pow(2, octave);}
     double GlobalY() const {return y*pow(2, octave);}
+
 };
 
 class InterestingPointsDetector

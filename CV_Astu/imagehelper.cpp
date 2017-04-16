@@ -127,3 +127,18 @@ QImage ImageHelper::DrawBlobs(const CVImage &source, vector<InterestingPoint> bl
     }
     return qImage;
 }
+
+QImage ImageHelper::DrawStitching(const QImage &left, const QImage &right, const DoubleMat &transformation)
+{
+    QImage qImage(left.width()+right.width(), (left.height() + right.height())/2*1.4, QImage::Format::Format_RGB32);
+    QPainter painter(&qImage);
+    painter.drawImage(0, 0, left);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    QTransform htransform(transformation.get(0,0), transformation.get(1,0), transformation.get(2,0),
+                          transformation.get(0,1), transformation.get(1,1), transformation.get(2,1),
+                          transformation.get(0,2), transformation.get(1,2), transformation.get(2,2));
+    painter.setTransform(htransform);
+    painter.drawImage(0, 0, right);
+    return qImage;
+}

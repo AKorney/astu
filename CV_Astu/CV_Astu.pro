@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     octave.cpp \
     interestingpointsdetector.cpp \
     descriptorsbuilder.cpp \
-    imagehelper.cpp
+    imagehelper.cpp \
+    homographyhelper.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -44,6 +45,19 @@ HEADERS  += mainwindow.h \
     octave.h \
     interestingpointsdetector.h \
     descriptorsbuilder.h \
-    imagehelper.h
+    imagehelper.h \
+    homographyhelper.h
 
 FORMS    += mainwindow.ui
+
+
+
+unix|win32: LIBS += -L$$PWD/gslLib/ -lgsl
+
+INCLUDEPATH += $$PWD/gsl
+DEPENDPATH += $$PWD/gsl
+
+unix|win32: LIBS += -L$$PWD/gslLib/ -lgslcblas
+
+INCLUDEPATH += $$PWD/gsl
+DEPENDPATH += $$PWD/gsl

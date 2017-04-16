@@ -11,6 +11,8 @@
 #include "pyramid.h"
 #include "interestingpointsdetector.h"
 #include "descriptorsbuilder.h"
+#include "homographyhelper.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -28,16 +30,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_openButton_clicked()
 {
-    auto detector = InterestingPointsDetector(DetectionMethod::Harris);
+   // const vector<pair<InterestingPoint,InterestingPoint>> vec();
 
-    const auto sourceImage1 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\blob\\1.jpg");
+    ///*
+    auto detector = InterestingPointsDetector(DetectionMethod::Harris);
+    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\1.jpg";
+    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\2.jpg";
+    const auto sourceImage1 = ImageHelper::Load(leftPath);
     const auto pyr1 = Pyramid(7, 3, 1.6, 0.5, sourceImage1);
     const auto points1 = detector.FindBlobBasedPoints(pyr1);
     auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points1);
     ip1.save("C:\\Users\\Alena\\Pictures\\blob\\ip1.jpg");
 
     ///*
-    const auto sourceImage2 = ImageHelper::Load("C:\\Users\\Alena\\Pictures\\blob\\2.jpg");
+    const auto sourceImage2 = ImageHelper::Load(rightPath);
     const auto pyr2 = Pyramid(7, 3, 1.6, 0.5, sourceImage2);
     const auto points2 = detector.FindBlobBasedPoints(pyr2);
     auto ip2 = ImageHelper::MarkInterestingPoints(sourceImage2, points2);
@@ -53,10 +59,20 @@ void MainWindow::on_openButton_clicked()
     auto desc4 = descriptorBuilder.CalculateHistogramDesctiptors(pyr2, sup2);
 
     auto matches = DescriptorsBuilder::FindMatches(desc3, desc4);
-
+    auto homography = HomographyHelper::RANSAC(matches);
 
     auto extended = ImageHelper::DrawMatches(sourceImage1, sourceImage2, matches);
     extended.save("C:\\Users\\Alena\\Pictures\\blob\\matches.jpg");
+
+    QImage leftOrigial, rightOriginal;
+    leftOrigial.load(leftPath);
+    rightOriginal.load(rightPath);
+    auto stitched = ImageHelper::DrawStitching(
+                leftOrigial,
+                rightOriginal,
+                homography);
+    stitched.save("C:\\Users\\Alena\\Pictures\\blob\\stitch.jpg");
+
     //*/
 }
 

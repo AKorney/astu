@@ -28,6 +28,7 @@ public:
     static QImage DrawMatches(const CVImage& left, const CVImage& right,
                               vector <pair<InterestingPoint,InterestingPoint>> matches);
     static QImage DrawBlobs(const CVImage& source, vector<InterestingPoint> blobs);
+    static QImage DrawStitching(const QImage& left, const QImage& right, const DoubleMat& transformation);
 };
 
 #endif // CVIMAGELOADER_H
