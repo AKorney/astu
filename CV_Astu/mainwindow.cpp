@@ -37,14 +37,14 @@ void MainWindow::on_openButton_clicked()
     QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\1.jpg";
     QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\2.jpg";
     const auto sourceImage1 = ImageHelper::Load(leftPath);
-    const auto pyr1 = Pyramid(7, 3, 1.6, 0.5, sourceImage1);
+    const auto pyr1 = Pyramid(10, 3, 1.6, 0.5, sourceImage1);
     const auto points1 = detector.FindBlobBasedPoints(pyr1);
     auto ip1 = ImageHelper::MarkInterestingPoints(sourceImage1, points1);
     ip1.save("C:\\Users\\Alena\\Pictures\\blob\\ip1.jpg");
 
     ///*
     const auto sourceImage2 = ImageHelper::Load(rightPath);
-    const auto pyr2 = Pyramid(7, 3, 1.6, 0.5, sourceImage2);
+    const auto pyr2 = Pyramid(10, 3, 1.6, 0.5, sourceImage2);
     const auto points2 = detector.FindBlobBasedPoints(pyr2);
     auto ip2 = ImageHelper::MarkInterestingPoints(sourceImage2, points2);
     ip2.save("C:\\Users\\Alena\\Pictures\\blob\\ip2.jpg");

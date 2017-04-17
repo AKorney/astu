@@ -2,15 +2,15 @@
 #include <cassert>
 
 
-void HomographyHelper::FillMatrixA(const vector<pair<InterestingPoint, InterestingPoint>> &matches, const vector<int> &indeciesMap, gsl_matrix *a)
+void HomographyHelper::FillMatrixA(const vector<pair<InterestingPoint, InterestingPoint>> &matches, const vector<int> &indicesMap, gsl_matrix *a)
 {
     const int equationsCount = a->size1;
     const int pairsCount = equationsCount/2;
-    assert(pairsCount <= indeciesMap.size());
+    assert(pairsCount <= indicesMap.size());
     for(int match=0; match<pairsCount; match++)
     {
-        const auto pointR = matches[indeciesMap[match]].second;
-        const auto pointL = matches[indeciesMap[match]].first;
+        const auto pointR = matches[indicesMap[match]].second;
+        const auto pointL = matches[indicesMap[match]].first;
 
         const double xR = pointR.x;
         const double yR = pointR.y;
@@ -80,8 +80,8 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
     std::random_device rd;
     std::mt19937 g(rd());
 
-    vector<int> indecies(matches.size());
-    iota(indecies.begin(), indecies.end(), 0);
+    vector<int> indices(matches.size());
+    iota(indices.begin(), indices.end(), 0);
 
 
     gsl_matrix* A = gsl_matrix_alloc(8,9);
@@ -96,9 +96,9 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
 
     for(int iteration = 0; iteration < iterationsCount; iteration++)
     {
-        shuffle(indecies.begin(), indecies.end(), g);
+        shuffle(indices.begin(), indices.end(), g);
 
-        FillMatrixA(matches, indecies, A);
+        FillMatrixA(matches, indices, A);
         gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
                        A, A, 0.0, ATA);
         gsl_linalg_SV_decomp(ATA, V, temp1, temp2);
@@ -108,7 +108,7 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
 
         int inliers = 0;
         vector<int> localInliers;
-        double th = 6;
+        double th = 5;
         for(int i=0; i<matches.size();i++)
         {
             const auto pointR = matches[i].second;
@@ -159,7 +159,15 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
     for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
             best.set(gsl_matrix_get(H, i, j)/scale, i,j);
-    //*/
+    gsl_matrix_free(A);
+    gsl_matrix_free(ATA);
+    gsl_matrix_free(V);
+    gsl_matrix_free(ExtA);
+    gsl_matrix_free(ExtATA);
+    gsl_matrix_free(H);
+
+    gsl_vector_free(temp1);
+    gsl_vector_free(temp2);
     return best;
 }
 
