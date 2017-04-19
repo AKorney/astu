@@ -67,14 +67,55 @@ void HomographyHelper::FillMatrixH(gsl_matrix* H, gsl_vector_view hVec)
     gsl_matrix_set(H,2,2,gsl_vector_get(&hVec.vector,8));
 }
 
-DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, InterestingPoint>> matches)
+void HomographyHelper::DLT(gsl_matrix *A, gsl_matrix *ATA, gsl_matrix *H, gsl_matrix *V, gsl_vector *temp1, gsl_vector *temp2)
+{
+
+    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
+                   A, A, 0.0, ATA);
+    gsl_linalg_SV_decomp(ATA, V, temp1, temp2);
+
+    auto hVec = gsl_matrix_column(V, 8);
+    FillMatrixH(H, hVec);
+}
+
+vector<int> HomographyHelper::GetInliers(gsl_matrix* H, const vector<pair<InterestingPoint, InterestingPoint>>& matches)
+{
+    vector<int> localInliers;
+    double th = 5;
+    for(int i=0; i<matches.size();i++)
+    {
+        const auto pointR = matches[i].second;
+        const auto pointL = matches[i].first;
+        double vR[3] = {pointR.x, pointR.y, 1.0};
+        double vL[3];
+
+        gsl_vector_view vecl = gsl_vector_view_array(vL, 3);
+        gsl_vector_view vecr = gsl_vector_view_array(vR, 3);
+
+        gsl_blas_dgemv(CblasNoTrans, 1.0, H,
+                       &vecr.vector, 0.0, &vecl.vector);
+        double scaleL = vL[2];
+
+        double xl = vL[0];
+        double yl = vL[1];
+        double dist = hypot(pointL.x - xl/scaleL,
+                            pointL.y - yl/scaleL);
+
+        if(dist < th)
+        {
+            localInliers.emplace_back(i);
+        }
+    }
+    return localInliers;
+}
+
+DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, InterestingPoint>>& matches)
 {
     if(matches.size() < 4)
     {
         throw "Need at least 4 matches";
     }
 
-    int bestInliers = 0;
     DoubleMat best(3,3);
     vector<int> inliersList;
     std::random_device rd;
@@ -97,46 +138,12 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
     for(int iteration = 0; iteration < iterationsCount; iteration++)
     {
         shuffle(indices.begin(), indices.end(), g);
-
         FillMatrixA(matches, indices, A);
-        gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
-                       A, A, 0.0, ATA);
-        gsl_linalg_SV_decomp(ATA, V, temp1, temp2);
+        DLT(A, ATA, H, V, temp1, temp2);
 
-        auto hVec = gsl_matrix_column(V, 8);
-        FillMatrixH(H, hVec);
-
-        int inliers = 0;
-        vector<int> localInliers;
-        double th = 5;
-        for(int i=0; i<matches.size();i++)
+        vector<int> localInliers = GetInliers(H, matches);
+        if(localInliers.size() > inliersList.size())
         {
-            const auto pointR = matches[i].second;
-            const auto pointL = matches[i].first;
-            double vR[3] = {pointR.x, pointR.y, 1.0};
-            double vL[3];
-
-            gsl_vector_view vecl = gsl_vector_view_array(vL, 3);
-            gsl_vector_view vecr = gsl_vector_view_array(vR, 3);
-
-            gsl_blas_dgemv(CblasNoTrans, 1.0, H,
-                           &vecr.vector, 0.0, &vecl.vector);
-            double scaleL = vL[2];
-
-            double xl = vL[0];
-            double yl = vL[1];
-            double dist = hypot(pointL.x - xl/scaleL,
-                                pointL.y - yl/scaleL);
-
-            if(dist < th)
-            {
-                inliers++;
-                localInliers.emplace_back(i);
-            }
-        }
-        if(inliers > bestInliers)
-        {
-           bestInliers = inliers;
            inliersList.clear();
            inliersList.assign(localInliers.begin(), localInliers.end());
         }
@@ -146,16 +153,9 @@ DoubleMat HomographyHelper::RANSAC(const vector<pair<InterestingPoint, Interesti
     gsl_matrix* ExtATA = gsl_matrix_alloc(9,9);
 
     FillMatrixA(matches, inliersList, ExtA);
-    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
-                   ExtA, ExtA, 0.0, ExtATA);
-    gsl_linalg_SV_decomp(ExtATA, V, temp1, temp2);
+    DLT(ExtA, ExtATA, H, V, temp1, temp2);
 
-    auto hV1 = gsl_matrix_column(V, 8);
-    double scale = gsl_vector_get(&hV1.vector, 8);
-    FillMatrixH(H, hV1);
-
-
-
+    double scale = gsl_matrix_get(H,2,2);
     for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
             best.set(gsl_matrix_get(H, i, j)/scale, i,j);
