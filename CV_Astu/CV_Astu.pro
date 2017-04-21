@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     interestingpointsdetector.cpp \
     descriptorsbuilder.cpp \
     imagehelper.cpp \
-    homographyhelper.cpp
+    homographyhelper.cpp \
+    houghtransformationhelper.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -46,7 +47,8 @@ HEADERS  += mainwindow.h \
     interestingpointsdetector.h \
     descriptorsbuilder.h \
     imagehelper.h \
-    homographyhelper.h
+    homographyhelper.h \
+    houghtransformationhelper.h
 
 FORMS    += mainwindow.ui
 
