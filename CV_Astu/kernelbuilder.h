@@ -7,7 +7,7 @@
 #include <math.h>
 #include <cmath>
 
-#include <doublemat.h>
+#include "doublemat.h"
 using namespace  std;
 
 class KernelBuilder

@@ -1,6 +1,6 @@
 #ifndef INTERESTINGPOINTSDETECTOR_H
 #define INTERESTINGPOINTSDETECTOR_H
-#include <doublemat.h>
+#include "doublemat.h"
 #include <functional>
 #include <vector>
 

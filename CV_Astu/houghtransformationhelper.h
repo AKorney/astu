@@ -1,7 +1,6 @@
 #ifndef HOUGHTRANSFORMATIONHELPER_H
 #define HOUGHTRANSFORMATIONHELPER_H
-
-#include <vector>
+#include <set>
 
 #include <descriptorsbuilder.h>
 
@@ -9,15 +8,15 @@ using namespace std;
 struct HoughVoteInfo
 {
     double value;
-    vector<int> voters;
+    set<int> voters;
 };
 
 class HoughTransformationHelper
 {
-    static int xBins, yBins, aBins, sBins;
-    static vector<HoughVoteInfo> HoughHypotheses(const vector<pair<InterestingPoint, InterestingPoint>> &mathces,
-                                                 const double dxStep, const double dyStep,
-                                                 const double daStep, const double dsStep);
+    //static int xBins, yBins, aBins, sBins;
+//    static vector<HoughVoteInfo> HoughHypotheses(const vector<pair<InterestingPoint, InterestingPoint>> &mathces,
+//                                                 const double dxStep, const double dyStep,
+//                                                 const double daStep, const double dsStep);
     static const vector<pair<InterestingPoint, InterestingPoint>> BuildImageToObjectMatches
                                         (const CVImage &sourceImage, const CVImage &targetImage);
     HoughTransformationHelper();
