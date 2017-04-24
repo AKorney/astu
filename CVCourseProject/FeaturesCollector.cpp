@@ -6,7 +6,7 @@
 
 const map<QString, vector<Descriptor>> FeaturesCollector::Features(const QString imagesDirectoryPath)
 {
-	map<QString, vector<Descriptor>> featuresMap;
+	FeaturesMap featuresMap;
 
 	QDir directory(imagesDirectoryPath);
 	QStringList filters;
@@ -27,9 +27,9 @@ const map<QString, vector<Descriptor>> FeaturesCollector::Features(const QString
 	return featuresMap;
 }
 
-const vector<Descriptor> FeaturesCollector::BuildBOWVocabulary(const map<QString, vector<Descriptor>>& features)
+const Vocabulary FeaturesCollector::BuildBOWVocabulary(const FeaturesMap& features)
 {
-	vector<Descriptor> vocabulary;
+	Vocabulary vocabulary;
 
 	Mat featuresMat;
 	for (auto &feature : features)
@@ -62,9 +62,9 @@ const vector<Descriptor> FeaturesCollector::BuildBOWVocabulary(const map<QString
 	return vocabulary;
 }
 
-const map<int, set<QString>> FeaturesCollector::BuildInvertFile(const map<QString, vector<Descriptor>>& featureMap, const vector<Descriptor>& vocabulary)
+const InvertedFile FeaturesCollector::BuildInvertFile(const FeaturesMap& featureMap, const Vocabulary& vocabulary)
 {
-	map<int, set<QString>> index;
+	InvertedFile index;
 	for (auto& imageFeatures : featureMap)
 	{
 		for (auto& descriptor : imageFeatures.second)
@@ -76,7 +76,8 @@ const map<int, set<QString>> FeaturesCollector::BuildInvertFile(const map<QStrin
 	return index;
 }
 
-const vector<QString> FeaturesCollector::RequestNNearest(const QString targetImagePath, const int count, const map<int, set<QString>>& invertFile, const vector<Descriptor>& vocabulary)
+const vector<QString> FeaturesCollector::RequestNNearest(const QString targetImagePath, const int count, 
+	const InvertedFile& invertFile, const Vocabulary& vocabulary)
 {
 	InterestingPointsDetector detector(DetectionMethod::Harris);
 	DescriptorsBuilder builder;
@@ -117,7 +118,7 @@ const vector<QString> FeaturesCollector::RequestNNearest(const QString targetIma
 	return nearest;
 }
 
-int FeaturesCollector::WordIndex(const vector<Descriptor>& vocabulary, const Descriptor & target)
+int FeaturesCollector::WordIndex(const Vocabulary& vocabulary, const Descriptor & target)
 {
 	double minDistance = INFINITY;
 	int nearestWordIndex;

@@ -18,17 +18,20 @@
 using namespace std;
 using namespace cv;
 
+typedef map<QString, vector<Descriptor>> FeaturesMap;
+typedef map<int, set<QString>> InvertedFile;
+typedef vector<Descriptor> Vocabulary;
+
 class FeaturesCollector
 {
 public:
 
-	static const map<QString, vector<Descriptor>> Features(const QString imagesDirectoryPath);
-	static const vector<Descriptor> BuildBOWVocabulary(const map<QString, vector<Descriptor>>& features);
-	static const map<int, set<QString>> BuildInvertFile(const map<QString, vector<Descriptor>>& featureMap,
-		const vector<Descriptor>& vocabulary);
+	static const FeaturesMap Features(const QString imagesDirectoryPath);
+	static const vector<Descriptor> BuildBOWVocabulary(const FeaturesMap& features);
+	static const InvertedFile BuildInvertFile(const FeaturesMap& featureMap, const Vocabulary& vocabulary);
 	static const vector<QString> RequestNNearest(const QString targetImagePath, const int count,
-		const map<int, set<QString>>& invertFile, const vector<Descriptor>& vocabulary);
-	static int WordIndex(const vector<Descriptor>& vocabulary, const Descriptor& target);
+		const InvertedFile& invertFile, const Vocabulary& vocabulary);
+	static int WordIndex(const Vocabulary& vocabulary, const Descriptor& target);
 	FeaturesCollector();
 	~FeaturesCollector();
 };
