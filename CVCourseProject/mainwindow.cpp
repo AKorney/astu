@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	const auto voc = FeaturesCollector::BuildBOWVocabulary(fc);
 	const auto idx = FeaturesCollector::BuildInvertFile(fc, voc);
 
-	const auto res = FeaturesCollector::RequestNNearest("C:\\Users\\Alena\\Pictures\\testBow.jpg", 2, idx, voc);
+	const auto res = FeaturesCollector::RequestNNearest("C:\\Users\\Alena\\Pictures\\testBow.jpg", 5, idx, voc);
 }
 
 MainWindow::~MainWindow()

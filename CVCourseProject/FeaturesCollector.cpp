@@ -46,7 +46,7 @@ const vector<Descriptor> FeaturesCollector::BuildBOWVocabulary(const map<QString
 	Mat fMat;
 	featuresMat.convertTo(fMat, CV_32F);
 
-	BOWKMeansTrainer trainer(50);
+	BOWKMeansTrainer trainer(200);
 	trainer.add(fMat);
 	
 	Mat vocabF = trainer.cluster();
