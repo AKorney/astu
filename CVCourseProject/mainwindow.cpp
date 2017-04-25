@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-	const auto fc = FeaturesCollector::Features("C:\\Users\\Alena\\Pictures\\BOWTest");
+	const auto fc = FeaturesCollector::Features("C:\\Users\\Alena\\Pictures\\640");
 	const auto voc = FeaturesCollector::BuildBOWVocabulary(fc);
 	const auto idx = FeaturesCollector::BuildFullIndex(fc, voc);
 

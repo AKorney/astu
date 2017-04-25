@@ -3,6 +3,7 @@
 #include <qtextstream.h>
 #include <opencv2\opencv.hpp>
 #include <opencv2\core.hpp>
+#include <qfile.h>
 
 const map<QString, vector<Descriptor>> FeaturesCollector::Features(const QString imagesDirectoryPath)
 {
@@ -46,7 +47,7 @@ const Vocabulary FeaturesCollector::BuildBOWVocabulary(const FeaturesMap& featur
 	Mat fMat;
 	featuresMat.convertTo(fMat, CV_32F);
 
-	BOWKMeansTrainer trainer(500);
+	BOWKMeansTrainer trainer(1500);
 	trainer.add(fMat);
 	
 	Mat vocabF = trainer.cluster();
@@ -66,20 +67,61 @@ const FullIndex FeaturesCollector::BuildFullIndex(const FeaturesMap& featureMap,
 {
 	InvertedFile index;
 	FrequencyHistogramsMap histogramsMap;
+	int imgidx = 1;
 	for (auto& imageFeatures : featureMap)
 	{
+		////try to draw visual words
+		QImage image;
+		image.load(imageFeatures.first);
+		QPainter painter(&image);
+		painter.setPen(QColor(255, 255, 0));
+		
+
 		histogramsMap[imageFeatures.first].resize(vocabulary.size(), 0.0);
 		int imageWordsCount = imageFeatures.second.size();
 
 		for (auto& descriptor : imageFeatures.second)
 		{
 			int word = WordIndex(vocabulary, descriptor);
+			//////////////////////////////////////////////////////////
+			int rad = descriptor.targetPoint.sigmaGlobal * 8;
+			QPoint cen = QPoint(descriptor.targetPoint.GlobalX(), descriptor.targetPoint.GlobalY());
+			painter.drawEllipse(cen, rad, rad);
+			painter.drawText(cen, QString::number(word));
+			/////////////////////////////////////////////////////////////
 			//update inverted file			
 			index[word].emplace(imageFeatures.first);
 					
 			//update raw histogram value
 			histogramsMap[imageFeatures.first][word] += 1.0 / imageWordsCount;
 		}
+		///////////////////////////////////////////////////////////////////////
+		image.save("C:\\Users\\Alena\\Pictures\\dump\\" + QString::number(imgidx) +".jpg");
+
+
+
+		//////////////////////////////////////////////////////////////////
+		QFile fileHIRAW("C:\\Users\\Alena\\Pictures\\dump\\histNoIdf" + QString::number(imgidx++) + ".txt");
+		// Trying to open in WriteOnly and Text mode
+		if (!fileHIRAW.open(QFile::WriteOnly |
+			QFile::Text))
+		{
+			//qDebug() << " Could not open file for writing";
+
+		}
+		else
+		{
+			QTextStream out(&fileHIRAW);
+			for (int i = 0; i < vocabulary.size(); i++)
+			{
+				out << histogramsMap[imageFeatures.first][i] << "; ";
+			}
+			fileHIRAW.flush();
+			fileHIRAW.close();
+		}
+
+
+
 	}
 	vector<double> idf;
 	
@@ -88,6 +130,31 @@ const FullIndex FeaturesCollector::BuildFullIndex(const FeaturesMap& featureMap,
 	{
 		idf.emplace_back(1.0*numOfDocs / wordInfo.second.size());
 	}
+	////////////////////////////////////////////////////
+	QFile fileIDF("C:\\Users\\Alena\\Pictures\\dump\\idf.txt");
+	// Trying to open in WriteOnly and Text mode
+	if (!fileIDF.open(QFile::WriteOnly |
+		QFile::Text))
+	{
+		//qDebug() << " Could not open file for writing";
+
+	}
+	else
+	{
+		QTextStream out(&fileIDF);
+		for (int i = 0; i < vocabulary.size(); i++)
+		{
+			out << idf[i] << "; ";
+		}
+		fileIDF.flush();
+		fileIDF.close();
+	}
+	/////////////////////////////////////////////////////////
+
+
+
+
+	int j = 1;
 
 	for (auto& histogramInfo : histogramsMap)
 	{
@@ -95,6 +162,47 @@ const FullIndex FeaturesCollector::BuildFullIndex(const FeaturesMap& featureMap,
 		{
 			histogramInfo.second[i] *= idf[i];
 		}
+		////////////////////////////////////////////////////
+		QFile fileHI("C:\\Users\\Alena\\Pictures\\dump\\histIdf" + QString::number(j++) + ".txt");
+		// Trying to open in WriteOnly and Text mode
+		if (!fileHI.open(QFile::WriteOnly |
+			QFile::Text))
+		{
+			//qDebug() << " Could not open file for writing";
+
+		}
+		else
+		{
+			QTextStream out(&fileHI);
+			for (int i = 0; i < vocabulary.size(); i++)
+			{
+				out << histogramsMap[histogramInfo.first][i] << "; ";
+			}
+			fileHI.flush();
+			fileHI.close();
+		}
+	}
+
+	
+	QFile fileII("C:\\Users\\Alena\\Pictures\\dump\\idx.txt");
+	// Trying to open in WriteOnly and Text mode
+	if (!fileII.open(QFile::WriteOnly |
+		QFile::Text))
+	{
+		//qDebug() << " Could not open file for writing";
+
+	}
+	else
+	{
+		QTextStream out(&fileII);
+		for (int i = 0; i < index.size(); i++)
+		{
+			out << "WORD INDEX:  " << i << endl;
+			for (auto& filename : index.at(i))
+				out << "                " << filename << endl;
+		}
+		fileII.flush();
+		fileII.close();
 	}
 
 	return { index, histogramsMap };
