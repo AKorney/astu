@@ -46,7 +46,7 @@ const Vocabulary FeaturesCollector::BuildBOWVocabulary(const FeaturesMap& featur
 	Mat fMat;
 	featuresMat.convertTo(fMat, CV_32F);
 
-	BOWKMeansTrainer trainer(200);
+	BOWKMeansTrainer trainer(500);
 	trainer.add(fMat);
 	
 	Mat vocabF = trainer.cluster();
@@ -62,22 +62,46 @@ const Vocabulary FeaturesCollector::BuildBOWVocabulary(const FeaturesMap& featur
 	return vocabulary;
 }
 
-const InvertedFile FeaturesCollector::BuildInvertFile(const FeaturesMap& featureMap, const Vocabulary& vocabulary)
+const FullIndex FeaturesCollector::BuildFullIndex(const FeaturesMap& featureMap, const Vocabulary& vocabulary)
 {
 	InvertedFile index;
+	FrequencyHistogramsMap histogramsMap;
 	for (auto& imageFeatures : featureMap)
 	{
+		histogramsMap[imageFeatures.first].resize(vocabulary.size(), 0.0);
+		int imageWordsCount = imageFeatures.second.size();
+
 		for (auto& descriptor : imageFeatures.second)
 		{
 			int word = WordIndex(vocabulary, descriptor);
+			//update inverted file			
 			index[word].emplace(imageFeatures.first);
+					
+			//update raw histogram value
+			histogramsMap[imageFeatures.first][word] += 1.0 / imageWordsCount;
 		}
 	}
-	return index;
+	vector<double> idf;
+	
+	const int numOfDocs = featureMap.size();
+	for (auto& wordInfo : index)
+	{
+		idf.emplace_back(1.0*numOfDocs / wordInfo.second.size());
+	}
+
+	for (auto& histogramInfo : histogramsMap)
+	{
+		for (int i = 0; i < histogramInfo.second.size(); i++)
+		{
+			histogramInfo.second[i] *= idf[i];
+		}
+	}
+
+	return { index, histogramsMap };
 }
 
 const vector<QString> FeaturesCollector::RequestNNearest(const QString targetImagePath, const int count, 
-	const InvertedFile& invertFile, const Vocabulary& vocabulary)
+	const FullIndex& index, const Vocabulary& vocabulary)
 {
 	InterestingPointsDetector detector(DetectionMethod::Harris);
 	DescriptorsBuilder builder;
@@ -88,11 +112,22 @@ const vector<QString> FeaturesCollector::RequestNNearest(const QString targetIma
 	const auto descriptors = builder.CalculateHistogramDesctiptors(pyr, points);
 
 	map<QString, int> counterMap;
+	vector<double> histogram;
+	vector<double> idf;
+
+	const int numOfDocs = index.histograms.size();
+	for (auto& wordInfo : index.invertedFile)
+	{
+		idf.emplace_back(1.0*numOfDocs / wordInfo.second.size());
+	}
+
+	histogram.resize(vocabulary.size(), 0);
+
 	for (auto& descr : descriptors)
 	{
 		int word = WordIndex(vocabulary, descr);
 		
-		const auto& files = invertFile.at(word);
+		const auto& files = index.invertedFile.at(word);
 		for (auto& fileName : files)
 		{
 			if (counterMap.find(fileName) == counterMap.end())
@@ -101,15 +136,29 @@ const vector<QString> FeaturesCollector::RequestNNearest(const QString targetIma
 			}
 			counterMap[fileName]++;
 		}
+		histogram[word] += idf[word] / descriptors.size();
 	}
-	auto cmp = [](std::pair<QString, int> const & a, std::pair<QString, int> const & b)
+	auto cmp = [](std::pair<QString, double> const & a, std::pair<QString, double> const & b)
 	{
 		return a.second != b.second ? a.second > b.second : a.first < b.first;
 	};
-	vector<pair<QString, int>> data;
-	transform(counterMap.begin(), counterMap.end(), back_inserter(data), [](auto p) { return p; });
-	sort(data.begin(), data.end(), cmp);
+	vector<pair<QString, double>> data;
+	//collect all non-zero images into data vector
+	for (auto& value : counterMap)
+	{
+		if (value.second > 0)
+		{
+			double simValue = 0;
+			for (int i = 0; i < vocabulary.size(); i++)
+			{
+				simValue += histogram[i] * index.histograms.at(value.first)[i];
+			}
+			data.emplace_back(value.first, simValue);
+		}
+	}
 
+	sort(data.begin(), data.end(), cmp);
+	
 	vector<QString> nearest;
 	for (int i = 0; i < min(count, (int)data.size()); i++)
 	{
