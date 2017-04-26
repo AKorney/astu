@@ -13,7 +13,7 @@
 #include "descriptorsbuilder.h"
 #include "homographyhelper.h"
 
-#include "houghtransformationhelper.h"
+#include "houghobjectsearch.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -36,8 +36,8 @@ void MainWindow::on_openButton_clicked()
 
     ///*
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
-    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\2.jpg";
-    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\3.jpg";
+    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\3.jpg";
+    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\4.jpg";
     const auto sourceImage1 = ImageHelper::Load(leftPath);
     //const auto pyr1 = Pyramid(10, 3, 1.6, 0.5, sourceImage1);
     //const auto points1 = detector.FindBlobBasedPoints(pyr1);
@@ -51,7 +51,8 @@ void MainWindow::on_openButton_clicked()
     //auto ip2 = ImageHelper::MarkInterestingPoints(sourceImage2, points2);
     //ip2.save("C:\\Users\\Alena\\Pictures\\blob\\ip2.jpg");
     //
-    HoughTransformationHelper::FindPoses(sourceImage1, sourceImage2);
+    houghobjectsearch search;
+    search.FindPoses(sourceImage1, sourceImage2);
 /*
     auto sup1 = InterestingPointsDetector::ANMS(points1, 200, sourceImage1.getWidth());
     auto sup2 = InterestingPointsDetector::ANMS(points2, 200, sourceImage2.getWidth());

@@ -35,7 +35,7 @@ SOURCES += main.cpp\
     descriptorsbuilder.cpp \
     imagehelper.cpp \
     homographyhelper.cpp \
-    houghtransformationhelper.cpp
+    houghobjectsearch.cpp
 
 HEADERS  += mainwindow.h \
     cvimage.h \
@@ -48,7 +48,7 @@ HEADERS  += mainwindow.h \
     descriptorsbuilder.h \
     imagehelper.h \
     homographyhelper.h \
-    houghtransformationhelper.h
+    houghobjectsearch.h
 
 FORMS    += mainwindow.ui
 
