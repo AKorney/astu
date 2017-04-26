@@ -47,7 +47,7 @@ const Vocabulary FeaturesCollector::BuildBOWVocabulary(const FeaturesMap& featur
 	Mat fMat;
 	featuresMat.convertTo(fMat, CV_32F);
 
-	BOWKMeansTrainer trainer(1500);
+	BOWKMeansTrainer trainer(1000);
 	trainer.add(fMat);
 	
 	Mat vocabF = trainer.cluster();
