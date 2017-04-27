@@ -5,6 +5,91 @@
 
 
 
+vector<pair<InterestingPoint,InterestingPoint>> houghobjectsearch::MatchImages(InterestingPointsDetector detector, const CVImage &object, const CVImage &scene, DescriptorsBuilder builder)
+{
+    const auto scenePyr = Pyramid(5, 3, 1.6, 0.5, scene);
+    const auto scenePoints = detector.FindBlobBasedPoints(scenePyr);
+    const auto sceneDescr = builder.CalculateHistogramDesctiptors(scenePyr, scenePoints);
+
+    const auto objectPyr = Pyramid(5, 3, 1.6, 0.5, object);
+    const auto objectPoints = detector.FindBlobBasedPoints(objectPyr);
+    const auto objectDescr = builder.CalculateHistogramDesctiptors(objectPyr, objectPoints);
+
+    const auto matches = DescriptorsBuilder::FindMatches(sceneDescr, objectDescr);
+
+    return matches;
+}
+
+DoubleMat houghobjectsearch::AffineMatrix(const vector<pair<InterestingPoint, InterestingPoint> > matches, set<int> inliers)
+{
+    gsl_matrix* A = gsl_matrix_alloc(2*inliers.size(),6);
+    gsl_matrix* ATA = gsl_matrix_alloc(6,6);
+    gsl_matrix* ATAinv = gsl_matrix_alloc(6,6);
+
+    gsl_vector* b = gsl_vector_alloc(2*inliers.size());
+    gsl_vector* atb = gsl_vector_alloc(6);
+    gsl_vector* t = gsl_vector_alloc(6);
+    int i=0;
+    for(int inlier: inliers)
+    {
+        const auto match = matches[inlier];
+
+        gsl_matrix_set(A, 2*i, 0, match.second.GlobalX());
+        gsl_matrix_set(A, 2*i, 1, match.second.GlobalY());
+        gsl_matrix_set(A, 2*i, 2, 1.0);
+        gsl_matrix_set(A, 2*i, 3, 0.0);
+        gsl_matrix_set(A, 2*i, 4, 0.0);
+        gsl_matrix_set(A, 2*i, 5, 0.0);
+
+        gsl_matrix_set(A, 2*i+1, 0, 0.0);
+        gsl_matrix_set(A, 2*i+1, 1, 0.0);
+        gsl_matrix_set(A, 2*i+1, 2, 0.0);
+        gsl_matrix_set(A, 2*i+1, 3, match.second.GlobalX());
+        gsl_matrix_set(A, 2*i+1, 4, match.second.GlobalY());
+        gsl_matrix_set(A, 2*i+1, 5, 1.0);
+
+
+        gsl_vector_set(b, 2*i, match.first.GlobalX());
+        gsl_vector_set(b, 2*i + 1, match.first.GlobalY());
+
+        ++i;
+    }
+
+    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1.0,
+                   A, A, 0.0, ATA);
+
+    int s;
+    gsl_permutation * p = gsl_permutation_alloc(6);
+    gsl_linalg_LU_decomp(ATA, p, &s);
+    gsl_linalg_LU_invert(ATA, p, ATAinv);
+
+    gsl_blas_dgemv(CblasTrans, 1.0, A, b, 0.0, atb);
+
+    gsl_blas_dgemv(CblasNoTrans, 1.0, ATAinv, atb, 0.0, t);
+
+    DoubleMat transformMatrix(3,3);
+    for(int i = 0; i<6; i++)
+    {
+        double value = gsl_vector_get(t,i);
+        transformMatrix.set(value, i/3, i%3);
+    }
+    transformMatrix.set(0,2,0);
+    transformMatrix.set(0,2,1);
+    transformMatrix.set(1,2,2);
+
+
+    gsl_matrix_free(A);
+    gsl_matrix_free(ATA);
+    gsl_matrix_free(ATAinv);
+
+    gsl_vector_free(b);
+    gsl_vector_free(atb);
+    gsl_vector_free(t);
+
+
+    return transformMatrix;
+}
+
 vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVImage &object)
 {
     unique_ptr<HoughVoteInfo[]> votes;
@@ -21,20 +106,12 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
 
     votes = make_unique<HoughVoteInfo[]>(xBins * yBins * aBins * sBins);
 
-    const auto scenePyr = Pyramid(5, 3, 1.6, 0.5, scene);
-    const auto scenePoints = detector.FindBlobBasedPoints(scenePyr);
-    const auto sceneDescr = builder.CalculateHistogramDesctiptors(scenePyr, scenePoints);
-
-    const auto objectPyr = Pyramid(5, 3, 1.6, 0.5, object);
-    const auto objectPoints = detector.FindBlobBasedPoints(objectPyr);
-    const auto objectDescr = builder.CalculateHistogramDesctiptors(objectPyr, objectPoints);
-
-    const auto matches = DescriptorsBuilder::FindMatches(sceneDescr, objectDescr);
+    const auto matches = MatchImages(detector, object, scene, builder);
 
 
     const int objectCx = object.getWidth()/2;
     const int objectCy = object.getHeight()/2;
-    const double baseAngle = 0;
+
 
 
     for(int m = 0; m < matches.size(); m++)
@@ -42,38 +119,18 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
         const auto& objectPoint = matches[m].second;
         const auto& scenePoint = matches[m].first;
 
+        const auto pose = Pose(objectPoint, scenePoint, objectCx, objectCy);
 
-        const double dx = objectPoint.GlobalX()-objectCx;
-        const double dy = objectPoint.GlobalY()-objectCy;
-        const double L = hypot(dx,dy);
-        const double cda = atan2(dy,dx);
-        const double cDev = objectPoint.alpha - cda;
-        const double dDev = objectPoint.alpha - baseAngle;
-
-        //scale
-        const double ds = scenePoint.sigmaGlobal / objectPoint.sigmaGlobal;
-
-
-
-        double objcda = scenePoint.alpha - cDev;
-
-        //center + deviation
-        double objdx = ds * L * sin(objcda);
-        double objdy = ds * L * cos(objcda);
-        double objddev = fmod(scenePoint.alpha - dDev + 2 *M_PI, 2*M_PI);
-
-        const int CX = round(objdx + scenePoint.GlobalX());
-        const int CY = round(objdy + scenePoint.GlobalY());
-        const int xBinIndex = CX/xStep;
-        const int yBinIndex = CY/yStep;
-        const int aBinIndex = objddev/aStep;
-        const int sBinIndex = log(ds/sigmaMin)/log(sCoeff);
+        const int xBinIndex = pose.centerX/xStep;
+        const int yBinIndex = pose.centerY/yStep;
+        const int aBinIndex = pose.alpha/aStep;
+        const int sBinIndex = log(pose.scale/sigmaMin)/log(sCoeff);
         const double sc = sigmaMin * pow(2, sBinIndex) / sqrt(2);
 
-        const int xDir = CX > (xBinIndex + 0.5)*xStep ? 1: -1;
-        const int yDir = CY > (yBinIndex + 0.5)*yStep ? 1: -1;
-        const int sDir = ds > sc ? 1 : -1;
-        const int aDir = objddev > (aBinIndex + 0.5)*aStep ? 1: -1;
+        const int xDir = pose.centerX > (xBinIndex + 0.5)*xStep ? 1: -1;
+        const int yDir = pose.centerY > (yBinIndex + 0.5)*yStep ? 1: -1;
+        const int sDir = pose.scale > sc ? 1 : -1;
+        const int aDir = pose.alpha > (aBinIndex + 0.5)*aStep ? 1: -1;
 
         double distance = abs(sc - sc * pow(sCoeff, sDir));
 
@@ -81,19 +138,19 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
         {
             int currentX = xBinIndex + xDir*xshift;
             if(currentX < 0 || currentX >= xBins) continue;
-            double wx = 1 - abs(1.0*CX/xStep - (currentX + 0.5));
+            double wx = 1 - abs(1.0*pose.centerX/xStep - (currentX + 0.5));
             assert(wx>=0);
 
             for(int yshift = 0; yshift < 2; yshift++)
             {
                 int currentY = yBinIndex + yDir*yshift;
                 if(currentY < 0 || currentY >= yBins) continue;
-                double wy = 1 - abs(1.0*CY/yStep - (currentY + 0.5));
+                double wy = 1 - abs(1.0*pose.centerY/yStep - (currentY + 0.5));
                 assert(wy>=0);
                 for(int ashift = 0; ashift < 2; ashift++)
                 {
                     int currentA = aBinIndex + aDir*ashift;
-                    double wa = 1 - abs(objddev/aStep - (currentA+0.5));
+                    double wa = 1 - abs(pose.alpha/aStep - (currentA+0.5));
                     if(currentA < 0) currentA = aBins-1;
                     if(currentA >= aBins) currentA = 0;
                     assert(wa>=0);
@@ -104,7 +161,7 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
                         if(currentS < 0 || currentS >=sBins) continue;
                         double currentCenter = sc * pow(sCoeff, sDir*sshift);
 
-                        double ws = 1 - abs(ds - currentCenter)/distance;
+                        double ws = 1 - abs(pose.scale - currentCenter)/distance;
 
                         double value = wx * wy * wa * ws;
 
@@ -133,10 +190,21 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
         }
     }
 
+    auto matrix = AffineMatrix(matches, votes[maxIndex].voters);
+
+    double scosfi = matrix.get(0,0);
+    double ssinfi = matrix.get(0,1);
+    double scale = sqrt(hypot(scosfi, ssinfi));
+    double fi = acos(scosfi/scale);
+    double cx = objectCx + matrix.get(0,2);
+    double cy = objectCy + matrix.get(1,2);
+
     int sB = maxIndex / (xBins * yBins * aBins);
-    int aB = (maxIndex % xBins * yBins * aBins) / (xBins * yBins);
-    int yB = ((maxIndex % xBins * yBins * aBins) % (xBins * yBins)) / xBins;
+    int aB =  (maxIndex % (xBins * yBins * aBins)) / (xBins * yBins);
+    int yB = (maxIndex % (xBins * yBins * aBins) % (xBins * yBins)) / xBins;
     int xB = maxIndex % xBins;
+
+
 
     ObjectPose pose;
     pose.alpha = (aB + 0.5)*aStep;
@@ -144,8 +212,25 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
     pose.centerX = (xB + 0.5)*xStep;
     pose.centerY = (yB + 0.5)*yStep;
 
-
     poses.emplace_back(pose);
 
     return poses;
+}
+
+ObjectPose houghobjectsearch::Pose(const InterestingPoint &objectPoint, const InterestingPoint &scenePoint, const int objectCx, const int objectCy)
+{
+    ObjectPose pose;
+
+
+    const double dx = objectPoint.GlobalX()-objectCx;
+    const double dy = objectPoint.GlobalY()-objectCy;
+    const double L = hypot(dx,dy);
+    double phi = scenePoint.alpha - objectPoint.alpha + atan2(dy,dx);
+
+    pose.scale = scenePoint.sigmaGlobal / objectPoint.sigmaGlobal;
+    pose.centerX = round(scenePoint.GlobalX() - pose.scale * L * cos(phi));
+    pose.centerY = round(scenePoint.GlobalY() - pose.scale * L * sin(phi));
+    pose.alpha = fmod(scenePoint.alpha - objectPoint.alpha + 2 *M_PI, 2*M_PI);
+
+    return pose;
 }

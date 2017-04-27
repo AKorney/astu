@@ -36,8 +36,8 @@ void MainWindow::on_openButton_clicked()
 
     ///*
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
-    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\3.jpg";
-    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\4.jpg";
+    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\2.jpg";
+    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\3.jpg";
     const auto sourceImage1 = ImageHelper::Load(leftPath);
     //const auto pyr1 = Pyramid(10, 3, 1.6, 0.5, sourceImage1);
     //const auto points1 = detector.FindBlobBasedPoints(pyr1);
