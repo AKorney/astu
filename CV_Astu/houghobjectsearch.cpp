@@ -1,5 +1,5 @@
 #include "houghobjectsearch.h"
-
+#include "imagehelper.h"
 #include <cassert>
 
 
@@ -90,11 +90,11 @@ DoubleMat houghobjectsearch::AffineMatrix(const vector<pair<InterestingPoint, In
     return transformMatrix;
 }
 
-vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVImage &object)
+vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVImage &object)
 {
     unique_ptr<HoughVoteInfo[]> votes;
 
-    vector<ObjectPose> poses;
+    vector<DoubleMat> poses;
     const int xBins = scene.getWidth()/xStep + 1;
     const int yBins = scene.getHeight()/yStep + 1;
     const int aBins = 2 * M_PI/aStep;
@@ -107,7 +107,6 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
     votes = make_unique<HoughVoteInfo[]>(xBins * yBins * aBins * sBins);
 
     const auto matches = MatchImages(detector, object, scene, builder);
-
 
     const int objectCx = object.getWidth()/2;
     const int objectCy = object.getHeight()/2;
@@ -189,31 +188,11 @@ vector<ObjectPose> houghobjectsearch::FindPoses(const CVImage &scene, const CVIm
             maxIndex = i;
         }
     }
-
-    auto matrix = AffineMatrix(matches, votes[maxIndex].voters);
-
-    double scosfi = matrix.get(0,0);
-    double ssinfi = matrix.get(0,1);
-    double scale = sqrt(hypot(scosfi, ssinfi));
-    double fi = acos(scosfi/scale);
-    double cx = objectCx + matrix.get(0,2);
-    double cy = objectCy + matrix.get(1,2);
-
-    int sB = maxIndex / (xBins * yBins * aBins);
-    int aB =  (maxIndex % (xBins * yBins * aBins)) / (xBins * yBins);
-    int yB = (maxIndex % (xBins * yBins * aBins) % (xBins * yBins)) / xBins;
-    int xB = maxIndex % xBins;
-
-
-
-    ObjectPose pose;
-    pose.alpha = (aB + 0.5)*aStep;
-    pose.scale = sigmaMin * pow(sCoeff, sB) * sqrt(2);
-    pose.centerX = (xB + 0.5)*xStep;
-    pose.centerY = (yB + 0.5)*yStep;
-
-    poses.emplace_back(pose);
-
+    if(votes[maxIndex].voters.size() >=3)
+    {
+        auto matrix = AffineMatrix(matches, votes[maxIndex].voters);
+        poses.emplace_back(matrix);
+    }
     return poses;
 }
 

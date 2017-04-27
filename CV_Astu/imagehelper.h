@@ -7,6 +7,7 @@
 #include "cvimage.h"
 #include "interestingpointsdetector.h"
 #include "pyramid.h"
+#include "houghobjectsearch.h"
 
 class ImageHelper
 {
@@ -29,6 +30,7 @@ public:
                               vector <pair<InterestingPoint,InterestingPoint>> matches);
     static QImage DrawBlobs(const CVImage& source, vector<InterestingPoint> blobs);
     static QImage DrawStitching(const QImage& left, const QImage& right, const DoubleMat& transformation);
+    static QImage DrawPoses(const QImage& scene, const QImage& object, const vector<DoubleMat>& poses);
 };
 
 #endif // CVIMAGELOADER_H

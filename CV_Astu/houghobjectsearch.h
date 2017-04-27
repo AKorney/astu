@@ -23,14 +23,14 @@ class houghobjectsearch
 {
 private:
     const int xStep = 20, yStep = 20, sPower = 4, sCoeff = 2;
-    const double aStep = M_PI/18;
+    const double aStep = M_PI/9;
 
 
     vector<pair<InterestingPoint,InterestingPoint>> MatchImages(InterestingPointsDetector detector, const CVImage &object, const CVImage &scene, DescriptorsBuilder builder);
     DoubleMat AffineMatrix(const vector<pair<InterestingPoint,InterestingPoint>> matches,
                            set<int> inliers);
 public:
-    vector<ObjectPose> FindPoses(const CVImage& scene, const CVImage& object);
+    vector<DoubleMat> FindPoses(const CVImage& scene, const CVImage& object);
     static ObjectPose Pose(const InterestingPoint& objectPoint, const InterestingPoint& scenePoint,
                            const int cx, const int cy);
 };

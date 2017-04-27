@@ -142,3 +142,22 @@ QImage ImageHelper::DrawStitching(const QImage &left, const QImage &right, const
     painter.drawImage(0, 0, right);
     return qImage;
 }
+
+QImage ImageHelper::DrawPoses(const QImage &scene, const QImage &object, const vector<DoubleMat> &poses)
+{
+    QImage qImage(scene.width(), scene.height(), QImage::Format_RGB32);
+    QPainter painter(&qImage);
+    painter.drawImage(0,0,scene);
+    painter.setPen(QColor(255,255,0));
+    for(auto& transformation : poses)
+    {
+        QTransform htransform(transformation.get(0,0), transformation.get(1,0), transformation.get(2,0),
+                              transformation.get(0,1), transformation.get(1,1), transformation.get(2,1),
+                              transformation.get(0,2), transformation.get(1,2), transformation.get(2,2));
+        painter.setTransform(htransform);
+        painter.drawRect(0,0,object.width(), object.height());
+        painter.drawEllipse(QPoint(0,0), 2, 2);
+        painter.resetTransform();
+    }
+    return qImage;
+}

@@ -36,8 +36,8 @@ void MainWindow::on_openButton_clicked()
 
     ///*
     auto detector = InterestingPointsDetector(DetectionMethod::Harris);
-    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\2.jpg";
-    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\3.jpg";
+    QString leftPath = "C:\\Users\\Alena\\Pictures\\blob\\scene.jpg";
+    QString rightPath = "C:\\Users\\Alena\\Pictures\\blob\\obj.jpg";
     const auto sourceImage1 = ImageHelper::Load(leftPath);
     //const auto pyr1 = Pyramid(10, 3, 1.6, 0.5, sourceImage1);
     //const auto points1 = detector.FindBlobBasedPoints(pyr1);
@@ -52,7 +52,13 @@ void MainWindow::on_openButton_clicked()
     //ip2.save("C:\\Users\\Alena\\Pictures\\blob\\ip2.jpg");
     //
     houghobjectsearch search;
-    search.FindPoses(sourceImage1, sourceImage2);
+    auto poses = search.FindPoses(sourceImage1, sourceImage2);
+    QImage scene;
+    scene.load(leftPath);
+    QImage object;
+    object.load(rightPath);
+    auto test = ImageHelper::DrawPoses(scene,object,poses);
+    test.save("C:\\Users\\Alena\\Pictures\\blob\\result.jpg");
 /*
     auto sup1 = InterestingPointsDetector::ANMS(points1, 200, sourceImage1.getWidth());
     auto sup2 = InterestingPointsDetector::ANMS(points2, 200, sourceImage2.getWidth());
