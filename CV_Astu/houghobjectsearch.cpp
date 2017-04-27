@@ -95,8 +95,10 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
     unique_ptr<HoughVoteInfo[]> votes;
 
     vector<DoubleMat> poses;
-    const int xBins = scene.getWidth()/xStep + 1;
-    const int yBins = scene.getHeight()/yStep + 1;
+    const double xMin = -scene.getWidth()/2;
+    const double yMin = -scene.getHeight()/2;
+    const int xBins = 2*scene.getWidth()/xStep;
+    const int yBins = 2*scene.getHeight()/yStep;
     const int aBins = 2 * M_PI/aStep;
     const int sBins = 2 * sPower + 1;
     const double sigmaMin = 1.0/pow(2,sPower);
@@ -120,14 +122,15 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
 
         const auto pose = Pose(objectPoint, scenePoint, objectCx, objectCy);
 
-        const int xBinIndex = pose.centerX/xStep;
-        const int yBinIndex = pose.centerY/yStep;
+        const int xBinIndex = (pose.centerX-xMin)/xStep;
+        const int yBinIndex = (pose.centerY-yMin)/yStep;
         const int aBinIndex = pose.alpha/aStep;
         const int sBinIndex = log(pose.scale/sigmaMin)/log(sCoeff);
         const double sc = sigmaMin * pow(2, sBinIndex) / sqrt(2);
 
-        const int xDir = pose.centerX > (xBinIndex + 0.5)*xStep ? 1: -1;
-        const int yDir = pose.centerY > (yBinIndex + 0.5)*yStep ? 1: -1;
+
+        const int xDir = pose.centerX > (xBinIndex + 0.5)*xStep+xMin ? 1: -1;
+        const int yDir = pose.centerY > (yBinIndex + 0.5)*yStep+yMin ? 1: -1;
         const int sDir = pose.scale > sc ? 1 : -1;
         const int aDir = pose.alpha > (aBinIndex + 0.5)*aStep ? 1: -1;
 
@@ -137,14 +140,14 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
         {
             int currentX = xBinIndex + xDir*xshift;
             if(currentX < 0 || currentX >= xBins) continue;
-            double wx = 1 - abs(1.0*pose.centerX/xStep - (currentX + 0.5));
+            double wx = 1 - abs(1.0*(pose.centerX-xMin)/xStep - (currentX + 0.5));
             assert(wx>=0);
 
             for(int yshift = 0; yshift < 2; yshift++)
             {
                 int currentY = yBinIndex + yDir*yshift;
                 if(currentY < 0 || currentY >= yBins) continue;
-                double wy = 1 - abs(1.0*pose.centerY/yStep - (currentY + 0.5));
+                double wy = 1 - abs(1.0*(pose.centerY-yMin)/yStep - (currentY + 0.5));
                 assert(wy>=0);
                 for(int ashift = 0; ashift < 2; ashift++)
                 {
