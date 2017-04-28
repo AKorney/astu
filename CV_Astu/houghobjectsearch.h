@@ -1,17 +1,19 @@
 #ifndef HOUGHTRANSFORMATIONHELPER_H
 #define HOUGHTRANSFORMATIONHELPER_H
 #include <set>
+#include <vector>
+#include <algorithm>
 
 #include <descriptorsbuilder.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
 
 using namespace std;
-struct HoughVoteInfo
-{
-    double value;
-    set<int> voters;
-};
+//struct HoughVoteInfo
+//{
+//    double value;
+//    set<int> voters;
+//};
 
 struct ObjectPose
 {

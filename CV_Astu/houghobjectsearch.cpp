@@ -92,7 +92,9 @@ DoubleMat houghobjectsearch::AffineMatrix(const vector<pair<InterestingPoint, In
 
 vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVImage &object)
 {
-    unique_ptr<HoughVoteInfo[]> votes;
+    unique_ptr<double[]> votes;
+
+    vector<pair<int,int>> voteMap;
 
     vector<DoubleMat> poses;
     const double xMin = -scene.getWidth()/2;
@@ -106,9 +108,11 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
     InterestingPointsDetector detector(DetectionMethod::Harris);
     DescriptorsBuilder builder;
 
-    votes = make_unique<HoughVoteInfo[]>(xBins * yBins * aBins * sBins);
+    votes = make_unique<double[]>(xBins * yBins * aBins * sBins);
+    fill_n(votes.get(), xBins * yBins * aBins * sBins, 0.0);
 
     const auto matches = MatchImages(detector, object, scene, builder);
+
 
     const int objectCx = object.getWidth()/2;
     const int objectCy = object.getHeight()/2;
@@ -173,8 +177,9 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
                                 aBinIndex * xBins * yBins +
                                 sBinIndex * xBins * yBins * aBins;
 
-                        votes[planeIndex].value += value;
-                        votes[planeIndex].voters.emplace(m);
+                        votes[planeIndex] += value;
+                        //votes[planeIndex].voters.emplace(m);
+                        voteMap.emplace_back(pair<int,int>(m, planeIndex));
                     }
                 }
             }
@@ -185,15 +190,23 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
     int maxValue = -1;
     for(int i = 0; i < xBins * yBins * aBins * sBins; i++)
     {
-        if(votes[i].value > maxValue)
+        if(votes[i] > maxValue)
         {
-            maxValue = votes[i].value;
+            maxValue = votes[i];
             maxIndex = i;
         }
     }
-    if(votes[maxIndex].voters.size() >=3)
+    set<int> voters;
+    for(int m = 0; m < voteMap.size(); m++)
     {
-        auto matrix = AffineMatrix(matches, votes[maxIndex].voters);
+        if(voteMap[m].second == maxIndex)
+        {
+            voters.emplace(voteMap[m].first);
+        }
+    }
+    if(voters.size() >=3)
+    {
+        auto matrix = AffineMatrix(matches, voters);
         poses.emplace_back(matrix);
     }
     return poses;
