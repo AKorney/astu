@@ -26,6 +26,7 @@ namespace FourierTransform
             _profiles.Add("reo", new SignalProfile(0, 50, 360, "сек", "мОм"));
             _profiles.Add("velo", new SignalProfile(512, 120, 360, "сек", "мВ"));
             _profiles.Add("spiro", new SignalProfile(512, 100, 360, "сек", "Л"));
+            _profiles.Add("default", new SignalProfile(0, 256, 360, "сек", ""));
                    
             
         }
@@ -42,13 +43,15 @@ namespace FourierTransform
                     _rawSource = new List<SignalPoint>();
 
                     var profileKey = Regex.Replace(Path.GetFileNameWithoutExtension(ofd.FileName), "[0-9]", "");
+                    if (!_profiles.ContainsKey(profileKey))
+                        profileKey = "default";
 
                     var rawContent = File.ReadAllText(ofd.FileName);
                     var splittedText = rawContent.Split(new Char[] { '\n', '\r', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                     for (int i = 0; i < splittedText.Length; i++)
                     {
-                        _rawSource.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i]) });
+                        _rawSource.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".",",")) });
                     }
                     _transformedSource = SignalConverter.ConvertWithProfile(_rawSource, _profiles[profileKey]);
 
@@ -68,14 +71,14 @@ namespace FourierTransform
             var dft = Fourier.FourierTransformer.ApplyDiscreteTransform(_transformedSource);
 
 
-            ampSpec.DataSource = dft.amplitudeSpec;
+            ampSpec.DataSource = dft.amplitudeSpec.GetRange(0, dft.amplitudeSpec.Count/2);
             ampSpec.Series[0].XValueMember = "X";
             ampSpec.Series[0].YValueMembers = "Y";
             ampSpec.ChartAreas[0].AxisX.Title = "Гц";
             ampSpec.DataBind();
 
 
-            phaseSpec.DataSource = dft.phaseSpec;
+            phaseSpec.DataSource = dft.phaseSpec.GetRange(0,dft.phaseSpec.Count/2);
             phaseSpec.Series[0].XValueMember = "X";
             phaseSpec.Series[0].YValueMembers = "Y";
             phaseSpec.ChartAreas[0].AxisX.Title = "Гц";

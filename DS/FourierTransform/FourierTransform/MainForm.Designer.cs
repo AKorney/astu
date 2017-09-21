@@ -42,6 +42,8 @@
             this.ampSpec = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.phaseSpec = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.sourceChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ampSpec)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.phaseSpec)).BeginInit();
@@ -60,17 +62,17 @@
             series1.Legend = "Legend1";
             series1.Name = "SourceSignal";
             this.sourceChart.Series.Add(series1);
-            this.sourceChart.Size = new System.Drawing.Size(837, 300);
+            this.sourceChart.Size = new System.Drawing.Size(1053, 300);
             this.sourceChart.TabIndex = 0;
             this.sourceChart.Text = "chart1";
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(866, 12);
+            this.button1.Location = new System.Drawing.Point(1071, 12);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(161, 23);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Select";
+            this.button1.Text = "Select File";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -85,7 +87,7 @@
             series2.ChartArea = "ChartArea1";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series2.Legend = "Legend1";
-            series2.Name = "Series1";
+            series2.Name = "Amp";
             this.ampSpec.Series.Add(series2);
             this.ampSpec.Size = new System.Drawing.Size(623, 300);
             this.ampSpec.TabIndex = 2;
@@ -102,27 +104,47 @@
             series3.ChartArea = "ChartArea1";
             series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series3.Legend = "Legend1";
-            series3.Name = "Series1";
+            series3.Name = "Phase";
             this.phaseSpec.Series.Add(series3);
-            this.phaseSpec.Size = new System.Drawing.Size(580, 300);
+            this.phaseSpec.Size = new System.Drawing.Size(591, 300);
             this.phaseSpec.TabIndex = 2;
             this.phaseSpec.Text = "chart1";
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(866, 42);
+            this.button2.Location = new System.Drawing.Point(1071, 41);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(161, 23);
             this.button2.TabIndex = 3;
-            this.button2.Text = "Discrete FT";
+            this.button2.Text = "DFT (classic)";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(1071, 71);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(161, 23);
+            this.button3.TabIndex = 4;
+            this.button3.Text = "DFT (improved)";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(1071, 101);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(161, 23);
+            this.button4.TabIndex = 5;
+            this.button4.Text = "FFT";
+            this.button4.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1244, 624);
+            this.Controls.Add(this.button4);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.phaseSpec);
             this.Controls.Add(this.ampSpec);
@@ -144,6 +166,8 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart ampSpec;
         private System.Windows.Forms.DataVisualization.Charting.Chart phaseSpec;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
     }
 }
 
