@@ -55,9 +55,31 @@ namespace FourierTransform
                     sourceChart.DataSource = _transformedSource;
                     sourceChart.Series["SourceSignal"].XValueMember = "X";
                     sourceChart.Series["SourceSignal"].YValueMembers = "Y";
+
+                    sourceChart.ChartAreas["ChartArea1"].AxisX.Title = _profiles[profileKey].XLabel;
+                    sourceChart.ChartAreas["ChartArea1"].AxisY.Title = _profiles[profileKey].YLabel;
                     sourceChart.DataBind();
                 }
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var dft = Fourier.FourierTransformer.ApplyDiscreteTransform(_transformedSource);
+
+
+            ampSpec.DataSource = dft.amplitudeSpec;
+            ampSpec.Series[0].XValueMember = "X";
+            ampSpec.Series[0].YValueMembers = "Y";
+            ampSpec.ChartAreas[0].AxisX.Title = "Гц";
+            ampSpec.DataBind();
+
+
+            phaseSpec.DataSource = dft.phaseSpec;
+            phaseSpec.Series[0].XValueMember = "X";
+            phaseSpec.Series[0].YValueMembers = "Y";
+            phaseSpec.ChartAreas[0].AxisX.Title = "Гц";
+            phaseSpec.DataBind();
         }
     }
 }
