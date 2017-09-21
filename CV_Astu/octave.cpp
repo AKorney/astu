@@ -64,8 +64,9 @@ void Octave::BuildDiffs()
     for(int i=0; i<_layers.size()-1; i++)
     {
         OctaveLayer diff(make_unique<DoubleMat>(_layers[i+1].GetImage().Sub(_layers[i].GetImage()))
-                , sqrt(_layers[i].GetSigmaLocal() * _layers[i+1].GetSigmaLocal())
-                , sqrt(_layers[i].GetSigmaGlobal() *_layers[i+1].GetSigmaGlobal()));
+                , _layers[i].GetSigmaLocal()//sqrt(GetSigmaLocal() * _layers[i+1].
+                , _layers[i].GetSigmaGlobal()// *_layers[i+1].GetSigmaGlobal()));
+                );
         _diffs.emplace_back(diff);
     }
 }

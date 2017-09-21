@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <qfiledialog.h>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -8,6 +10,10 @@
 
 
 using namespace cv;
+
+FeaturesMap fc;
+Vocabulary voc;
+FullIndex idx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,11 +26,49 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::run()
 {
-	const auto fc = FeaturesCollector::Features("C:\\Users\\Alena\\Pictures\\640");
-	const auto voc = FeaturesCollector::BuildBOWVocabulary(fc);
-	const auto idx = FeaturesCollector::BuildFullIndex(fc, voc);
+	fc = FeaturesCollector::Features(ui->lineEdit->text());
+	voc = FeaturesCollector::BuildBOWVocabulary(fc);
+	idx = FeaturesCollector::BuildFullIndex(fc, voc);	
+}
 
-	const auto res = FeaturesCollector::RequestNNearest("C:\\Users\\Alena\\Pictures\\testIm\\2.jpg", 3, idx, voc);
+MainWindow::~MainWindow()
+{
+    delete ui;
+	/*/
+	*/
+}
+
+void MainWindow::selectBasePath()
+{
+	ui->lineEdit->setText(QFileDialog::getExistingDirectory(0, ("Select Image Base Folder"), QDir::currentPath()));
+}
+
+void MainWindow::selectImage()
+{
+	QFileDialog imagePicker(this);
+	imagePicker.setFileMode(QFileDialog::ExistingFile);
+	imagePicker.setNameFilter(tr("Images (*.png *.jpg)"));
+	if (imagePicker.exec())
+	{
+		auto fileName = imagePicker.selectedFiles()[0];
+		ui->lineEdit_2->setText(fileName);
+		QImage qImage;
+		qImage.load(fileName);
+		auto pixmap = QPixmap();
+		pixmap.convertFromImage(qImage);
+		QGraphicsScene *scene = new QGraphicsScene(this);
+		scene->addPixmap(pixmap);
+		ui->graphicsView->setScene(scene);
+		ui->graphicsView->show();
+	}
+}
+
+void MainWindow::search()
+{
+	
+
+
+	const auto res = FeaturesCollector::RequestNNearest(ui->lineEdit_2->text(), 3, idx, voc);
 
 	for (int i = 0; i < res.size(); i++)
 	{
@@ -38,9 +82,4 @@ void MainWindow::run()
 			imshow(wn.toStdString(), image);
 		}
 	}
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }

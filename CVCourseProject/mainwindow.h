@@ -17,7 +17,9 @@ public:
 
 private slots:
 	void run();
-
+	void selectBasePath();
+	void selectImage();
+	void search();
 private:
     Ui::MainWindow *ui;
 };

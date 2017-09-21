@@ -7,7 +7,7 @@
 #include "cvimage.h"
 #include "interestingpointsdetector.h"
 #include "pyramid.h"
-#include "houghobjectsearch.h"
+//#include "houghobjectsearch.h"
 
 class ImageHelper
 {

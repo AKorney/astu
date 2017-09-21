@@ -113,7 +113,8 @@ vector<DoubleMat> houghobjectsearch::FindPoses(const CVImage &scene, const CVIma
 
     const auto matches = MatchImages(detector, object, scene, builder);
 
-
+    auto mI = ImageHelper::DrawMatches(scene, object, matches);
+    mI.save("C:\\Users\\Alena\\Pictures\\blob\\m.jpg");
     const int objectCx = object.getWidth()/2;
     const int objectCy = object.getHeight()/2;
 

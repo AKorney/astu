@@ -47,7 +47,7 @@ const Vocabulary FeaturesCollector::BuildBOWVocabulary(const FeaturesMap& featur
 	Mat fMat;
 	featuresMat.convertTo(fMat, CV_32F);
 
-	BOWKMeansTrainer trainer(1000);
+	BOWKMeansTrainer trainer(featuresMat.rows/10);
 	trainer.add(fMat);
 	
 	Mat vocabF = trainer.cluster();
@@ -160,7 +160,7 @@ const FullIndex FeaturesCollector::BuildFullIndex(const FeaturesMap& featureMap,
 	{
 		for (int i = 0; i < histogramInfo.second.size(); i++)
 		{
-			histogramInfo.second[i] *= idf[i];
+			histogramInfo.second[i] *= log(idf[i]);
 		}
 		////////////////////////////////////////////////////
 		QFile fileHI("C:\\Users\\Alena\\Pictures\\dump\\histIdf" + QString::number(j++) + ".txt");
@@ -244,7 +244,7 @@ const vector<QString> FeaturesCollector::RequestNNearest(const QString targetIma
 			}
 			counterMap[fileName]++;
 		}
-		histogram[word] += idf[word] / descriptors.size();
+		histogram[word] += log(idf[word]) / descriptors.size();
 	}
 	auto cmp = [](std::pair<QString, double> const & a, std::pair<QString, double> const & b)
 	{
