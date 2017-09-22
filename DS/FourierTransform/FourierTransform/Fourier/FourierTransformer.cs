@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Math;
 using FourierTransform.SignalRepresentation;
+using System.Numerics;
 
 namespace FourierTransform.Fourier
 {
@@ -18,54 +19,38 @@ namespace FourierTransform.Fourier
                 amplitude = new List<SignalPoint>(), phase = new List<SignalPoint>();
 
             double freqStep = 360.0 / source.Count;
-            var ab = CalculateAB(source);
+            var complex_signal = source.Select(p => new Complex(p.Y, 0)).ToArray();
+            var dft = DFT(complex_signal, false);
+
             for (int i = 0; i < source.Count; i++)
             {
-                amplitude.Add(new SignalPoint { X = i * freqStep, Y = Sqrt(ab.a[i] * ab.a[i] + ab.b[i] * ab.b[i]) });
-                phase.Add(new SignalPoint { X = i * freqStep, Y = Atan2(ab.b[i], ab.a[i]) });
+                amplitude.Add(new SignalPoint { X = i * freqStep, Y = dft[i].Magnitude});
+                phase.Add(new SignalPoint { X = i * freqStep, Y = dft[i].Phase });
             }
             
             return (amplitude, phase);
         }
 
-        public static List<SignalPoint> InverseTransform((double[] a, double[] b) transformData)
+
+        public static Complex[] DFT(Complex[] x, bool invert)
         {
-            List<SignalPoint> result = new List<SignalPoint>();
-            int N = transformData.a.Length;
+            int N = x.Length;
 
-
+            Complex[] X = new Complex[N];
             for (int k = 0; k < N; k++)
             {
-                double fk = 0;
-                for (int i = 0; i < N; i++)
+                X[k] = new Complex(0, 0);
+                for (int n = 0; n < N; n++)
                 {
-                    fk += transformData.a[i] * Cos((2 * PI * i * k) / N)
-                        + transformData.b[i] * Sin((2 * PI * i * k) / N);
+                    Complex temp = Complex.FromPolarCoordinates(1, 2 * Math.PI * n * k * (invert?1:-1) / N);
+                    temp *= x[n];
+                    temp /= invert ? 1 : N;
+                    X[k] += temp;
                 }
-                result.Add(new SignalPoint { X = 1.0 * k / 360, Y = fk });
             }
+            return X;
+        }
 
-            return result;
-        }
-
-        public static (double[] a, double[] b) CalculateAB(List<SignalPoint> source)
-        {
-            int N = source.Count;
-            double[] a = new double[N];
-            double[] b = new double[N];
-            for (int k = 0; k < N; k++)
-            {
-                for (int i = 0; i < N; i++)
-                {
-                    a[k] += source[i].Y * Cos((2 * PI * k * i) / N);
-                    b[k] += source[i].Y * Sin((2 * PI * i * k) / N);
-                }
-                a[k] /= N;
-                b[k] /= N;
-            }
-            return (a, b);
-
-
-        }
+        
     }
 }

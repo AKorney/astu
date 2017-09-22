@@ -7,6 +7,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -53,7 +54,7 @@ namespace FourierTransform
                     //{
                     //    _rawSource.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".", ",")) });
                     //}
-                    _rawSource = splittedText.Select((item, index) => new SignalPoint { X = index, Y = Convert.ToDouble(item) }).ToList();
+                    _rawSource = splittedText.Select((item, index) => new SignalPoint { X = index, Y = Convert.ToDouble(item.Replace(".", ",")) }).ToList();
                     _transformedSource = SignalConverter.ConvertWithProfile(_rawSource, _profiles[profileKey]);
 
                     chart1.DataSource = _transformedSource;
@@ -75,34 +76,37 @@ namespace FourierTransform
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var transform = FourierTransformer.CalculateAB(_transformedSource);
-            var allHarms = FourierTransformer.InverseTransform(transform);
+            var cs = _transformedSource.Select(p => new Complex(p.Y, 0));
+            var transform = FourierTransformer.DFT(cs.ToArray(), false);
+            var allHarms = FourierTransformer.DFT(transform, true);
 
-            chart2.DataSource = allHarms;
+
+            chart2.DataSource = allHarms.Select((c, index) => new SignalPoint { X = 1.0 * index / 360, Y = c.Real }).ToList();
             chart2.Series[0].XValueMember = "X";
             chart2.Series[0].YValueMembers = "Y";
             chart2.DataBind();
-
-            for (int i = High; i < transform.a.Length-High; i++)
+            
+            for (int i = High; i < transform.Length-High; i++)
             {
-                transform.a[i] = transform.b[i] = 0;
+                transform[i] = transform[i] = 0;
             }
-            var resultHigh = FourierTransformer.InverseTransform(transform);
-            chart3.DataSource = resultHigh;
+            var resultHigh = FourierTransformer.DFT(transform, true);
+            chart3.DataSource = resultHigh.Select((c, index) => new SignalPoint { X = 1.0 * index / 360, Y = c.Real }).ToList(); ;
             chart3.Series[0].XValueMember = "X";
             chart3.Series[0].YValueMembers = "Y";
             chart3.DataBind();
 
 
-            for (int i = Low; i < transform.a.Length - Low; i++)
+            for (int i = Low; i < transform.Length - Low; i++)
             {
-                transform.a[i] = transform.b[i] = 0;
+                transform[i] = transform[i] = 0;
             }
-            var resultLow = FourierTransformer.InverseTransform(transform);
-            chart4.DataSource = resultLow;
+            var resultLow = FourierTransformer.DFT(transform,true);
+            chart4.DataSource = resultLow.Select((c, index) => new SignalPoint { X = 1.0 * index / 360, Y = c.Real }).ToList(); ;
             chart4.Series[0].XValueMember = "X";
             chart4.Series[0].YValueMembers = "Y";
             chart4.DataBind();
+            
         }
     }
 }

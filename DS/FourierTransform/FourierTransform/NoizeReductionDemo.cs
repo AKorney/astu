@@ -1,4 +1,5 @@
-﻿using FourierTransform.SignalRepresentation;
+﻿using FourierTransform.Fourier;
+using FourierTransform.SignalRepresentation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,61 +28,74 @@ namespace FourierTransform
         }
         private void MakeCardio()
         {
+            
             List<SignalPoint> sourceSignal = new List<SignalPoint>();
 
 
             string path = @"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\test\car\cardio05.txt";
             sourceSignal = ReadData(path, "cardio");
 
-            var ab = Fourier.FourierTransformer.CalculateAB(sourceSignal);
+            //var ab = Fourier.FourierTransformer.CalculateAB(sourceSignal);
+            var cs = sourceSignal.Select(p => new Complex(p.Y, 0)).ToArray();
+            var transform = FourierTransformer.DFT(cs, false);
             double hc = _profiles["cardio"].Frequency / sourceSignal.Count;
             int targetIndex = (int)Math.Floor(50.0 / hc + 0.5);
-            ab.a[targetIndex - 1] = ab.a[targetIndex] = ab.a[targetIndex + 1] = 0;
-            ab.b[targetIndex - 1] = ab.b[targetIndex] = ab.b[targetIndex + 1] = 0;
-            var result = Fourier.FourierTransformer.InverseTransform(ab);
+            transform[targetIndex - 1] = transform[targetIndex] = transform[targetIndex + 1] = 0;
+            //ab.b[targetIndex - 1] = ab.b[targetIndex] = ab.b[targetIndex + 1] = 0;
+            var result = FourierTransformer.DFT(transform, true)
+                .Select((c, index) => new SignalPoint { X = index / 360.0, Y = c.Real }).ToList(); 
 
             ShowCharts(sourceSignal, result, "cardio");
+            
         }
 
         private void MakeReo()
         {
+            
             List<SignalPoint> sourceSignal = new List<SignalPoint>();
 
 
             string path = @"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\test\reo\reo01.txt";
             sourceSignal = ReadData(path, "reo");
 
-            var ab = Fourier.FourierTransformer.CalculateAB(sourceSignal);
+            var cs = sourceSignal.Select(p => new Complex(p.Y, 0)).ToArray();
+            var transform = FourierTransformer.DFT(cs, false);
             double hc = _profiles["reo"].Frequency / sourceSignal.Count;
             int targetIndex = (int)Math.Floor(60.0 / hc + 0.5);
             for (int i = targetIndex; i < sourceSignal.Count - targetIndex ; i++)
             {
-                ab.a[i] = ab.b[i] = 0;
+                transform[i] = transform[i] = 0;
             }
-            var result = Fourier.FourierTransformer.InverseTransform(ab);
+            var result = FourierTransformer.DFT(transform, true)
+                .Select((c, index) => new SignalPoint { X = index / 360.0, Y = c.Real }).ToList();
 
             ShowCharts(sourceSignal, result, "reo");
+            
         }
 
         private void MakeVelo()
         {
+            
             List<SignalPoint> sourceSignal = new List<SignalPoint>();
 
 
             string path = @"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\test\velo\velo04.txt";
             sourceSignal = ReadData(path, "velo");
 
-            var ab = Fourier.FourierTransformer.CalculateAB(sourceSignal);
+            var cs = sourceSignal.Select(p => new Complex(p.Y, 0)).ToArray();
+            var transform = FourierTransformer.DFT(cs, false);
             double hc = _profiles["velo"].Frequency / sourceSignal.Count;
             int targetIndex = (int)Math.Floor(3.0 / hc + 0.5);
             for (int i = 0; i < targetIndex; i++)
             {
-                ab.a[i] = ab.a[ab.a.Length - i - 1] = 0;
-                ab.b[i] = ab.b[ab.b.Length - i - 1] = 0;
+                transform[i] = transform[transform.Length - i - 1] = 0;
+               
             }
-            var result = Fourier.FourierTransformer.InverseTransform(ab);
+            var result = FourierTransformer.DFT(transform, true)
+                .Select((c, index) => new SignalPoint { X = index / 360.0, Y = c.Real }).ToList();
 
             ShowCharts(sourceSignal, result, "reo");
+            
         }
 
         private List<SignalPoint> ReadData(string path, string profile)
