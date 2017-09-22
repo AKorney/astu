@@ -40,7 +40,7 @@ namespace FourierTransform
                 ofd.RestoreDirectory = true;
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    _rawSource = new List<SignalPoint>();
+                    //_rawSource = new List<SignalPoint>();
 
                     var profileKey = Regex.Replace(Path.GetFileNameWithoutExtension(ofd.FileName), "[0-9]", "");
                     if (!_profiles.ContainsKey(profileKey))
@@ -49,10 +49,11 @@ namespace FourierTransform
                     var rawContent = File.ReadAllText(ofd.FileName);
                     var splittedText = rawContent.Split(new Char[] { '\n', '\r', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    for (int i = 0; i < splittedText.Length; i++)
-                    {
-                        _rawSource.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".", ",")) });
-                    }
+                    //for (int i = 0; i < splittedText.Length; i++)
+                    //{
+                    //    _rawSource.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".", ",")) });
+                    //}
+                    _rawSource = splittedText.Select((item, index) => new SignalPoint { X = index, Y = Convert.ToDouble(item) }).ToList();
                     _transformedSource = SignalConverter.ConvertWithProfile(_rawSource, _profiles[profileKey]);
 
                     chart1.DataSource = _transformedSource;

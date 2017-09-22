@@ -89,11 +89,12 @@ namespace FourierTransform
             var rawContent = File.ReadAllText(path);
             var splittedText = rawContent.Split(new Char[] { '\n', '\r', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            List<SignalPoint> rawSignal = new List<SignalPoint>();
-            for (int i = 0; i < splittedText.Length; i++)
-            {
-                rawSignal.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".", ",")) });
-            }
+            //List<SignalPoint> rawSignal = new List<SignalPoint>();
+            //for (int i = 0; i < splittedText.Length; i++)
+            //{
+            //    rawSignal.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".", ",")) });
+            //}
+            List<SignalPoint> rawSignal = splittedText.Select((item, index) => new SignalPoint { X = index, Y = Convert.ToDouble(item) }).ToList();
             sourceSignal = SignalConverter.ConvertWithProfile(rawSignal, _profiles[profile]);
             return sourceSignal;
         }
