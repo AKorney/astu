@@ -34,7 +34,7 @@ namespace FourierTransform.Fourier
                     result = DFT(complex_signal, false);
                     break;
                 case FourierAlgType.FFT:
-                    result = FFT(complex_signal);
+                    result = FFT(complex_signal, false);
                     break;
                 default:
                     break;
@@ -68,7 +68,13 @@ namespace FourierTransform.Fourier
             }
             return X;
         }
-        public static Complex[] FFT(Complex[] x)
+        public static Complex[] FFT(Complex[] x, bool inverse)
+        {
+            var fft = RunFFT(x);
+            var result = fft.Select(c => c / (inverse ? 1 : fft.Length)).ToArray();
+            return result;
+        }
+        internal static Complex[] RunFFT(Complex[] x)
         {
             int N = x.Length;
             Complex[] C = new Complex[N];
@@ -82,8 +88,8 @@ namespace FourierTransform.Fourier
             F0 = x.Where((c, i) => i % 2 == 0).ToArray();
             F1 = x.Where((c, i) => i % 2 != 0).ToArray();
 
-            C1 = FFT(F1);
-            C0 = FFT(F0);
+            C1 = RunFFT(F1);
+            C0 = RunFFT(F0);
 
             for (k = 0; k < N / 2; k++)
             {
