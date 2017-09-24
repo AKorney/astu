@@ -88,7 +88,7 @@ namespace FourierTransform.Fourier
 
             for (int m = 2; m <= N; m<<=1)
             {
-                Complex Wm = Complex.FromPolarCoordinates(1, 2 * PI / m);
+                Complex Wm = Complex.FromPolarCoordinates(1, -2 * PI / m);
                 for (int k = 0; k < N; k+=m)
                 {
                     Complex W = 1;
