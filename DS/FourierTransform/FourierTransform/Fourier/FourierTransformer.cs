@@ -9,23 +9,41 @@ using System.Numerics;
 
 namespace FourierTransform.Fourier
 {
+    public enum FourierAlgType
+    {
+        DFT,
+        FFT
+    }
+
     public static class FourierTransformer
     {
 
+
         public static (List<SignalPoint> amplitudeSpec, List<SignalPoint> phaseSpec)
-            ApplyDiscreteTransform(List<SignalPoint> source)
+            ApplyDiscreteTransform(List<SignalPoint> source, FourierAlgType alg)
         {
             List<SignalPoint> 
                 amplitude = new List<SignalPoint>(), phase = new List<SignalPoint>();
 
             double freqStep = 360.0 / source.Count;
             var complex_signal = source.Select(p => new Complex(p.Y, 0)).ToArray();
-            var dft = DFT(complex_signal, false);
+            Complex[] result = new Complex[0];
+            switch (alg)
+            {
+                case FourierAlgType.DFT:
+                    result = DFT(complex_signal, false);
+                    break;
+                case FourierAlgType.FFT:
+                    result = FFT(complex_signal);
+                    break;
+                default:
+                    break;
+            }
 
             for (int i = 0; i < source.Count; i++)
             {
-                amplitude.Add(new SignalPoint { X = i * freqStep, Y = dft[i].Magnitude});
-                phase.Add(new SignalPoint { X = i * freqStep, Y = dft[i].Phase });
+                amplitude.Add(new SignalPoint { X = i * freqStep, Y = result[i].Magnitude});
+                phase.Add(new SignalPoint { X = i * freqStep, Y = result[i].Phase });
             }
             
             return (amplitude, phase);
@@ -50,7 +68,31 @@ namespace FourierTransform.Fourier
             }
             return X;
         }
+        public static Complex[] FFT(Complex[] x)
+        {
+            int N = x.Length;
+            Complex[] C = new Complex[N];
+            Complex[] F1, C1, F0, C0;
+            if (N == 1)
+            {
+                C[0] = x[0];
+                return C;
+            }
+            int k;
+            F0 = x.Where((c, i) => i % 2 == 0).ToArray();
+            F1 = x.Where((c, i) => i % 2 != 0).ToArray();
 
-        
+            C1 = FFT(F1);
+            C0 = FFT(F0);
+
+            for (k = 0; k < N / 2; k++)
+            {
+                Complex W = Complex.FromPolarCoordinates(1, -2 * Math.PI * k / N);
+                C[k] = C0[k] + C1[k]*W;
+                C[k + N / 2] = C0[k] - C1[k]*W;
+            }
+            return C;
+        }
+
     }
 }

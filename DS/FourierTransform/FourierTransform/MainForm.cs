@@ -40,19 +40,13 @@ namespace FourierTransform
                 ofd.RestoreDirectory = true;
                 if(ofd.ShowDialog() == DialogResult.OK)
                 {
-                    //_rawSource = new List<SignalPoint>();
-
                     var profileKey = Regex.Replace(Path.GetFileNameWithoutExtension(ofd.FileName), "[0-9]", "");
                     if (!_profiles.ContainsKey(profileKey))
                         profileKey = "default";
 
                     var rawContent = File.ReadAllText(ofd.FileName);
                     var splittedText = rawContent.Split(new Char[] { '\n', '\r', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    //for (int i = 0; i < splittedText.Length; i++)
-                    //{
-                    //    _rawSource.Add(new SignalPoint { X = i, Y = Convert.ToDouble(splittedText[i].Replace(".",",")) });
-                    //}
+                    
 
                     _rawSource = splittedText.Select((item, index) => new SignalPoint { X = index, Y = Convert.ToDouble(item.Replace(".", ",")) }).ToList();
 
@@ -71,8 +65,10 @@ namespace FourierTransform
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var dft = Fourier.FourierTransformer.ApplyDiscreteTransform(_transformedSource);
+            var dft = Fourier.FourierTransformer.ApplyDiscreteTransform(_transformedSource, Fourier.FourierAlgType.DFT);
 
+            sourceChart.DataSource = _transformedSource;
+            sourceChart.DataBind();
 
             ampSpec.DataSource = dft.amplitudeSpec.GetRange(0, dft.amplitudeSpec.Count/2);
             ampSpec.Series[0].XValueMember = "X";
@@ -82,6 +78,29 @@ namespace FourierTransform
 
 
             phaseSpec.DataSource = dft.phaseSpec.GetRange(0,dft.phaseSpec.Count/2);
+            phaseSpec.Series[0].XValueMember = "X";
+            phaseSpec.Series[0].YValueMembers = "Y";
+            phaseSpec.ChartAreas[0].AxisX.Title = "Гц";
+            phaseSpec.DataBind();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            int p = (int)Math.Floor(Math.Log(_transformedSource.Count, 2));
+            var signalCut = _transformedSource.GetRange(0, (int)Math.Pow(2, p));
+            var fft = Fourier.FourierTransformer.ApplyDiscreteTransform(signalCut, Fourier.FourierAlgType.FFT);
+
+            sourceChart.DataSource = signalCut;
+            sourceChart.DataBind();
+
+            ampSpec.DataSource = fft.amplitudeSpec.GetRange(0, fft.amplitudeSpec.Count / 2);
+            ampSpec.Series[0].XValueMember = "X";
+            ampSpec.Series[0].YValueMembers = "Y";
+            ampSpec.ChartAreas[0].AxisX.Title = "Гц";
+            ampSpec.DataBind();
+
+
+            phaseSpec.DataSource = fft.phaseSpec.GetRange(0, fft.phaseSpec.Count / 2);
             phaseSpec.Series[0].XValueMember = "X";
             phaseSpec.Series[0].YValueMembers = "Y";
             phaseSpec.ChartAreas[0].AxisX.Title = "Гц";
