@@ -9,41 +9,25 @@ using System.Numerics;
 
 namespace FourierTransform.Fourier
 {
-    public enum FourierAlgType
-    {
-        DFT,
-        FFT
-    }
+
 
     public static class FourierTransformer
     {
 
 
         public static (List<SignalPoint> amplitudeSpec, List<SignalPoint> phaseSpec)
-            ApplyDiscreteTransform(List<SignalPoint> source, FourierAlgType alg)
+            CalculateSpecs(Complex[] fourier)
         {
             List<SignalPoint> 
                 amplitude = new List<SignalPoint>(), phase = new List<SignalPoint>();
 
-            double freqStep = 360.0 / source.Count;
-            var complex_signal = source.Select(p => new Complex(p.Y, 0)).ToArray();
-            Complex[] result = new Complex[0];
-            switch (alg)
-            {
-                case FourierAlgType.DFT:
-                    result = DFT(complex_signal, false);
-                    break;
-                case FourierAlgType.FFT:
-                    result = FFT(complex_signal, false);
-                    break;
-                default:
-                    break;
-            }
+            double freqStep = 360.0 / fourier.Length;
+            
 
-            for (int i = 0; i < source.Count; i++)
+            for (int i = 0; i < fourier.Length; i++)
             {
-                amplitude.Add(new SignalPoint { X = i * freqStep, Y = result[i].Magnitude});
-                phase.Add(new SignalPoint { X = i * freqStep, Y = result[i].Phase });
+                amplitude.Add(new SignalPoint { X = i * freqStep, Y = fourier[i].Magnitude});
+                phase.Add(new SignalPoint { X = i * freqStep, Y = fourier[i].Phase });
             }
             
             return (amplitude, phase);
@@ -68,13 +52,96 @@ namespace FourierTransform.Fourier
             }
             return X;
         }
-        public static Complex[] FFT(Complex[] x, bool inverse)
+        public static Complex[] FFT(Complex[] x, bool inverse, bool useRecursion = false)
         {
-            var fft = RunFFT(x);
+            var fft = useRecursion? RFFT(x) : IFFT(x);
             var result = fft.Select(c => c / (inverse ? 1 : fft.Length)).ToArray();
             return result;
         }
-        internal static Complex[] RunFFT(Complex[] x)
+
+        internal static int Reverse(int x, int n)
+        {
+            int b = 0;
+            int i = 0;
+            while (x != 0)
+            {
+                b <<= 1;
+                b |= (x & 1);
+                x >>= 1;
+                i++;
+            }
+            if (i < n)
+                b <<= n - i;
+            return b;
+        }
+
+        public static Complex[] IFFT(Complex[] x)
+        {
+            int N = x.Length;
+            Complex[] X = new Complex[N];
+            int M = (int)Log(N, 2);
+            for (int i = 0; i < N; i++)
+            {
+                int k = Reverse(i, M);
+                X[k] = x[i];
+            }
+
+            for (int m = 2; m <= N; m<<=1)
+            {
+                Complex Wm = Complex.FromPolarCoordinates(1, 2 * PI / m);
+                for (int k = 0; k < N; k+=m)
+                {
+                    Complex W = 1;
+                    for (int j = 0; j <= m/2-1; j++)
+                    {
+                        Complex t, u;
+                        t = X[k + j + m / 2] * W;
+                        u = X[k + j];
+                        X[k + j] = t + u;
+                        X[k + j + m / 2] = u - t;
+                        W *= Wm;
+                    }
+                }
+            }
+            return X;
+        }
+
+
+        public static Complex[] FFTn(Complex[] x, int M, bool inverse)
+        {
+            int N = x.Length;
+            //М - шаг разбиения
+            Complex[] fft = new Complex[N];
+            Complex[] X = new Complex[N];
+            int L =  N / M;
+            int p = (int)Log(L, 2);
+            //подготовили бпф по наборам
+            for (int z = 0; z < M; z++)
+            {
+                Complex[] range = x.Where((c, i) => (i - z) % M == 0).ToArray();
+                var fourier = IFFT(range);
+                for (int l = 0; l < L; l++)
+                {
+                    fft[z + M * l] = fourier[l];
+                }
+            }
+
+            for (int s = 0; s < M; s++)
+            {
+                for (int r = 0; r < L; r++)
+                {
+                    X[r + s * L] = 0;
+                    for (int m = 0; m < M; m++)
+                    {
+                        X[r + s * L] += fft[m + r * M] * 
+                            Complex.FromPolarCoordinates(1, -2 * PI * m * (r + s * L) / N);
+                    }
+                }
+            }
+            return X.Select(c=>c/(inverse?1:N)).ToArray();
+        }
+
+        public static Complex[] RFFT(Complex[] x)
         {
             int N = x.Length;
             Complex[] C = new Complex[N];
@@ -88,8 +155,8 @@ namespace FourierTransform.Fourier
             F0 = x.Where((c, i) => i % 2 == 0).ToArray();
             F1 = x.Where((c, i) => i % 2 != 0).ToArray();
 
-            C1 = RunFFT(F1);
-            C0 = RunFFT(F0);
+            C1 = RFFT(F1);
+            C0 = RFFT(F0);
 
             for (k = 0; k < N / 2; k++)
             {

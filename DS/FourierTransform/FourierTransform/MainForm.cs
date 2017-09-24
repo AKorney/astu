@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using FourierTransform.SignalRepresentation;
 using System.IO;
 using System.Text.RegularExpressions;
+using FourierTransform.Fourier;
+using System.Numerics;
 
 namespace FourierTransform
 {
@@ -65,9 +67,10 @@ namespace FourierTransform
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var dft = Fourier.FourierTransformer.ApplyDiscreteTransform(_transformedSource, Fourier.FourierAlgType.DFT);
+            var transform = FourierTransformer.DFT(_transformedSource.GetRange(0,512).Select(p => new Complex(p.Y, 0)).ToArray(),false);
+            var dft = FourierTransformer.CalculateSpecs(transform);
 
-            sourceChart.DataSource = _transformedSource;
+            sourceChart.DataSource = _transformedSource.GetRange(0, 512);
             sourceChart.DataBind();
 
             ampSpec.DataSource = dft.amplitudeSpec.GetRange(0, dft.amplitudeSpec.Count/2);
@@ -88,7 +91,35 @@ namespace FourierTransform
         {
             int p = (int)Math.Floor(Math.Log(_transformedSource.Count, 2));
             var signalCut = _transformedSource.GetRange(0, (int)Math.Pow(2, p));
-            var fft = Fourier.FourierTransformer.ApplyDiscreteTransform(signalCut, Fourier.FourierAlgType.FFT);
+            var transform = FourierTransformer.FFT(signalCut.Select(pt => new Complex(pt.Y, 0)).ToArray(), false);
+            var fft = FourierTransformer.CalculateSpecs(transform);
+
+            sourceChart.DataSource = signalCut;
+            sourceChart.DataBind();
+
+            ampSpec.DataSource = fft.amplitudeSpec.GetRange(0, fft.amplitudeSpec.Count / 2);
+            ampSpec.Series[0].XValueMember = "X";
+            ampSpec.Series[0].YValueMembers = "Y";
+            ampSpec.ChartAreas[0].AxisX.Title = "Гц";
+            ampSpec.DataBind();
+
+
+            phaseSpec.DataSource = fft.phaseSpec.GetRange(0, fft.phaseSpec.Count / 2);
+            phaseSpec.Series[0].XValueMember = "X";
+            phaseSpec.Series[0].YValueMembers = "Y";
+            phaseSpec.ChartAreas[0].AxisX.Title = "Гц";
+            phaseSpec.DataBind();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            const int M = 1;
+
+            int p = (int)Math.Floor(Math.Log(1.0*_transformedSource.Count/M, 2));
+            int availableCount = M * (int)Math.Pow(2, p);
+            var signalCut = _transformedSource.GetRange(0, availableCount);
+            var transform = FourierTransformer.FFTn(signalCut.Select(pt => new Complex(pt.Y, 0)).ToArray(), M, false);
+            var fft = FourierTransformer.CalculateSpecs(transform);
 
             sourceChart.DataSource = signalCut;
             sourceChart.DataBind();
