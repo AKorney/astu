@@ -55,6 +55,12 @@
       <DependentUpon>ApproxForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Fourier\FourierTransformer.cs" />
+    <Compile Include="Lab2UI\Lab2Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Lab2UI\Lab2Main.Designer.cs">
+      <DependentUpon>Lab2Main.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,6 +78,9 @@
     <Compile Include="SignalRepresentation\SignalConverter.cs" />
     <EmbeddedResource Include="ApproxForm.resx">
       <DependentUpon>ApproxForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab2UI\Lab2Main.resx">
+      <DependentUpon>Lab2Main.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

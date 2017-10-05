@@ -16,7 +16,7 @@ namespace FourierTransform
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ApproxForm());
+            Application.Run(new Lab2UI.Lab2Main());
         }
     }
 }

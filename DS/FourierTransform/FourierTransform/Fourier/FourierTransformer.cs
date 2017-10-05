@@ -51,7 +51,8 @@ namespace FourierTransform.Fourier
                 }
             }
             return X;
-        }
+        }
+
         public static Complex[] FFT(Complex[] x, bool inverse, bool useRecursion = false)
         {
             var fft = useRecursion? RFFT(x,inverse) : IFFT(x,inverse);
