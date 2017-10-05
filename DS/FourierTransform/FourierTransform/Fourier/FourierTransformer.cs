@@ -54,7 +54,7 @@ namespace FourierTransform.Fourier
         }
         public static Complex[] FFT(Complex[] x, bool inverse, bool useRecursion = false)
         {
-            var fft = useRecursion? RFFT(x) : IFFT(x);
+            var fft = useRecursion? RFFT(x,inverse) : IFFT(x,inverse);
             var result = fft.Select(c => c / (inverse ? 1 : fft.Length)).ToArray();
             return result;
         }
@@ -75,7 +75,7 @@ namespace FourierTransform.Fourier
             return b;
         }
 
-        public static Complex[] IFFT(Complex[] x)
+        public static Complex[] IFFT(Complex[] x, bool inverse)
         {
             int N = x.Length;
             Complex[] X = new Complex[N];
@@ -88,7 +88,7 @@ namespace FourierTransform.Fourier
 
             for (int m = 2; m <= N; m<<=1)
             {
-                Complex Wm = Complex.FromPolarCoordinates(1, -2 * PI / m);
+                Complex Wm = Complex.FromPolarCoordinates(1, -2 * PI / m * (inverse?1:-1));
                 for (int k = 0; k < N; k+=m)
                 {
                     Complex W = 1;
@@ -119,7 +119,7 @@ namespace FourierTransform.Fourier
             for (int z = 0; z < M; z++)
             {
                 Complex[] range = x.Where((c, i) => (i - z) % M == 0).ToArray();
-                var fourier = IFFT(range);
+                var fourier = IFFT(range, inverse);
                 for (int l = 0; l < L; l++)
                 {
                     fft[z + M * l] = fourier[l];
@@ -141,7 +141,7 @@ namespace FourierTransform.Fourier
             return X.Select(c=>c/(inverse?1:N)).ToArray();
         }
 
-        public static Complex[] RFFT(Complex[] x)
+        public static Complex[] RFFT(Complex[] x, bool inverse)
         {
             int N = x.Length;
             Complex[] C = new Complex[N];
@@ -155,12 +155,12 @@ namespace FourierTransform.Fourier
             F0 = x.Where((c, i) => i % 2 == 0).ToArray();
             F1 = x.Where((c, i) => i % 2 != 0).ToArray();
 
-            C1 = RFFT(F1);
-            C0 = RFFT(F0);
+            C1 = RFFT(F1, inverse);
+            C0 = RFFT(F0, inverse);
 
             for (k = 0; k < N / 2; k++)
             {
-                Complex W = Complex.FromPolarCoordinates(1, -2 * Math.PI * k / N);
+                Complex W = Complex.FromPolarCoordinates(1, -2 * Math.PI * k / N * (inverse?1:-1));
                 C[k] = C0[k] + C1[k]*W;
                 C[k + N / 2] = C0[k] - C1[k]*W;
             }

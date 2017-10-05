@@ -24,7 +24,7 @@ namespace FourierTransform
             _profiles.Add("reo", new SignalProfile(0, 50, 360, "сек", "мОм"));
             _profiles.Add("velo", new SignalProfile(512, 120, 360, "сек", "мВ"));
             
-            MakeVelo();
+            MakeReo();
         }
         private void MakeCardio()
         {
@@ -61,7 +61,7 @@ namespace FourierTransform
             var cs = sourceSignal.Select(p => new Complex(p.Y, 0)).ToArray();
             var transform = FourierTransformer.DFT(cs, false);
             double hc = _profiles["reo"].Frequency / sourceSignal.Count;
-            int targetIndex = (int)Math.Floor(60.0 / hc + 0.5);
+            int targetIndex = (int)Math.Floor(20.0 / hc + 0.5);
             for (int i = targetIndex; i < sourceSignal.Count - targetIndex ; i++)
             {
                 transform[i] = transform[i] = 0;

@@ -68,17 +68,24 @@ namespace FourierTransform
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var src = _transformedSource.Select(p => new Complex(p.Y, 0)).ToArray();
+            const int M = 8;
+
+            int p = (int)Math.Floor(Math.Log(1.0 * _transformedSource.Count / M, 2));
+            int availableCount = M * (int)Math.Pow(2, p);
+            var range = _transformedSource.GetRange(0, availableCount);
+            var signalCut = range.Select(pt => new Complex(pt.Y, 0)).ToArray();
+
+            //var src = _transformedSource.Select(p => new Complex(p.Y, 0)).ToArray();
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var transform = FourierTransformer.DFT(src,false);
+            var transform = FourierTransformer.DFT(signalCut,false);
             sw.Stop();
             TimeSpan timeSpan = sw.Elapsed;
 
             label1.Text = string.Format("Time: {0}m {1}s {2}ms",  timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             var dft = FourierTransformer.CalculateSpecs(transform);
 
-            sourceChart.DataSource = _transformedSource;
+            sourceChart.DataSource = range;
             sourceChart.DataBind();
 
             ampSpec.DataSource = dft.amplitudeSpec.GetRange(0, dft.amplitudeSpec.Count/2);
@@ -129,7 +136,7 @@ namespace FourierTransform
 
         private void button3_Click(object sender, EventArgs e)
         {
-            const int M = 1;
+            const int M = 8;
 
             int p = (int)Math.Floor(Math.Log(1.0*_transformedSource.Count/M, 2));
             int availableCount = M * (int)Math.Pow(2, p);

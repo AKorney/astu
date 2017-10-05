@@ -76,9 +76,9 @@ namespace FourierTransform
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var cs = _transformedSource.Select(p => new Complex(p.Y, 0));
-            var transform = FourierTransformer.DFT(cs.ToArray(), false);
-            var allHarms = FourierTransformer.DFT(transform, true);
+            var cs = _transformedSource.Select(p => new Complex(p.Y, 0)).ToList().GetRange(0,512).ToArray();
+            var transform = FourierTransformer.FFT(cs, false);
+            var allHarms = FourierTransformer.FFT(transform, true);
 
 
             chart2.DataSource = allHarms.Select((c, index) => new SignalPoint { X = 1.0 * index / 360, Y = c.Real }).ToList();
@@ -90,7 +90,7 @@ namespace FourierTransform
             {
                 transform[i] = transform[i] = 0;
             }
-            var resultHigh = FourierTransformer.DFT(transform, true);
+            var resultHigh = FourierTransformer.FFT(transform, true);
             chart3.DataSource = resultHigh.Select((c, index) => new SignalPoint { X = 1.0 * index / 360, Y = c.Real }).ToList(); ;
             chart3.Series[0].XValueMember = "X";
             chart3.Series[0].YValueMembers = "Y";
@@ -101,7 +101,7 @@ namespace FourierTransform
             {
                 transform[i] = transform[i] = 0;
             }
-            var resultLow = FourierTransformer.DFT(transform,true);
+            var resultLow = FourierTransformer.FFT(transform,true);
             chart4.DataSource = resultLow.Select((c, index) => new SignalPoint { X = 1.0 * index / 360, Y = c.Real }).ToList(); ;
             chart4.Series[0].XValueMember = "X";
             chart4.Series[0].YValueMembers = "Y";
