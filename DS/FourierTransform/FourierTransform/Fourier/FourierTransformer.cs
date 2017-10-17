@@ -24,7 +24,7 @@ namespace FourierTransform.Fourier
             double freqStep = 360.0 / fourier.Length;
             
 
-            for (int i = 0; i < fourier.Length; i++)
+            for (int i = 0; i < fourier.Length/2; i++)
             {
                 amplitude.Add(new SignalPoint { X = i * freqStep, Y = fourier[i].Magnitude});
                 phase.Add(new SignalPoint { X = i * freqStep, Y = fourier[i].Phase });
@@ -168,5 +168,37 @@ namespace FourierTransform.Fourier
             return C;
         }
 
+
+        public static Complex[] HFF(Complex[] source, double freq, double threshold)
+        {
+            Complex[] temp = new Complex[source.Length];
+            source.CopyTo(temp, 0);
+
+            double hc = freq / source.Length;
+            int targetIndex = (int)(threshold / hc);
+
+            for (int i = 0; i < targetIndex; i++)
+            {
+                temp[i] = temp[temp.Length - i - 1] = 0;
+            }
+
+            return FFT(temp, true);
+        }
+
+        public static Complex[] LFF(Complex[] source, double freq, double threshold)
+        {
+            Complex[] temp = new Complex[source.Length];
+            source.CopyTo(temp, 0);
+
+            double hc = freq / source.Length;
+            int targetIndex = (int)(threshold / hc);
+
+            for (int i = targetIndex; i < source.Length-targetIndex; i++)
+            {
+                temp[i] = temp[temp.Length - i - 1] = 0;
+            }
+
+            return FFT(temp, true);
+        }
     }
 }

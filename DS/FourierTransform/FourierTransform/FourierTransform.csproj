@@ -55,10 +55,17 @@
       <DependentUpon>ApproxForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Fourier\FourierTransformer.cs" />
-    <Compile Include="Lab2UI\Lab2Main.cs">
+    <Compile Include="Lab2\Filter.cs" />
+    <Compile Include="Lab2\FiltersForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Lab2UI\Lab2Main.Designer.cs">
+    <Compile Include="Lab2\FiltersForm.Designer.cs">
+      <DependentUpon>FiltersForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Lab2\Lab2Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Lab2\Lab2Main.Designer.cs">
       <DependentUpon>Lab2Main.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
@@ -79,7 +86,10 @@
     <EmbeddedResource Include="ApproxForm.resx">
       <DependentUpon>ApproxForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Lab2UI\Lab2Main.resx">
+    <EmbeddedResource Include="Lab2\FiltersForm.resx">
+      <DependentUpon>FiltersForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab2\Lab2Main.resx">
       <DependentUpon>Lab2Main.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
