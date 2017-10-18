@@ -15,7 +15,8 @@ namespace Lab3
 {
     public partial class Form1 : Form
     {
-        private const int F = 5*360;
+        private const int M = 8;
+        private const int F = M*360;
         private const double step = 2 * PI / F;
         public Form1()
         {
@@ -119,7 +120,7 @@ namespace Lab3
             var afcval = result.Select(p => new Tuple<double, double>(p.Item1, p.Item2.Magnitude));
             var ffcval = result.Select(p => new Tuple<double, double>(p.Item1, p.Item2.Phase + (p.Item2.Phase >0? -PI:0)));
 
-            return (afcval.ToList(), ffcval.ToList());
+            return (afcval.ToList(), Unwrap(ffcval.ToList()));
         }
 
 
@@ -133,11 +134,25 @@ namespace Lab3
             var afcval = result.Select(p => new Tuple<double, double>(p.Item1, p.Item2.Magnitude));
             var ffcval = result.Select(p => new Tuple<double, double>(p.Item1, p.Item2.Phase + (p.Item2.Phase > 0 ? -PI : 0)));
 
-            return (afcval.ToList(), ffcval.ToList());
+            return (afcval.ToList(), Unwrap(ffcval.ToList()));
         }
             
-        private const double epsilon = 1e-1;
+        private const double epsilon = 0.3/M;
        
+        private List<Tuple<double,double>> Unwrap(List<Tuple<double, double>> source)
+        {
+            double correction = 0;
+            List<Tuple<double, double>> result = new List<Tuple<double, double>>();
+            result.Add(new Tuple<double, double>(source[0].Item1, source[0].Item2));
+            for (int i = 1; i < source.Count; i++)
+            {
+                double diff = Abs(source[i].Item2 - source[i - 1].Item2);
+                if (diff + epsilon >= PI*0.95) correction += PI;
+                result.Add(new Tuple<double, double>(source[i].Item1, source[i].Item2-correction));
+            }
+            return result;
+        }
+
         private Complex Cheb1H(Complex s, int n, double e)
         {
             double arsh(double x) => Log(x + Sqrt(x * x + 1));
