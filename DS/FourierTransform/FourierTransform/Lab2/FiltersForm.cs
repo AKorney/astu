@@ -170,8 +170,7 @@ namespace FourierTransform.Lab2UI
             int N = Convert.ToInt32(textBox2.Text);
             var result = Filter.ApplyCheb(signal.Select(p => p.Y).ToArray(), normFC, 4);
 
-            SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\"
-                + string.Format("cheb-{0}.wav", rawFc),
+            SaveWav($"cheb-{rawFc}.wav",
                 result.Select(d => (int)d).ToArray());
         }
     }
