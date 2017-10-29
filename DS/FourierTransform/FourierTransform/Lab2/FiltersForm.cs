@@ -87,8 +87,8 @@ namespace FourierTransform.Lab2UI
                     signal = ReadWav(ofd.FileName);
 
                     var testData = signal.Select(p => (int)p.Y).ToArray();
-                    /*
-                    SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\test.wav", testData);
+                    ///*
+                    //SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\test.wav", testData);
 
                     chart1.DataSource = signal;
                     chart1.Series[0].XValueMember = "X";
@@ -166,12 +166,18 @@ namespace FourierTransform.Lab2UI
         private void button4_Click(object sender, EventArgs e)
         {
             double rawFc = Convert.ToDouble(textBox1.Text);
+            int N = Convert.ToInt32(textBox3.Text);
             double normFC = rawFc / (wav.Frequency / 2);
-            int N = Convert.ToInt32(textBox2.Text);
-            var result = Filter.ApplyCheb(signal.Select(p => p.Y).ToArray(), normFC, 4);
+            
+            var result = Filter.ApplyCheb(signal.Select(p => p.Y).ToArray(), normFC, N, FilterType.High);
 
-            SaveWav($"cheb-{rawFc}.wav",
+            SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\" + $"cheb-{rawFc}.wav",
                 result.Select(d => (int)d).ToArray());
+            var newSignal = result.Select((d, i) => new SignalPoint { X = i / wav.Frequency, Y = d });
+            chart2.DataSource = newSignal;
+            chart2.Series[0].XValueMember = "X";
+            chart2.Series[0].YValueMembers = "Y";
+            chart2.DataBind();
         }
     }
 }

@@ -41,8 +41,12 @@ namespace Lab3
         {
             var cheb1_5 = CalculateCheb1Directly(5, 0.5);
             var cheb1_8 = CalculateCheb1Directly(8, 0.5);
+            var cheb1_52 = CalculateCheb1Directly(5, 0.2);
+            var cheb1_82 = CalculateCheb1Directly(8, 0.2);
             ChartForm chart = new ChartForm(cheb1_5, "w", "", "Chebyshev-1 (direct calculation)", "N=5, E=0.5");
             chart.AddSeriresData(cheb1_8, "N=8, E=0.5");
+            chart.AddSeriresData(cheb1_52, "N=5, E=0.2");
+            chart.AddSeriresData(cheb1_82, "N=8, E=0.2");
             chart.Show();
         }
 
@@ -50,8 +54,10 @@ namespace Lab3
         {
             var cheb2_5 = CalculateCheb2Directly(5, 0.1);
             var cheb2_8 = CalculateCheb2Directly(8, 0.1);
+            var cheb2_83 = CalculateCheb2Directly(8, 0.3);
             ChartForm chart = new ChartForm(cheb2_5, "w", "", "Chebyshev-2 (direct calculation)", "N=5, E=0.1");
             chart.AddSeriresData(cheb2_8, "N=8, E=0.1");
+            chart.AddSeriresData(cheb2_83, "N=8, E=0.3");
             chart.Show();
         }
         #region DIRECT CALCUALTION
@@ -197,14 +203,16 @@ namespace Lab3
         {
             var cheb_ch5 = CalculateCheb1(5, 0.5);
             var cheb_ch8 = CalculateCheb1(8, 0.5);
-            
+            var cheb_ch82 = CalculateCheb1(8, 0.2);
             ChartForm afcf = new ChartForm(cheb_ch5.afc, "w", "", "chebyshev h(s) based afc", "N=5 E=0.5");
             afcf.AddSeriresData(cheb_ch8.afc, "N=8 E=0.5");
+            afcf.AddSeriresData(cheb_ch82.afc, "N=8 E=0.2");
             afcf.Show();
 
 
             ChartForm ffcf = new ChartForm(cheb_ch5.ffc, "w", "", "chebyshev h(s) based ffc", "N=5 E=0.5");
             ffcf.AddSeriresData(cheb_ch8.ffc, "N=8 E=0.5");
+            ffcf.AddSeriresData(cheb_ch82.ffc, "N=8 E=0.2");
             ffcf.Show();
         }
     }

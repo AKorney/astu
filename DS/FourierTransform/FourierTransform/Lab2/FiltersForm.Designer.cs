@@ -57,6 +57,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.chart5 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button4 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.chart3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
@@ -268,19 +269,28 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(958, 268);
+            this.button4.Location = new System.Drawing.Point(1017, 267);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(213, 23);
+            this.button4.Size = new System.Drawing.Size(163, 23);
             this.button4.TabIndex = 14;
-            this.button4.Text = "Try IIR (8)";
+            this.button4.Text = "Try IIR ";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(952, 269);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(59, 20);
+            this.textBox3.TabIndex = 15;
+            this.textBox3.Text = "8";
             // 
             // FiltersForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1192, 651);
+            this.Controls.Add(this.textBox3);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.chart5);
             this.Controls.Add(this.label2);
@@ -330,5 +340,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart5;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.TextBox textBox3;
     }
 }
