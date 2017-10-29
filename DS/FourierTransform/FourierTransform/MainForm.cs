@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using FourierTransform.Fourier;
 using System.Numerics;
 using System.Diagnostics;
+using static System.Math;
+using SignalProcessing;
 
 namespace FourierTransform
 {
@@ -168,6 +170,213 @@ namespace FourierTransform
             phaseSpec.ChartAreas[0].AxisX.Title = "Гц";
             phaseSpec.DataBind();
         }
+
+        private static int FindMaxPower(int N)=> (int)Math.Floor(Math.Log(1.0 * N, 2));
+        private void button5_Click(object sender, EventArgs e)
+        {
+            var test = BuildWalshMatrix(8);
+            int p = FindMaxPower(_transformedSource.Count);
+            var range = _transformedSource.GetRange(0, (int)Math.Pow(2, p));
+            var signalCut = range.Select(pt => pt.Y).ToArray();
+
+            var direct = WalshTransform(signalCut);
+            
+
+            //var directSignal = direct.Select((d, i) => new Tuple<double,double>(i / 360.0, d));
+            ShowWalshAfc(direct);
+
+            var directClone = new double[direct.Length];
+
+            direct.CopyTo(directClone, 0);
+            if(numericUpDown1.Value>0)
+            {
+                int harm = (int)numericUpDown1.Value;
+                for (int i  = harm*2+1; i<directClone.Length; i++)
+                {
+                    directClone[i] = 0;
+                }
+            }
+            var invertLow = WalshTransform(directClone, true);
+            var invertSignalLow = invertLow.Select((d, i) => new Tuple<double, double>(i / 360.0, d));
+            SignalProcessing.ChartForm chartLow = new SignalProcessing.ChartForm(invertSignalLow.ToArray(),
+                "sec", "", "Invert Walsh transform (low)", "Signal");
+            chartLow.Show();
+
+            direct.CopyTo(directClone, 0);
+            if (numericUpDown1.Value > 0)
+            {
+                int harm = (int)numericUpDown1.Value;
+                for (int i = 0; i < harm * 2 + 1; i++)
+                {
+                    directClone[i] = 0;
+                }
+            }
+            var invertHigh = WalshTransform(directClone, true);
+            var invertSignalHigh = invertHigh.Select((d, i) => new Tuple<double, double>(i / 360.0, d));
+            SignalProcessing.ChartForm chartHigh = new SignalProcessing.ChartForm(invertSignalHigh.ToArray(),
+                "sec", "", "Invert Walsh transform (high)", "Signal");
+            chartHigh.Show();
+        }
+
+        private void ShowWalshAfc(double[] transform)
+        {
+            int N = transform.Length / 2;
+            double[] afc = new double[N];
+            double[] ffc = new double[N];
+            //AFC
+            afc[0] = transform[0];
+            afc[N-1] = Abs(transform[2*N-1]);
+            for (int i = 1; i < N-1; i++)
+            {
+                afc[i] = Sqrt(transform[2 * i - 1] * transform[2 * i - 1] + transform[2 * i] * transform[2 * i]);
+            }
+            var AFC = afc.Select((d, i) => new SignalPoint { X = i , Y = d }).ToList();
+            ampSpec.DataSource = AFC;
+            ampSpec.Series[0].XValueMember = "X";
+            ampSpec.Series[0].YValueMembers = "Y";
+            ampSpec.ChartAreas[0].AxisX.Title = "Гц";
+            ampSpec.DataBind();
+
+            ffc[0] = 0;
+            ffc[N - 1] = PI / 2;
+            for (int i = 1; i < N - 1; i++)
+            {
+                ffc[i] = Atan2(transform[2 * i - 1],transform[2 * i]);
+            }
+            var FFC = ffc.Select((d, i) => new SignalPoint { X = i , Y = d }).ToList();
+            phaseSpec.DataSource = FFC;
+            phaseSpec.Series[0].XValueMember = "X";
+            phaseSpec.Series[0].YValueMembers = "Y";
+            phaseSpec.ChartAreas[0].AxisX.Title = "Гц";
+            phaseSpec.DataBind();
+        }
+
+        private static double[] WalshTransform(double[] source, bool invert = false)
+        {
+            int N = source.Length;
+            var W = BuildWalshMatrix(N);
+            double[] transform = new double[N];
+            for (int k = 0; k < N; k++)
+            {
+                transform[k] = 0;
+                for (int i = 0; i < N; i++)
+                {
+                    transform[k] += W[k][i] * source[i];
+                }
+                if (!invert) transform[k] /= N;
+            }
+            return transform;
+        }
+
+        private static int[][] BuildWalshMatrix(int N)
+        {
+            int n = FindMaxPower(N) + 1;
+            int[][] result = new int[N][];
+            int[] R = new int[n];
+            for (int u = 0; u < N; u++)
+            {
+                result[u] = new int[N];
+                int ut = u;
+                int sr = 1;// << (n - 1);
+                R[0] = (ut & sr) != 0 ? 1 : 0;
+                for (int i = 1; i < n; i++)
+                {
+                    R[i] = (ut & sr) != 0 ? 1 : 0;
+                    sr <<= 1;
+                    R[i] += (ut & sr) != 0 ? 1 : 0;
+                }
+                for (int v = 0; v < N; v++)
+                {
+                    int vt = v;
+                    int sum = 0;
+                    for (int i = n - 1; i >= 0; i--)
+                    {
+                        sum += R[i] * (vt & 1);
+                        vt >>= 1;
+                    }
+                    result[u][v] = (sum % 2) == 0 ? 1 : -1;
+                }
+            }
+            return result;
+
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            var test = BuildHadamardMatrixRecursive(8);
+            int p = FindMaxPower(_transformedSource.Count);
+            var range = _transformedSource.GetRange(0, (int)Math.Pow(2, p));
+            var signalCut = range.Select(pt => pt.Y).ToArray();
+
+            var direct = HadamardTransform(signalCut);
+
+
+            //var directSignal = direct.Select((d, i) => new Tuple<double,double>(i / 360.0, d));
+            ShowWalshAfc(direct);
+
+            var directClone = new double[direct.Length];
+
+            direct.CopyTo(directClone, 0);
+            if (numericUpDown1.Value > 0)
+            {
+                int harm = (int)numericUpDown1.Value;
+                for (int i = harm * 2 + 1; i < directClone.Length; i++)
+                {
+                    directClone[i] = 0;
+                }
+            }
+            var invertLow = HadamardTransform(directClone, true);
+            var invertSignalLow = invertLow.Select((d, i) => new Tuple<double, double>(i / 360.0, d));
+            SignalProcessing.ChartForm chartLow = new SignalProcessing.ChartForm(invertSignalLow.ToArray(),
+                "sec", "", "Invert Hadamard transform (low)", "Signal");
+            chartLow.Show();
+
+            direct.CopyTo(directClone, 0);
+            if (numericUpDown1.Value > 0)
+            {
+                int harm = (int)numericUpDown1.Value;
+                for (int i = 0; i < harm * 2 + 1; i++)
+                {
+                    directClone[i] = 0;
+                }
+            }
+            var invertHigh = HadamardTransform(directClone, true);
+            var invertSignalHigh = invertHigh.Select((d, i) => new Tuple<double, double>(i / 360.0, d));
+            SignalProcessing.ChartForm chartHigh = new SignalProcessing.ChartForm(invertSignalHigh.ToArray(),
+                "sec", "", "Invert Hadamard transform (high)", "Signal");
+            chartHigh.Show();
+        }
+
+        private double[] HadamardTransform(double[] source, bool invert = false)
+        {
+            int N = source.Length;
+            var W = BuildHadamardMatrixRecursive(N);
+            double[] transform = new double[N];
+            for (int k = 0; k < N; k++)
+            {
+                transform[k] = 0;
+                for (int i = 0; i < N; i++)
+                {
+                    transform[k] += W[k][i] * source[i];
+                }
+                if (!invert) transform[k] /= N;
+            }
+            return transform;
+        }
+
+        private int[][] BuildHadamardMatrixRecursive(int n)
+        {
+            if (n == 1)
+            {
+                return new int[][]
+                {
+                        new int[]{ 1 }
+                };
+            }
+            var submatrix = BuildHadamardMatrixRecursive(n >> 1);
+            return MatrixOperationsHelper.CombineSubmatrix(submatrix, submatrix, submatrix, submatrix.NegateValues());
+        }
+
     }
 }
 

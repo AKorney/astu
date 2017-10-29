@@ -54,6 +54,12 @@
     <Compile Include="ApproxForm.Designer.cs">
       <DependentUpon>ApproxForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ChartForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChartForm.Designer.cs">
+      <DependentUpon>ChartForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Fourier\FourierTransformer.cs" />
     <Compile Include="Lab2\Filter.cs" />
     <Compile Include="Lab2\FiltersForm.cs">
@@ -68,12 +74,14 @@
     <Compile Include="Lab2\Lab2Main.Designer.cs">
       <DependentUpon>Lab2Main.cs</DependentUpon>
     </Compile>
+    <Compile Include="LinqExtensions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MatrixOperationsHelper.cs" />
     <Compile Include="NoizeReductionDemo.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,6 +93,9 @@
     <Compile Include="SignalRepresentation\SignalConverter.cs" />
     <EmbeddedResource Include="ApproxForm.resx">
       <DependentUpon>ApproxForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChartForm.resx">
+      <DependentUpon>ChartForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Lab2\FiltersForm.resx">
       <DependentUpon>FiltersForm.cs</DependentUpon>
