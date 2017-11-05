@@ -12,8 +12,8 @@ using Android.Widget;
 
 namespace AndroidPriceChecker
 {
-    [Activity(Label = "CatalogueActivity")]
-    public class CatalogueActivity : Activity
+    [Activity(Label = "ProductList")]
+    public class ProductList : Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {
