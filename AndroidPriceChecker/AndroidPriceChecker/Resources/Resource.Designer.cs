@@ -34,6 +34,18 @@ namespace AndroidPriceChecker
 		public partial class Attribute
 		{
 			
+			// aapt resource value: 0x7f010000
+			public const int layoutManager = 2130771968;
+			
+			// aapt resource value: 0x7f010002
+			public const int reverseLayout = 2130771970;
+			
+			// aapt resource value: 0x7f010001
+			public const int spanCount = 2130771969;
+			
+			// aapt resource value: 0x7f010003
+			public const int stackFromEnd = 2130771971;
+			
 			static Attribute()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
@@ -44,14 +56,42 @@ namespace AndroidPriceChecker
 			}
 		}
 		
+		public partial class Dimension
+		{
+			
+			// aapt resource value: 0x7f030000
+			public const int item_touch_helper_max_drag_scroll_per_frame = 2130903040;
+			
+			// aapt resource value: 0x7f030001
+			public const int item_touch_helper_swipe_escape_max_velocity = 2130903041;
+			
+			// aapt resource value: 0x7f030002
+			public const int item_touch_helper_swipe_escape_velocity = 2130903042;
+			
+			static Dimension()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Dimension()
+			{
+			}
+		}
+		
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f040001
-			public const int contentFrame = 2130968577;
+			// aapt resource value: 0x7f040003
+			public const int contentFrame = 2130968579;
 			
 			// aapt resource value: 0x7f040000
-			public const int scanButton = 2130968576;
+			public const int item_touch_helper_previous_elevation = 2130968576;
+			
+			// aapt resource value: 0x7f040002
+			public const int productListView = 2130968578;
+			
+			// aapt resource value: 0x7f040001
+			public const int scanButton = 2130968577;
 			
 			static Id()
 			{
@@ -70,13 +110,16 @@ namespace AndroidPriceChecker
 			public const int Main = 2130837504;
 			
 			// aapt resource value: 0x7f020001
-			public const int ProductList = 2130837505;
+			public const int ProductItem = 2130837505;
 			
 			// aapt resource value: 0x7f020002
-			public const int zxingscanneractivitylayout = 2130837506;
+			public const int ProductList = 2130837506;
 			
 			// aapt resource value: 0x7f020003
-			public const int zxingscannerfragmentlayout = 2130837507;
+			public const int zxingscanneractivitylayout = 2130837507;
+			
+			// aapt resource value: 0x7f020004
+			public const int zxingscannerfragmentlayout = 2130837508;
 			
 			static Layout()
 			{
@@ -91,8 +134,8 @@ namespace AndroidPriceChecker
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f030000
-			public const int app_name = 2130903040;
+			// aapt resource value: 0x7f050000
+			public const int app_name = 2131034112;
 			
 			static String()
 			{
@@ -100,6 +143,41 @@ namespace AndroidPriceChecker
 			}
 			
 			private String()
+			{
+			}
+		}
+		
+		public partial class Styleable
+		{
+			
+			public static int[] RecyclerView = new int[] {
+					16842948,
+					2130771968,
+					2130771969,
+					2130771970,
+					2130771971};
+			
+			// aapt resource value: 0
+			public const int RecyclerView_android_orientation = 0;
+			
+			// aapt resource value: 1
+			public const int RecyclerView_layoutManager = 1;
+			
+			// aapt resource value: 3
+			public const int RecyclerView_reverseLayout = 3;
+			
+			// aapt resource value: 2
+			public const int RecyclerView_spanCount = 2;
+			
+			// aapt resource value: 4
+			public const int RecyclerView_stackFromEnd = 4;
+			
+			static Styleable()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Styleable()
 			{
 			}
 		}

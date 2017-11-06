@@ -9,13 +9,22 @@ namespace AndroidPriceChecker
     [Activity(Label = "AndroidPriceChecker", MainLauncher = true)]
     public class MainActivity : Activity
     {
+        private ProductDB _db;
         MobileBarcodeScanner _barcodeScanner;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
 
-            var db = new ProductDB();
+            _db = new ProductDB();
+
+
+            Product p = new Product();
+            
+            p.BarCodeInfo = @"4601498006824";
+            p.ProductName = @"Rom";
+            p.Price = 4.5f;
+            _db.Insert(p);
             
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
@@ -42,7 +51,11 @@ namespace AndroidPriceChecker
             string msg = "";
 
             if (result != null && !string.IsNullOrEmpty(result.Text))
+            {
                 msg = "Found Barcode: " + result.Text;
+                var p = _db.FindByBarcode(result.Text);
+            }
+
             else
                 msg = "Scanning Canceled!";
 
