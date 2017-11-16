@@ -17,13 +17,13 @@ namespace AndroidPriceChecker
     {
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
-        [Unique, Indexed]
+        [Unique, NotNull]
         public string ProductName { get; set; }
 
         public string Description { get; set; }
 
         public float Price { get; set; }
-        [Unique, Indexed]
+        [Unique, NotNull]
         public string BarCodeInfo { get; set; }
     }
 }

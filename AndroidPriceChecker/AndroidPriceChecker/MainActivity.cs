@@ -3,30 +3,20 @@ using Android.Widget;
 using Android.OS;
 using ZXing;
 using ZXing.Mobile;
+using Android.Content;
 
 namespace AndroidPriceChecker
 {
     [Activity(Label = "AndroidPriceChecker", MainLauncher = true)]
     public class MainActivity : Activity
     {
-        private ProductDB _db;
+      
         MobileBarcodeScanner _barcodeScanner;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
-
-            _db = new ProductDB();
-
-
-            Product p = new Product();
-            
-            p.BarCodeInfo = @"4601498006824";
-            p.ProductName = @"Rom";
-            p.Price = 4.5f;
-            _db.Insert(p);
-            
-            // Set our view from the "main" layout resource
+            ProductDB.Init();
             SetContentView(Resource.Layout.Main);
             MobileBarcodeScanner.Initialize(Application);
             _barcodeScanner = new MobileBarcodeScanner();
@@ -45,6 +35,13 @@ namespace AndroidPriceChecker
 
                 HandleScanResult(result);
             };
+
+            Button listButton = FindViewById<Button>(Resource.Id.listButton);
+            listButton.Click += delegate
+            {
+                Intent intent = new Intent(this, typeof(ProductList));
+                StartActivity(intent);
+            };
         }
         void HandleScanResult(ZXing.Result result)
         {
@@ -53,7 +50,45 @@ namespace AndroidPriceChecker
             if (result != null && !string.IsNullOrEmpty(result.Text))
             {
                 msg = "Found Barcode: " + result.Text;
-                var p = _db.FindByBarcode(result.Text);
+                var product = ProductDB.FindByBarcode(result.Text);
+
+
+                if(product!=null)
+                {
+                    var view = LayoutInflater.Inflate(Resource.Layout.productCard, null);
+
+                    var name = view.FindViewById<EditText>(Resource.Id.nameInputCard);
+                    var desc = view.FindViewById<EditText>(Resource.Id.descriptionInputCard);
+                    var price = view.FindViewById<EditText>(Resource.Id.priceInputCard);
+                    var code = view.FindViewById<EditText>(Resource.Id.codeInputCard);
+
+                    name.Text = product.ProductName;
+                    desc.Text = product.Description;
+                    price.Text = product.Price.ToString();
+                    code.Text = product.BarCodeInfo;
+                    code.Enabled = price.Enabled = desc.Enabled = name.Enabled = false;
+
+                    var dialog = new AlertDialog.Builder(this)
+                        .SetView(view)
+                        .SetTitle("Search result:")
+                        .Create();
+                        dialog.SetButton("OK", (s,e) => { dialog.Dismiss(); });
+                    dialog.Show();
+                }
+                else
+                {
+                    new AlertDialog.Builder(this)
+                        .SetView(new TextView(this) { Text = "Sorry, nothing to show! Run web search?" })
+                        .SetTitle("SearchResult")
+                        .SetPositiveButton("OK", (s, e) =>
+                        {
+                            var intent = new Intent(Intent.ActionWebSearch);
+                            intent.PutExtra(SearchManager.Query, result.Text);
+                            StartActivity(intent);
+                        })
+                        .SetNegativeButton("Cancel", (s, e) => { })
+                        .Show();
+                }
             }
 
             else

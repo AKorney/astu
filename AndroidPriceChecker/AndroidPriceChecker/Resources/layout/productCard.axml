@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="4dp">
+    <TextView
+        android:id="@+id/nameCaptionCard"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Name: "
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteX="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp" />
+    <TextView
+        android:id="@+id/descriptionCaptionCard"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Description: "
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteX="0dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/nameCaptionCard" />
+    <TextView
+        android:id="@+id/priceCaptionCard"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Price: "
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteX="0dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionCaptionCard" />
+    <TextView
+        android:id="@+id/codeCaptionCard"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Barcode: "
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteX="0dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/priceCaptionCard" />
+    <EditText
+        android:id="@+id/nameInputCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        app:layout_constraintBaseline_toBaselineOf="@+id/nameCaptionCard"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/nameCaptionCard"
+        tools:layout_editor_absoluteX="129dp"
+        tools:layout_editor_absoluteY="16dp" />
+    <EditText
+        android:id="@+id/descriptionInputCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        app:layout_constraintBaseline_toBaselineOf="@+id/descriptionCaptionCard"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/descriptionCaptionCard"
+        tools:layout_editor_absoluteY="68dp"
+        tools:layout_editor_absoluteX="129dp" />
+    <EditText
+        android:id="@+id/codeInputCard"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/codeCaptionCard"
+        app:layout_constraintEnd_toStartOf="@+id/scanCodeImgBtn"
+        app:layout_constraintStart_toEndOf="@+id/codeCaptionCard"
+        tools:layout_editor_absoluteY="183dp"
+        tools:layout_editor_absoluteX="129dp" />
+    <EditText
+        android:id="@+id/priceInputCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBaseline_toBaselineOf="@+id/priceCaptionCard"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/priceCaptionCard"
+        tools:layout_editor_absoluteX="129dp"
+        tools:layout_editor_absoluteY="126dp" />
+    <ImageButton
+        android:id="@+id/scanCodeImgBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/barcode_scan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/codeInputCard"
+        tools:layout_editor_absoluteY="178dp"
+        tools:layout_editor_absoluteX="297dp" />
+<!--<Button
+      android:id="@+id/button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Save"
+      tools:layout_editor_absoluteX="148dp"
+      tools:layout_editor_absoluteY="429dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent" 
+        />-->
+</android.support.constraint.ConstraintLayout>

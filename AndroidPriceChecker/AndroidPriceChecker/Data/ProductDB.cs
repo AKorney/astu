@@ -16,34 +16,39 @@ using System.IO;
 
 namespace AndroidPriceChecker
 {
-    public class ProductDB
+    public static class ProductDB
     {
         private static string _folderPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
         private static string DB_FILENAME = "products.db";
         private static string _dbPath = Path.Combine(_folderPath, DB_FILENAME);
-        public ProductDB()
+        public static void Init()
         {
             try
             {
                 using (var db = new SQLiteConnection(_dbPath))
                 {
+                    db.CreateTable<Product>();
 
-                    const string cmdText = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
-                    var cmd = db.CreateCommand(cmdText, typeof(Product).Name);
-                    if (cmd.ExecuteScalar<string>() == null)
+                    if (db.Table<Product>().Count() == 0)
                     {
-                        db.CreateTable<Product>();
+                        Product p = new Product
+                        {
+                            BarCodeInfo = @"4601498006824",
+                            ProductName = @"Rom",
+                            Price = 4.5f
+                        };
+                        Insert(p);
                     }
                 }
             }
             catch (SQLiteException e)
             {
-                Log.Info("DB_CRASH",e.StackTrace);
+                Log.Info("DB_CRASH",e.Message);
                 throw e;
             }            
         }
 
-        public void Insert(Product p)
+        public static void Insert(Product p)
         {
             try
             {
@@ -59,7 +64,7 @@ namespace AndroidPriceChecker
             }
         }
 
-        public List<Product> Select()
+        public static List<Product> Select()
         {
             try
             {
@@ -75,7 +80,7 @@ namespace AndroidPriceChecker
             }
         }
 
-        public void Update(Product p)
+        public static void Update(Product p)
         {
             try
             {
@@ -93,7 +98,7 @@ namespace AndroidPriceChecker
         }
 
 
-        public void Delete(Product p)
+        public static void Delete(Product p)
         {
             try
             {
@@ -109,8 +114,18 @@ namespace AndroidPriceChecker
             }
         }
 
+        public static Product GetByID(int id)
+        {
+            using (var db = new SQLiteConnection(_dbPath))
+            {
+                var prod = from p in db.Table<Product>()
+                           where p.ID.Equals(id)
+                           select p;
+                return prod.FirstOrDefault();
+            }
+        }
 
-        public Product FindByBarcode(string barcodeInfo)
+        public static Product FindByBarcode(string barcodeInfo)
         {
             using (var db = new SQLiteConnection(_dbPath))
             {
