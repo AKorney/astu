@@ -209,6 +209,7 @@ namespace FourierTransform
                 for (int i = 0; i < harm * 2 + 1; i++)
                 {
                     directClone[i] = 0;
+                    directClone[directClone.Length - i-1] = 0;
                 }
             }
             var invertHigh = WalshTransform(directClone, true);
@@ -338,6 +339,7 @@ namespace FourierTransform
                 for (int i = 0; i < harm * 2 + 1; i++)
                 {
                     directClone[i] = 0;
+                    directClone[directClone.Length - i - 1] = 0;
                 }
             }
             var invertHigh = HadamardTransform(directClone, true);
