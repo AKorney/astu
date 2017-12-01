@@ -1,5 +1,6 @@
 ﻿using FourierTransform.Fourier;
 using FourierTransform.SignalRepresentation;
+using SignalProcessing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -154,7 +155,7 @@ namespace FourierTransform.Lab2UI
                     chart1.DataBind();
 
                     
-
+                    /*
                     int pow = (int)Math.Floor(Math.Log(signal.Count, 2));
                     sourceSignal = signal.Select(s => new Complex(s.Y, 0)).ToList().GetRange(0,(int) Math.Pow(2,pow)).ToArray();
                     fft = FourierTransformer.FFT(sourceSignal, false);
@@ -169,6 +170,7 @@ namespace FourierTransform.Lab2UI
                     chart3.Series[0].XValueMember = "X";
                     chart3.Series[0].YValueMembers = "Y";
                     chart3.DataBind();
+                    //*/
                 }
             }
         }
@@ -195,6 +197,69 @@ namespace FourierTransform.Lab2UI
             chart5.Series[0].XValueMember = "X";
             chart5.Series[0].YValueMembers = "Y";
             chart5.DataBind();
+        }
+  
+        private Wavelets.WaveletTransformer _waveletWorker = new Wavelets.WaveletTransformer();
+        private void button9_Click(object sender, EventArgs e)
+        {
+            int order = (int)numericUpDown3.Value;
+            if (radioButton1.Checked)
+            {
+                var invert = _waveletWorker.LowPassFilterHaar(signal                    
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(signal[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Haar's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\"
+                    +"haar_lp_order_"+order.ToString()+".wav"
+                   , invert.Select(d=>(int)d).ToArray());
+                return;
+            }
+            if (radioButton2.Checked)
+            {
+                var invert = _waveletWorker.HighPassFilterHaar(signal                    
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(signal[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Haar's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\"
+                   + "haar_hp_order_" + order.ToString() + ".wav"
+                  , invert.Select(d => (int)d).ToArray());
+                return;
+            }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            int order = (int)numericUpDown3.Value;
+            if (radioButton1.Checked)
+            {
+                var invert = _waveletWorker.LowPassFilterDaubechies(signal
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(signal[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Daubechies's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\"
+                   + "daub_lp_order_" + order.ToString() + ".wav"
+                  , invert.Select(d => (int)d).ToArray());
+                return;
+            }
+            if (radioButton2.Checked)
+            {
+                var invert = _waveletWorker.HighPassFilterDaubechies(signal
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(signal[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Daubechies's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                SaveWav(@"D:\stud_repo\astu\DS\FourierTransform\FourierTransform\wav\"
+                   + "daub_hp_order_" + order.ToString() + ".wav"
+                  , invert.Select(d => (int)d).ToArray());
+                return;
+            }
         }
     }
 }
