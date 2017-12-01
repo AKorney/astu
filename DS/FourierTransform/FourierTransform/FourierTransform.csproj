@@ -91,6 +91,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SignalRepresentation\SignalConverter.cs" />
+    <Compile Include="Wavelets\WaveletTransformer.cs" />
     <EmbeddedResource Include="ApproxForm.resx">
       <DependentUpon>ApproxForm.cs</DependentUpon>
     </EmbeddedResource>

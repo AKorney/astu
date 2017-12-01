@@ -48,10 +48,23 @@
             this.button5 = new System.Windows.Forms.Button();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.button6 = new System.Windows.Forms.Button();
+            this.button7 = new System.Windows.Forms.Button();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.button8 = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
+            this.button9 = new System.Windows.Forms.Button();
+            this.button10 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.sourceChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ampSpec)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.phaseSpec)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             this.SuspendLayout();
             // 
             // sourceChart
@@ -67,7 +80,7 @@
             series10.Legend = "Legend1";
             series10.Name = "SourceSignal";
             this.sourceChart.Series.Add(series10);
-            this.sourceChart.Size = new System.Drawing.Size(1053, 300);
+            this.sourceChart.Size = new System.Drawing.Size(1053, 340);
             this.sourceChart.TabIndex = 0;
             this.sourceChart.Text = "chart1";
             // 
@@ -87,14 +100,14 @@
             this.ampSpec.ChartAreas.Add(chartArea11);
             legend11.Name = "Legend1";
             this.ampSpec.Legends.Add(legend11);
-            this.ampSpec.Location = new System.Drawing.Point(12, 318);
+            this.ampSpec.Location = new System.Drawing.Point(12, 358);
             this.ampSpec.Name = "ampSpec";
             series11.ChartArea = "ChartArea1";
             series11.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series11.Legend = "Legend1";
             series11.Name = "Amp";
             this.ampSpec.Series.Add(series11);
-            this.ampSpec.Size = new System.Drawing.Size(623, 300);
+            this.ampSpec.Size = new System.Drawing.Size(519, 260);
             this.ampSpec.TabIndex = 2;
             this.ampSpec.Text = "chart1";
             // 
@@ -104,14 +117,14 @@
             this.phaseSpec.ChartAreas.Add(chartArea12);
             legend12.Name = "Legend1";
             this.phaseSpec.Legends.Add(legend12);
-            this.phaseSpec.Location = new System.Drawing.Point(641, 318);
+            this.phaseSpec.Location = new System.Drawing.Point(537, 358);
             this.phaseSpec.Name = "phaseSpec";
             series12.ChartArea = "ChartArea1";
             series12.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series12.Legend = "Legend1";
             series12.Name = "Phase";
             this.phaseSpec.Series.Add(series12);
-            this.phaseSpec.Size = new System.Drawing.Size(591, 300);
+            this.phaseSpec.Size = new System.Drawing.Size(528, 260);
             this.phaseSpec.TabIndex = 2;
             this.phaseSpec.Text = "chart1";
             // 
@@ -156,7 +169,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(1071, 237);
+            this.button5.Location = new System.Drawing.Point(1071, 175);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(161, 23);
             this.button5.TabIndex = 7;
@@ -166,14 +179,14 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(1072, 211);
+            this.numericUpDown1.Location = new System.Drawing.Point(1071, 149);
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(160, 20);
             this.numericUpDown1.TabIndex = 8;
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(1071, 267);
+            this.button6.Location = new System.Drawing.Point(1071, 205);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(161, 23);
             this.button6.TabIndex = 9;
@@ -181,12 +194,116 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(1074, 264);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(158, 23);
+            this.button7.TabIndex = 10;
+            this.button7.Text = "Haar";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Location = new System.Drawing.Point(1074, 238);
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(160, 20);
+            this.numericUpDown2.TabIndex = 8;
+            // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(1074, 293);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(158, 23);
+            this.button8.TabIndex = 10;
+            this.button8.Text = "Daubechie";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.button10);
+            this.groupBox1.Controls.Add(this.button9);
+            this.groupBox1.Controls.Add(this.radioButton2);
+            this.groupBox1.Controls.Add(this.radioButton1);
+            this.groupBox1.Controls.Add(this.numericUpDown3);
+            this.groupBox1.Location = new System.Drawing.Point(1074, 322);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(160, 124);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Filter";
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(6, 20);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(45, 17);
+            this.radioButton1.TabIndex = 0;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "Low";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(95, 20);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(47, 17);
+            this.radioButton2.TabIndex = 0;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "High";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            // 
+            // numericUpDown3
+            // 
+            this.numericUpDown3.Location = new System.Drawing.Point(77, 43);
+            this.numericUpDown3.Name = "numericUpDown3";
+            this.numericUpDown3.Size = new System.Drawing.Size(81, 20);
+            this.numericUpDown3.TabIndex = 8;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 45);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(33, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Order";
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(-1, 66);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(158, 23);
+            this.button9.TabIndex = 10;
+            this.button9.Text = "Haar";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(-1, 95);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(158, 23);
+            this.button10.TabIndex = 10;
+            this.button10.Text = "Daubechie";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1244, 624);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.button8);
+            this.Controls.Add(this.button7);
             this.Controls.Add(this.button6);
+            this.Controls.Add(this.numericUpDown2);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label1);
@@ -203,6 +320,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.ampSpec)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.phaseSpec)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -221,6 +342,16 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.NumericUpDown numericUpDown3;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Button button9;
     }
 }
 

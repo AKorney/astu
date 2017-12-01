@@ -378,7 +378,94 @@ namespace FourierTransform
             var submatrix = BuildHadamardMatrixRecursive(n >> 1);
             return MatrixOperationsHelper.CombineSubmatrix(submatrix, submatrix, submatrix, submatrix.NegateValues());
         }
+        private Wavelets.WaveletTransformer _waveletWorker = new Wavelets.WaveletTransformer();
+        private void button7_Click(object sender, EventArgs e)
+        {
+            int scale = (int)numericUpDown2.Value;
+            var direct = _waveletWorker.ForwardHaar(_transformedSource
+                .Take(1 << FindMaxPower(_transformedSource.Count))
+                .Select(p => p.Y).ToArray(), scale);
+            var directData = direct.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+            ChartForm directChart = new ChartForm(directData,"","", "Haar's transform (forward)", "scale: "+scale.ToString());
+            directChart.Show();
 
+                       
+            var invert = _waveletWorker.InverseHaar(direct, scale);
+            var invertData = invert.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+            ChartForm invertChart = new ChartForm(invertData, "", "", "Haar's transform (invert)", "scale: " + scale.ToString());
+            invertChart.Show();
+
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            int scale = (int)numericUpDown2.Value;
+            var direct = _waveletWorker.ForwardDaubechies(_transformedSource
+                .Take(1 << FindMaxPower(_transformedSource.Count))
+                .Select(p => p.Y).ToArray(), scale);
+            var directData = direct.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+            ChartForm directChart = new ChartForm(directData, "", "", "Daubechies's transform (forward)", "scale: " + scale.ToString());
+            directChart.Show();
+
+            var invert = _waveletWorker.InverseDaubechies(direct, scale);
+            var invertData = invert.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+            ChartForm invertChart = new ChartForm(invertData, "", "", "Daubechies's transform (invert)", "scale: " + scale.ToString());
+            invertChart.Show();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            int order = (int)numericUpDown3.Value;
+            if(radioButton1.Checked)
+            {
+                var invert = _waveletWorker.LowPassFilterHaar(_transformedSource
+                    .Take(1 << FindMaxPower(_transformedSource.Count))
+                    .Select(p=>p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Haar's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                return;
+            }
+            if (radioButton2.Checked)
+            {
+                var invert = _waveletWorker.HighPassFilterHaar(_transformedSource
+                    .Take(1 << FindMaxPower(_transformedSource.Count))
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Haar's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                return;
+            }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            int order = (int)numericUpDown3.Value;
+            if (radioButton1.Checked)
+            {
+                var invert = _waveletWorker.LowPassFilterDaubechies(_transformedSource
+                    .Take(1 << FindMaxPower(_transformedSource.Count))
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Daubechies's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                return;
+            }
+            if (radioButton2.Checked)
+            {
+                var invert = _waveletWorker.HighPassFilterDaubechies(_transformedSource
+                    .Take(1 << FindMaxPower(_transformedSource.Count))
+                    .Select(p => p.Y)
+                    .ToArray(), order);
+                var invertData = invert.Select((d, i) => new Tuple<double, double>(_transformedSource[i].X, d));
+                ChartForm invertChart = new ChartForm(invertData, "", "", "Daubechies's transform (invert)", "order: " + order.ToString());
+                invertChart.Show();
+                return;
+            }
+        }
     }
 }
 
